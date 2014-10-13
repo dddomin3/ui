@@ -10,9 +10,9 @@ angular.module('myApp.heatmap', ['ngRoute'])
 }])
  
 .controller('heatmapCtrl', ['$scope', function($scope) {
-	$scope.config = {
-		"domain":"year",
-		"range":1,
-		"cellSize":15
-	};
+	$scope.onClick = function(date, value){
+		console.log(date);
+		console.log(value);
+	}
+
 }]);
