@@ -9,10 +9,13 @@ angular.module('myApp.heatmap', ['ngRoute'])
   });
 }])
  
-.controller('heatmapCtrl', ['$scope', function($scope) {
+.controller('heatmapCtrl', ['$scope', '$window', function($scope, $window) {
 	$scope.onClick = function(date, value){
-		console.log(date);
+		console.log(date.getTime());
 		console.log(value);
+		
+		$window.location.href = '/app/#/zoomHeatmap?time='+date.getTime();
+		$window.location.reload();
 	}
 
 }]);

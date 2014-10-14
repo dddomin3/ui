@@ -4,6 +4,7 @@
 angular.module('myApp', [
   'ngRoute',
   'myApp.heatmap',
+  'myApp.zoomHeatmap',
   'calHeatmap'
 ]).
 config(['$routeProvider', function($routeProvider) {
