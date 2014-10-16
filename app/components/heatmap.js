@@ -9,14 +9,33 @@ angular.module('myApp.heatmap', ['ngRoute'])
   });
 }])
  
-.controller('heatmapCtrl', ['$scope', '$window', function($scope, $window) {
+.controller('heatmapCtrl', ['$scope', '$location', '$route', 'zoomHeatmapService', function($scope, $location, $route, zoomHeatmapService) {
+
+	
+	//for testing multiple controllers inheriting the same service singleton
+	$scope.change = function(){
+		var max = 30;
+		var min = 10;
+		$scope.heatmapConfig.range = Math.floor(Math.random()*(max-min+1)+min);
+		$scope.rendered = false;
+		
+		window.setTimeout(function(){
+			$scope.rendered = true;
+			$scope.$apply();
+		}, 1000);
+		
+		console.log('button clicked????');
+		console.log($scope);
+	}
+	$scope.rendered = true;
+	
 	$scope.heatmapConfig = {
 		onClick:function(date, value){
-			console.log(date.getTime());
-			console.log(value);
+			zoomHeatmapService.setTimestamp(date.getTime());
 			
-			$window.location.href = '/app/#/zoomHeatmap?time='+date.getTime();
-			$window.location.reload();},
+			$location.url('/zoomHeatmap');			
+			$route.reload();
+		},
 		domain: 'day',
 		subDomain: 'hour',
 		range: 30,	//number of domains (days in current implementation)
@@ -56,14 +75,4 @@ angular.module('myApp.heatmap', ['ngRoute'])
 			//rotate: 'left' doesn't work if position is bottom!
 		}
 	};
-	console.log($scope.heatmapConfig);
-	
-	$scope.onClick = function(date, value){
-		console.log(date.getTime());
-		console.log(value);
-		
-		$window.location.href = '/app/#/zoomHeatmap?time='+date.getTime();
-		$window.location.reload();
-	};
-
 }]);

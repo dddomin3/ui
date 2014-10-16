@@ -1,4 +1,14 @@
-
 <div>
-	<cal-heatmap config="heatmapConfig"></cal-heatmap>
+	<div ng-controller="heatmapCtrl as heat1">
+		<button ng-click="change()">Change heat1</button>
+		<div ng-if="rendered"> 
+		<cal-heatmap config="heatmapConfig"></cal-heatmap>
+		</div>
+	</div>
+	<div ng-controller="heatmapCtrl as heat2">
+		<button ng-click="change()">Change heat2</button>
+		<div ng-if="rendered"> 
+			<cal-heatmap config="heatmapConfig"></cal-heatmap>
+		</div>
+	</div>
 </div>
