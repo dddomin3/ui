@@ -12,7 +12,7 @@ angular.module('myApp.zoomHeatmap', ['ngRoute'])
 .service('zoomHeatmapService', [ function(){
 	var _servObj;
 	
-	var _timestamp;
+	var _timestamp = new Date(0);
 	
 	var _setTimestamp = function(timestamp){
 		_timestamp = timestamp;
@@ -28,7 +28,8 @@ angular.module('myApp.zoomHeatmap', ['ngRoute'])
 		getTimestamp : _getTimestamp,
 		setTimestamp : _setTimestamp,
 		//temporarily expose private _timestamp
-		timestamp : _timestamp
+		timestamp : _timestamp,
+		_timestmap : _timestamp
 	}
 	
 	return _servObj;
