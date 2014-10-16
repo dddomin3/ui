@@ -26,7 +26,9 @@ angular.module('myApp.zoomHeatmap', ['ngRoute'])
 	
 	_servObj = {
 		getTimestamp : _getTimestamp,
-		setTimestamp : _setTimestamp
+		setTimestamp : _setTimestamp,
+		//temporarily expose private _timestamp
+		timestamp : _timestamp
 	}
 	
 	return _servObj;
@@ -35,6 +37,4 @@ angular.module('myApp.zoomHeatmap', ['ngRoute'])
  
 .controller('zoomHeatmapCtrl', ['$scope', '$routeParams', 'zoomHeatmapService', function($scope, $routeParams, zoomHeatmapService) {
 	$scope.timestamp = new Date(+zoomHeatmapService.getTimestamp()).toString();
-	console.log(zoomHeatmapService.getTimestamp());
-	console.log(JSON.stringify(zoomHeatmapService));
 }]);

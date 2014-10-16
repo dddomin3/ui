@@ -10,7 +10,10 @@ angular.module('myApp.heatmap', ['ngRoute'])
 }])
  
 .controller('heatmapCtrl', ['$scope', '$location', '$route', 'zoomHeatmapService', function($scope, $location, $route, zoomHeatmapService) {
-
+	$scope.rendered = true;
+	
+	//inject the zoomHeatmapService into the scope.
+	angular.extend($scope, zoomHeatmapService);
 	
 	//for testing multiple controllers inheriting the same service singleton
 	$scope.change = function(){
@@ -18,16 +21,15 @@ angular.module('myApp.heatmap', ['ngRoute'])
 		var min = 10;
 		$scope.heatmapConfig.range = Math.floor(Math.random()*(max-min+1)+min);
 		$scope.rendered = false;
+		$scope.setTimestamp(new Date());
+		console.log($scope.getTimestamp());
 		
+		//In one second, reload the heatmap component with the changed configuration.
 		window.setTimeout(function(){
 			$scope.rendered = true;
 			$scope.$apply();
 		}, 1000);
-		
-		console.log('button clicked????');
-		console.log($scope);
 	}
-	$scope.rendered = true;
 	
 	$scope.heatmapConfig = {
 		onClick:function(date, value){
