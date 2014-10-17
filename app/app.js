@@ -5,6 +5,7 @@ angular.module('myApp', [
   'ngRoute',
   'myApp.heatmap',
   'myApp.zoomHeatmap',
+  'myApp.persistView',
   'calHeatmap'
 ]).
 config(['$routeProvider', function($routeProvider) {

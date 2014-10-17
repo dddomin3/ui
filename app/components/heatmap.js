@@ -8,12 +8,41 @@ angular.module('myApp.heatmap', ['ngRoute'])
     controller: 'heatmapCtrl'
   });
 }])
+
+.factory('persistHeatmapService', ['persistViewService', function(persistViewService){
+	var _servObj = {};
+	
+	//inherit functionality through composition
+	angular.extend(_servObj, persistViewService);	
+	
+	_servObj.setViewType('heatmap');
+	
+	_servObj.printThis = function(){
+		console.log(this);
+		try{
+			console.log(this.getTimestamp());
+		}
+		catch(err){
+			console.log('error the first time');
+		}
+	}
+	
+	return _servObj;
+}])
  
-.controller('heatmapCtrl', ['$scope', '$location', '$route', 'zoomHeatmapService', function($scope, $location, $route, zoomHeatmapService) {
+.controller('heatmapCtrl', ['$scope', '$location', '$route', 'zoomHeatmapService', 'persistHeatmapService', function($scope, $location, $route, zoomHeatmapService, persistHeatmapService) {
 	$scope.rendered = true;
+	var vm = this;
 	
 	//inject the zoomHeatmapService into the scope.
-	angular.extend($scope, zoomHeatmapService);
+	angular.copy(zoomHeatmapService, vm);
+	
+	angular.extend(vm, persistHeatmapService);
+
+	console.log('controller:');
+	
+	vm.printThis();
+
 	
 	//for testing multiple controllers inheriting the same service singleton
 	$scope.change = function(){
@@ -21,8 +50,16 @@ angular.module('myApp.heatmap', ['ngRoute'])
 		var min = 10;
 		$scope.heatmapConfig.range = Math.floor(Math.random()*(max-min+1)+min);
 		$scope.rendered = false;
-		$scope.setTimestamp(new Date());
-		console.log($scope.getTimestamp());
+
+		console.log('before:');
+		console.log(vm.getTimestamp());
+		
+		vm.setTimestamp(new Date());
+		
+		console.log('after:');		
+		console.log(vm.getTimestamp());
+		
+		$scope.myTimestamp = vm.getTimestamp();
 		
 		//In one second, reload the heatmap component with the changed configuration.
 		window.setTimeout(function(){
@@ -47,7 +84,7 @@ angular.module('myApp.heatmap', ['ngRoute'])
 		domainGutter: 0, //px padding between dates
 		colLimit: 1, //number of colums per domain
 		legend: [0,1,2,3,4,5,6,7,8,9,10,11,12],	//legend. Remember its like actually the count
-												//TODO: make this change dependant on dataset
+												//TODO: make vm change dependant on dataset
 		legendVerticalPosition: "center",
 		legendHorizontalPosition: "right",
 		legendOrientation: "vertical",

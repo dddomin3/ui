@@ -9,28 +9,34 @@ angular.module('myApp.zoomHeatmap', ['ngRoute'])
   });
 }])
 
-.service('zoomHeatmapService', [ function(){
+.factory('zoomHeatmapFactory', [ function() { 
 	var _servObj;
 	
-	var _timestamp = new Date(0);
-	
 	var _setTimestamp = function(timestamp){
-		_timestamp = timestamp;
+		this.timestamp = timestamp;
 		
 		return _servObj;
 	}
 	
 	var _getTimestamp = function(){
-		return _timestamp;
+		return this.timestamp;
 	}
 	
 	_servObj = {
 		getTimestamp : _getTimestamp,
-		setTimestamp : _setTimestamp,
-		//temporarily expose private _timestamp
-		timestamp : _timestamp,
-		_timestmap : _timestamp
-	}
+		setTimestamp : _setTimestamp
+	};
+	
+	return _servObj;
+}])
+
+.service('zoomHeatmapService', [ 'zoomHeatmapFactory', function(zoomHeatmapFactory){
+	var _servObj = {};
+	angular.extend(_servObj, zoomHeatmapFactory);
+	
+	this.timestamp = new Date(0);
+	
+	_servObj.timestamp = this.timestamp;
 	
 	return _servObj;
 	
