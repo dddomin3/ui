@@ -11,17 +11,19 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
 </head>
 <style>
-.chart div {
-  font: 10px sans-serif;
-  background-color: steelblue;
-  text-align: right;
-  padding: 3px;
-  margin: 1px;
-  color: white;
+
+.chart rect {
+  fill: steelblue;
 }
+
+.chart text {
+  fill: white;
+  font: 10px sans-serif;
+  text-anchor: end;
+}
+
 </style>
 
-
 <body>
-	<div class='chart'>{{loading}}</div>
+	<svg class='chart'>{{loading}}</svg>
 </body>

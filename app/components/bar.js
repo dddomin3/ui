@@ -4,6 +4,9 @@ angular.module('myApp.bar', ['ngRoute'])
 .service('barService',['$timeout', function($timeout) {
 		   var currentID = 0;
 		   var self = this;
+		   var defaultBarThickness = 20;
+		   
+		   
 		   //this function simulates a 2 second delay from getting information from the server
 		   //this function should be called when no data is given to the bar chart, so as to 
 		   //visualize configuration details
@@ -53,15 +56,19 @@ angular.module('myApp.bar', ['ngRoute'])
 			   var id = currentID++;
 		       self[id] = {};
 		       if (0) { //if statement should parse attrs object, and determine where to grab data from
+		    	   var dataURL = attrs.dataSource;
+		    	   dataURL.getData();
 		       }
 		       else { //if the data location is undefined, or not mentioned
 		    	   self[id].barData = self._getDefaultBarData();
 		    	   self[id].barData.then(
-		    			   function (data) {self._calculateDataRanges(data, id);},
+		    			   function (data) {
+		    				   var range = self._calculateDataRanges(data, id);
+		    			   },
 		    			   function (data) {alert('oops2');}
     			   );
 		       }
-		       self[id].barScale = self._initBarScale(id, attrs);	//init
+		       self[id].thickness = attrs.thickness ? attr.thickness : defaultBarThickness; 
 		       
 		       return id;
 		   };
@@ -80,26 +87,46 @@ angular.module('myApp.bar', ['ngRoute'])
 		   this.getBarWidth = function (id) {
 			   return self[id].barScale;
 		   };
+		   this.getMax = function (id) {return self[id].max};
+		   this.getMin = function (id) {return self[id].min};
+		   this.getThickness = function(id) {return self[id].thickness};
 }])
 
 .controller('barCtrl', ['$scope', 'barService',
                     function($scope, barService) {
-	$scope.barID = barService.initHeatmap();
-	var barWidth;
+	$scope.barID = barService.initHeatmap({});
+	var id = $scope.barID;
 	$scope.loading = "Now Loading...";
 	
-	barService.getBarData($scope.barID).then( function(data) {
+	barService.getBarData(id).then( function(data) {
 		$scope.loading = '';
 		$scope.barData = data;
-		
-		barWidth = barService.getBarWidth($scope.barID, {});
-		d3.select(".chart")
-		  .selectAll("div")
-		    .data($scope.barData)
-		  .enter().append("div")
-		    .style("width", barWidth)
-		    .text(function(d) { return d.name; });
-		console.log(barService[$scope.barID]);
+		console.log(barService[id]);
+		var width = barService.getMax(id)*10,
+		    barHeight = barService.getThickness(id);
+
+		var x = d3.scale.linear()
+		    .domain([0, barService.getMax(id)])
+		    .range([0, width]);
+
+		var chart = d3.select(".chart")
+		    .attr("width", width)
+		    .attr("height", barHeight * data.length);
+
+		var bar = chart.selectAll("g")
+		    .data(data)
+		  .enter().append("g")
+		    .attr("transform", function(d, i) { return "translate(0," + i * barHeight + ")"; });
+
+		 bar.append("rect")
+	      .attr("width", function(d) { return x(d.value); })
+	      .attr("height", barHeight - 1);
+
+		bar.append("text")
+		    .attr("x", function(d) { return x(d.value) - 3; })
+		    .attr("y", barHeight / 2)
+		    .attr("dy", ".35em")
+		    .text(function(d) { return d.value; });
 		
 	}, function() { alert('oops');});
 	
