@@ -8,6 +8,15 @@ angular.module('myApp', [
   'myApp.persistView',
   'calHeatmap'
 ]).
+
 config(['$routeProvider', function($routeProvider) {
-  $routeProvider.otherwise({redirectTo: '/heatmap'});
+	$routeProvider.when('/bar', {
+		templateUrl: 'views/bar.html',
+		controller: 'barController'
+	}).
+	when('/timeSeries', {
+		templateUrl: 'views/time-series.html',
+		controller: 'timeSeriesController'
+	}).
+	otherwise({redirectTo: '/heatmap'});
 }]);
