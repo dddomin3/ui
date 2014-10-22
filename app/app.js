@@ -6,17 +6,19 @@ angular.module('myApp', [
   'myApp.heatmap',
   'myApp.zoomHeatmap',
   'myApp.persistView',
+  'myApp.bar',
+  'myApp.timeSeries',
   'calHeatmap'
 ]).
 
 config(['$routeProvider', function($routeProvider) {
 	$routeProvider.when('/bar', {
 		templateUrl: 'views/bar.html',
-		controller: 'barController'
+		controller: 'barCtrl'
 	}).
 	when('/timeSeries', {
-		templateUrl: 'views/time-series.html',
-		controller: 'timeSeriesController'
+		templateUrl: 'views/timeSeries.html',
+		controller: 'timeSeriesCtrl'
 	}).
 	otherwise({redirectTo: '/heatmap'});
 }]);
