@@ -6,7 +6,12 @@ angular.module('myApp.bar', ['ngRoute'])
 		   var self = this;
 		   var defaultChartParallel = 400;
 		   var defaultChartPerpendicular = 600;
-		   
+		   var defaultBarStyle = {'fill': "cyan"};
+		   var defaultTextStyle = {
+					  'fill': 'black',
+					  'font': '10px sans-serif',
+					  'text-anchor': 'end'
+				  };
 		   
 		   //this function simulates a 2 second delay from getting information from the server
 		   //this function should be called when no data is given to the bar chart, so as to 
@@ -56,6 +61,9 @@ angular.module('myApp.bar', ['ngRoute'])
 		   this.initHeatmap = function (attrs) {
 			   var id = currentID++;
 		       self[id] = {};
+		       self[id].barStyle = attrs.barStyle ? attrs.barStyle : defaultChartColor;
+		       self[id].textStyle = attrs.textStyle ? attrs.textStyle : defaultTextStyle;
+		       
 		       if (0) { //if statement should parse attrs object, and determine where to grab data from
 		    	   var dataURL = attrs.dataSource;
 		    	   dataURL.getData();
@@ -75,10 +83,9 @@ angular.module('myApp.bar', ['ngRoute'])
 		       }
 		       else {
 		    	   attrs.rotate = 'x';
-		    	   self[id].height = attrs.height ? attr.height : defaultChartParallel;
-		    	   self[id].width = attrs.width ? attr.width : defaultChartPerpendicular;
+		    	   self[id].height = attrs.height ? attrs.height : defaultChartParallel;
+		    	   self[id].width = attrs.width ? attrs.width : defaultChartPerpendicular;
 		       }
-		        
 		       
 		       return id;
 		   };
@@ -100,12 +107,24 @@ angular.module('myApp.bar', ['ngRoute'])
 		   this.getMax = function (id) {return self[id].max};
 		   this.getMin = function (id) {return self[id].min};
 		   this.getHeight = function(id) {return self[id].height};
-		   this.getWidth = function(id) {return self[id].width}
+		   this.getWidth = function(id) {return self[id].width};
+		   this.getBarStyle = function(id) {return self[id].barStyle};
+		   this.getTextStyle = function(id) {return self[id].textStyle};
 }])
 
 .controller('barCtrl', ['$scope', 'barService',
                     function($scope, barService) {
-	var attrs = {'rotate': 'y'};
+	var attrs = {
+			'rotate': 'y',
+			'barStyle': {
+				'fill':'steelblue'
+			},
+			'textStyle': {
+				'fill': 'cyan',
+				'font': '10px sans-serif',
+				'text-anchor': 'end'
+			}
+	}; //USER CONFIGURABLE DETAILS
 	$scope.barID = barService.initHeatmap(attrs);
 	var id = $scope.barID;
 	$scope.loading = "Now Loading...";
@@ -134,10 +153,13 @@ angular.module('myApp.bar', ['ngRoute'])
 			    .attr("transform", function(d, i) { return "translate(0," + i * barThickness + ")"; });
 	
 			 bar.append("rect")
+			  .style(barService.getBarStyle(id))
 		      .attr("width", function(d) { return x(d.value); })
 		      .attr("height", barThickness - 1);
+			 
 	
 			bar.append("text")
+		  	    .style(barService.getTextStyle(id))
 			    .attr("x", function(d) { return x(d.value) - 3; })
 			    .attr("y", barThickness / 2)
 			    .attr("dy", ".35em")
@@ -164,11 +186,13 @@ angular.module('myApp.bar', ['ngRoute'])
 		      .attr("transform", function(d, i) { return "translate(" + i * barThickness + ",0)"; });
 	
 		  bar.append("rect")
+		  	  .style(barService.getBarStyle(id))
 		      .attr("y", function(d) { return y(d.value); })
 		      .attr("height", function(d) { return height - y(d.value); })
 		      .attr("width", barThickness - 1);
 	
 		  bar.append("text")
+		  	  .style(barService.getTextStyle(id))
 		      .attr("x", barThickness / 2)
 		      .attr("y", function(d) { return y(d.value) + 3; })
 		      .attr("dy", ".75em")
