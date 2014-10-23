@@ -19,12 +19,7 @@ angular.module('myApp.heatmap', ['ngRoute'])
 	
 	_servObj.printThis = function(){
 		console.log(this);
-		try{
 			console.log(this.getTimestamp());
-		}
-		catch(err){
-			console.log('error the first time');
-		}
 	}
 	
 	return _servObj;
@@ -35,14 +30,8 @@ angular.module('myApp.heatmap', ['ngRoute'])
 	var vm = this;
 	
 	//inject the zoomHeatmapService into the scope.
-	angular.copy(zoomHeatmapService, vm);
-	
+	angular.extend(vm, zoomHeatmapService);	
 	angular.extend(vm, persistHeatmapService);
-
-	console.log('controller:');
-	
-	vm.printThis();
-
 	
 	//for testing multiple controllers inheriting the same service singleton
 	$scope.change = function(){
