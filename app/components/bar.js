@@ -4,7 +4,8 @@ angular.module('myApp.bar', ['ngRoute'])
 .service('barService',['$timeout', function($timeout) {
 		   var currentID = 0;
 		   var self = this;
-		   var defaultBarThickness = 20;
+		   var defaultChartParallel = 400;
+		   var defaultChartPerpendicular = 600;
 		   
 		   
 		   //this function simulates a 2 second delay from getting information from the server
@@ -65,10 +66,19 @@ angular.module('myApp.bar', ['ngRoute'])
 		    			   function (data) {
 		    				   var range = self._calculateDataRanges(data, id);
 		    			   },
-		    			   function (data) {alert('oops2');}
+		    			   function (error) {alert('oops2');}
     			   );
 		       }
-		       self[id].thickness = attrs.thickness ? attr.thickness : defaultBarThickness; 
+		       if(attrs.rotate === 'y') {
+		    	   self[id].height = attrs.height ? attr.height : defaultChartPerpendicular;
+		    	   self[id].width = attrs.width ? attr.width : defaultChartParallel;
+		       }
+		       else {
+		    	   attrs.rotate = 'x';
+		    	   self[id].height = attrs.height ? attr.height : defaultChartParallel;
+		    	   self[id].width = attrs.width ? attr.width : defaultChartPerpendicular;
+		       }
+		        
 		       
 		       return id;
 		   };
@@ -89,12 +99,14 @@ angular.module('myApp.bar', ['ngRoute'])
 		   };
 		   this.getMax = function (id) {return self[id].max};
 		   this.getMin = function (id) {return self[id].min};
-		   this.getThickness = function(id) {return self[id].thickness};
+		   this.getHeight = function(id) {return self[id].height};
+		   this.getWidth = function(id) {return self[id].width}
 }])
 
 .controller('barCtrl', ['$scope', 'barService',
                     function($scope, barService) {
-	$scope.barID = barService.initHeatmap({});
+	var attrs = {'rotate': 'y'};
+	$scope.barID = barService.initHeatmap(attrs);
 	var id = $scope.barID;
 	$scope.loading = "Now Loading...";
 	
@@ -102,32 +114,66 @@ angular.module('myApp.bar', ['ngRoute'])
 		$scope.loading = '';
 		$scope.barData = data;
 		console.log(barService[id]);
-		var width = barService.getMax(id)*10,
-		    barHeight = barService.getThickness(id);
+		if(attrs.rotate === 'x') {
+			var width = barService.getWidth(id),
+			    height = barService.getHeight(id),
+			    dataLength = data.length,
+			    barThickness = height/dataLength;
+	
+			var x = d3.scale.linear()
+			    .domain([0, barService.getMax(id)])
+			    .range([0, width]);
+	
+			var chart = d3.select(".chart")
+			    .attr("width", width)
+			    .attr("height", height);
+	
+			var bar = chart.selectAll("g")
+			    .data(data)
+			  .enter().append("g")
+			    .attr("transform", function(d, i) { return "translate(0," + i * barThickness + ")"; });
+	
+			 bar.append("rect")
+		      .attr("width", function(d) { return x(d.value); })
+		      .attr("height", barThickness - 1);
+	
+			bar.append("text")
+			    .attr("x", function(d) { return x(d.value) - 3; })
+			    .attr("y", barThickness / 2)
+			    .attr("dy", ".35em")
+			    .text(function(d) { return d.value; });
+		}
+		else {
+			var width = barService.getWidth(id),
+		    height = barService.getHeight(id),
+		    dataLength = data.length,
+		    barThickness = width/dataLength;
 
-		var x = d3.scale.linear()
-		    .domain([0, barService.getMax(id)])
-		    .range([0, width]);
-
-		var chart = d3.select(".chart")
-		    .attr("width", width)
-		    .attr("height", barHeight * data.length);
-
-		var bar = chart.selectAll("g")
-		    .data(data)
-		  .enter().append("g")
-		    .attr("transform", function(d, i) { return "translate(0," + i * barHeight + ")"; });
-
-		 bar.append("rect")
-	      .attr("width", function(d) { return x(d.value); })
-	      .attr("height", barHeight - 1);
-
-		bar.append("text")
-		    .attr("x", function(d) { return x(d.value) - 3; })
-		    .attr("y", barHeight / 2)
-		    .attr("dy", ".35em")
-		    .text(function(d) { return d.value; });
+			var y = d3.scale.linear()
+			    .range([height, 0]);
 		
-	}, function() { alert('oops');});
+			var chart = d3.select(".chart")
+			    .attr("width", width)
+			    .attr("height", height);
+		
+		  y.domain([0, d3.max(data, function(d) { return d.value; })]);
+	
+		  var bar = chart.selectAll("g")
+		      .data(data)
+		    .enter().append("g")
+		      .attr("transform", function(d, i) { return "translate(" + i * barThickness + ",0)"; });
+	
+		  bar.append("rect")
+		      .attr("y", function(d) { return y(d.value); })
+		      .attr("height", function(d) { return height - y(d.value); })
+		      .attr("width", barThickness - 1);
+	
+		  bar.append("text")
+		      .attr("x", barThickness / 2)
+		      .attr("y", function(d) { return y(d.value) + 3; })
+		      .attr("dy", ".75em")
+		      .text(function(d) { return d.value; });
+		}
+	}, function(error) { alert('oops');});
 	
 }]);
