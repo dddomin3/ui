@@ -14,13 +14,26 @@ angular.module('myApp.bar', ['ngRoute'])
 			'text-anchor': 'end'
 	};
 	var defaultChartMargin = {
-			'margin': {
 				'top': 20,
 				'right': 30, 
 				'bottom': 30, 
 				'left': 40
-			}
 	};
+	var defaultAxisStyle = {
+			'text': {
+				'font': '8px sans-serif'
+			},
+			'path':{
+				'fill': 'none',
+				'stroke': 'black',
+				'shape-rendering': 'crispEdges'
+			},
+			'line': {
+				'fill': 'none',
+				'stroke': 'black',
+				'shape-rendering': 'crispEdges'
+			}
+		}
 
 	//this function simulates a 2 second delay from getting information from the server
 	//this function should be called when no data is given to the bar chart, so as to 
@@ -67,12 +80,17 @@ angular.module('myApp.bar', ['ngRoute'])
 
 	//this function should get a new ID, and also initialize heatmapConfig for the current ID		
 	//it also initializes the configuration details based upon the attributes fed into the function.
-	this.initHeatmap = function (attrs) {	//TODO: make sure the default values aren't passed by reference
+	this.initHeatmap = function (attrs) {	
+		//TODO: make sure the default values aren't passed by reference
+			//AKA, make _getDefault__ functions for everything
 		//TODO: make sure that the individual keys get defined if they aren't defined.
 		var id = currentID++;
 		self[id] = {};
-		self[id].barStyle = attrs.barStyle ? attrs.barStyle : defaultChartColor; 
+		self[id].barStyle = attrs.barStyle ? attrs.barStyle : defaultBarStyle; 
 		self[id].textStyle = attrs.textStyle ? attrs.textStyle : defaultTextStyle;
+		self[id].axisStyle = attrs.axisStyle ? attrs.axisStyle : defaultAxisStyle; 
+		//TODO: make sure that this grabs the default style if its not defined?
+			//maybe even like Math.floor(size*.75) or something...
 		self[id].margin = attrs.margin ? attrs.margin : defaultChartMargin;
 		
 		if (0) { //if statement should parse attrs object, and determine where to grab data from
@@ -94,8 +112,8 @@ angular.module('myApp.bar', ['ngRoute'])
 		}
 		else {
 			attrs.rotate = 'x';
-			self[id].outerHeight = attrs.height ? attr.height : defaultChartOuterPerpendicular;
-			self[id].outerWidth = attrs.width ? attr.width : defaultChartOuterParallel;
+			self[id].outerHeight = attrs.height ? attrs.height : defaultChartOuterPerpendicular;
+			self[id].outerWidth = attrs.width ? attrs.width : defaultChartOuterParallel;
 		}
 
 		return id;
@@ -123,27 +141,44 @@ angular.module('myApp.bar', ['ngRoute'])
 	this.getInnerWidth = function(id) {return self[id].outerWidth - (self[id].margin.left + self[id].margin.right);};
 	this.getBarStyle = function(id) {return self[id].barStyle;};
 	this.getTextStyle = function(id) {return self[id].textStyle;};
+	this.getAxisStyle = function(id) {return self[id].axisStyle;};
 	this.getMargin = function(id) {return self[id].margin;};
 }])
 
 .controller('barCtrl', ['$scope', 'barService',
                         function($scope, barService) {
-	var attrs = {
-			'rotate': 'y',
-			'barStyle': {
-				'fill':'steelblue'
+	var attrs = {}; var monkey = {
+	//var attrs = {
+		'rotate': 'x',
+		'barStyle': {
+			'fill':'cyan'
+		},
+		'textStyle': {
+			'fill': 'black',
+			'font': '10px sans-serif',
+			'text-anchor': 'end'
+		},
+		//'margin': {
+		//	'top': 20,
+		//	'right': 30, 
+		//	'bottom': 30, 
+		//	'left': 40
+		//},
+		'axisStyle': {
+			'text': {
+				'font': '8px sans-serif'
 			},
-			'textStyle': {
-				'fill': 'black',
-				'font': '10px sans-serif',
-				'text-anchor': 'end'
+			'path': {
+				'fill': 'none',
+				'stroke': 'cyan',
+				'shape-rendering': 'crispEdges'
 			},
-			'margin': {
-				'top': 20,
-				'right': 30, 
-				'bottom': 30, 
-				'left': 40
+			'line': {
+				'fill': 'none',
+				'stroke': 'cyan',
+				'shape-rendering': 'crispEdges'
 			}
+		}
 	}; //USER CONFIGURABLE DETAILS
 	$scope.barID = barService.initHeatmap(attrs);
 	var id = $scope.barID;
@@ -163,13 +198,15 @@ angular.module('myApp.bar', ['ngRoute'])
 			dataLength = data.length,
 			barThickness = Math.floor(innerHeight/dataLength);
 
+			//creating axis scale (x) and the xAxis
+			//x
 			var x = d3.scale.linear()
 			.domain([0, barService.getMax(id)])
 			.range([0, innerWidth]);
 			var xAxis = d3.svg.axis()
 			    .scale(x)
 			    .orient("bottom");
-
+			//y
 			var y =  d3.scale.ordinal()
 		    	.rangeRoundBands([innerHeight, 0], .1)
 		    	.domain(data.map(function(d) { return d.name;}));
@@ -177,39 +214,57 @@ angular.module('myApp.bar', ['ngRoute'])
 			    .scale(y)
 			    .orient("left");
 			
+			//creation of the chart object itself
+			//takes margins in consideration
 			var chart = d3.select(".chart")
-			.attr("width", outerWidth)
-			.attr("height", outerHeight) 
-			.append("g")
-			.attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+				.attr("width", outerWidth)
+				.attr("height", outerHeight) 
+				.append("g")
+				.attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 			
+			//not sure... maybe its the foot/socket for the bar?
 			var bar = chart.selectAll("g")
-			.data(data)
-			.enter().append("g")
-			.attr("transform", function(d, i) { return "translate(0," + i * barThickness + ")"; });
-
+				.data(data)
+				.enter().append("g")
+				.attr("transform", function(d, i) { return "translate(0," + i * barThickness + ")"; });
+			
+			//not sure either, this is probably the actual height and width of the bar denoted before
 			bar.append("rect")
-			.style(barService.getBarStyle(id))
-			.attr("width", function(d) { return x(d.value); })
-			.attr("height", barThickness - 1);
-
+				.style(barService.getBarStyle(id))
+				.attr("width", function(d) { return x(d.value); })
+				.attr("height", barThickness - 1);
 
 			bar.append("text")
-			.style(barService.getTextStyle(id))
-			.attr("x", function(d) { return x(d.value) - 3; })
-			.attr("y", barThickness / 2)
-			.attr("dy", ".35em")
-			.text(function(d) { return d.value; });
-			
-			//adding x axis
+				.style(barService.getTextStyle(id))
+				.attr("x", function(d) { return x(d.value) - 3; })
+				.attr("y", barThickness / 2)
+				.attr("dy", ".35em")
+				.text(function(d) { return d.value; });
+
+			//adding both axis
+			//x
 			chart.append("g")
-			    .attr("class", "x axis")
-			    .attr("transform", "translate(0," + innerHeight + ")")
-			    .call(xAxis);
-			
+				.attr("class", "x axis")
+				.attr("transform", "translate(0," + innerHeight + ")")
+				.call(xAxis);
+			//y
 			chart.append("g")
-		      .attr("class", "y axis")
-		      .call(yAxis);
+				.attr("class", "y axis")
+				.call(yAxis);
+			
+			//styling axis
+			var axis = chart.selectAll("g")
+				.filter(".axis");
+			
+			axis.selectAll("text")
+				.style(barService.getAxisStyle(id).text);
+			
+			axis.selectAll("line")
+				.style(barService.getAxisStyle(id).line);
+	
+			axis.selectAll("path")
+				.style(barService.getAxisStyle(id).path);
+			
 		}
 		else {
 			var margin = barService.getMargin(id),
