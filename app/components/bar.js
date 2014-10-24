@@ -129,7 +129,7 @@ angular.module('myApp.bar', ['ngRoute'])
 .controller('barCtrl', ['$scope', 'barService',
                         function($scope, barService) {
 	var attrs = {
-			'rotate': 'y',
+			'rotate': 'x',
 			'barStyle': {
 				'fill':'steelblue'
 			},
@@ -167,13 +167,19 @@ angular.module('myApp.bar', ['ngRoute'])
 			.domain([0, barService.getMax(id)])
 			.range([0, innerWidth]);
 
+			var xAxis = d3.svg.axis()
+			    .scale(x)
+			    .orient("bottom");
 
+			var y = d3.scale.linear()
+		    	.range([innerHeight, 0]);
+			
 			var chart = d3.select(".chart")
 			.attr("width", outerWidth)
 			.attr("height", outerHeight) 
 			.append("g")
 			.attr("transform", "translate(" + margin.left + "," + margin.top + ")");
-
+			
 			var bar = chart.selectAll("g")
 			.data(data)
 			.enter().append("g")
@@ -191,9 +197,15 @@ angular.module('myApp.bar', ['ngRoute'])
 			.attr("y", barThickness / 2)
 			.attr("dy", ".35em")
 			.text(function(d) { return d.value; });
+			
+			//adding x axis
+			chart.append("g")
+			    .attr("class", "x axis")
+			    .attr("transform", "translate(0," + innerHeight + ")")
+			    .call(xAxis);
 		}
 		else {
-			var margin = {top: 20, right: 30, bottom: 30, left: 40},
+			var margin = barService.getMargin(id),
 			outerWidth = barService.getOuterWidth(id),
 			innerWidth = barService.getInnerWidth(id),
 			outerHeight = barService.getOuterHeight(id),
@@ -203,7 +215,11 @@ angular.module('myApp.bar', ['ngRoute'])
 
 			var y = d3.scale.linear()
 			.range([innerHeight, 0]);
-
+			
+			var yAxis = d3.svg.axis()
+			    .scale(y)
+			    .orient("left");
+			
 			var chart = d3.select(".chart")
 			.attr("width", outerWidth)
 			.attr("height", outerHeight) 
@@ -229,6 +245,12 @@ angular.module('myApp.bar', ['ngRoute'])
 			.attr("y", function(d) { return y(d.value) + 3; })
 			.attr("dy", ".75em")
 			.text(function(d) { return d.value; });
+			
+			//adding x axis
+			chart.append("g")
+			    .attr("class", "y axis")
+//			    .attr("transform", "translate(" + innerWidth + ",0)")
+			    .call(yAxis);
 		}
 	}, function(error) { alert('oops');});
 
