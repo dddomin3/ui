@@ -129,7 +129,7 @@ angular.module('myApp.bar', ['ngRoute'])
 .controller('barCtrl', ['$scope', 'barService',
                         function($scope, barService) {
 	var attrs = {
-			'rotate': 'x',
+			'rotate': 'y',
 			'barStyle': {
 				'fill':'steelblue'
 			},
@@ -166,13 +166,16 @@ angular.module('myApp.bar', ['ngRoute'])
 			var x = d3.scale.linear()
 			.domain([0, barService.getMax(id)])
 			.range([0, innerWidth]);
-
 			var xAxis = d3.svg.axis()
 			    .scale(x)
 			    .orient("bottom");
 
-			var y = d3.scale.linear()
-		    	.range([innerHeight, 0]);
+			var y =  d3.scale.ordinal()
+		    	.rangeRoundBands([innerHeight, 0], .1)
+		    	.domain(data.map(function(d) { return d.name;}));
+			var yAxis = d3.svg.axis()
+			    .scale(y)
+			    .orient("left");
 			
 			var chart = d3.select(".chart")
 			.attr("width", outerWidth)
@@ -203,6 +206,10 @@ angular.module('myApp.bar', ['ngRoute'])
 			    .attr("class", "x axis")
 			    .attr("transform", "translate(0," + innerHeight + ")")
 			    .call(xAxis);
+			
+			chart.append("g")
+		      .attr("class", "y axis")
+		      .call(yAxis);
 		}
 		else {
 			var margin = barService.getMargin(id),
@@ -213,9 +220,15 @@ angular.module('myApp.bar', ['ngRoute'])
 			dataLength = data.length,
 			barThickness = innerWidth/dataLength;
 
+			var x =  d3.scale.ordinal()
+	    	.rangeRoundBands([0, innerWidth], .1)
+	    	.domain(data.map(function(d) { return d.name;}));
+			var xAxis = d3.svg.axis()
+			    .scale(x)
+			    .orient("bottom");
+			
 			var y = d3.scale.linear()
 			.range([innerHeight, 0]);
-			
 			var yAxis = d3.svg.axis()
 			    .scale(y)
 			    .orient("left");
@@ -249,8 +262,12 @@ angular.module('myApp.bar', ['ngRoute'])
 			//adding x axis
 			chart.append("g")
 			    .attr("class", "y axis")
-//			    .attr("transform", "translate(" + innerWidth + ",0)")
 			    .call(yAxis);
+			
+			chart.append("g")
+			    .attr("class", "x axis")
+			    .attr("transform", "translate(0," + innerHeight + ")")
+			    .call(xAxis);
 		}
 	}, function(error) { alert('oops');});
 
