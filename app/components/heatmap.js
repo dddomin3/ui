@@ -9,6 +9,53 @@ angular.module('myApp.heatmap', ['ngRoute'])
   });
 }])
 
+.factory('heatmapDataService', ['$http', function($http){
+	var _servObj = {};	
+	var _dataObj = {};
+
+	
+	var _setUrl = function(url){
+		_url = url;
+
+		return _servObj;
+	}
+	
+	var _getUrl = function(){
+		return _url;
+	}
+	
+	//get data and format it as cal-heatmap expects 
+	//TODO - data obj does not need to be refereshed every time we want to get??? can we re-serve from memory if we dont believe anthing has changed???
+	var _getData = function(){ 
+		return $http.get('http://10.239.3.132:8080/dailyhistory/544876bf2e905908b6e5f595').
+		success(function(data){
+				var i = 0;
+				var historyArray = data.his;
+				
+				console.log('success????');
+				
+				for(i = 0; i < historyArray.length; i++){
+					_dataObj[(historyArray[i].timestamp / 1000)+""] = +historyArray[i].value;
+				}
+				
+			}).
+		error(function(data){
+			console.log('error???');
+			throw('there was problem getting data');
+		});
+	}
+	
+	_servObj = {
+		getUrl : _getUrl,
+		setUrl: _setUrl,
+		getData : _getData,
+		dataObj : _dataObj
+	}
+	
+	return _servObj;
+	
+}])
+
 .factory('persistHeatmapService', ['persistViewService', function(persistViewService){
 	var _servObj = {};
 	
@@ -25,11 +72,11 @@ angular.module('myApp.heatmap', ['ngRoute'])
 	return _servObj;
 }])
  
-.controller('heatmapCtrl', ['$scope', '$location', '$route', 'zoomHeatmapService', 'persistHeatmapService', function($scope, $location, $route, zoomHeatmapService, persistHeatmapService) {
+.controller('heatmapCtrl', ['$scope', '$location', '$route', 'zoomHeatmapService', 'persistHeatmapService', 'heatmapDataService', function($scope, $location, $route, zoomHeatmapService, persistHeatmapService, heatmapDataService) {
 	var vm = this;
 	
 	//control whether the view needs to be reloaded.
-	vm.rendered = true;
+	vm.rendered = false;
 
 	//inject the zoomHeatmapService into the scope.
 	angular.extend(vm, zoomHeatmapService);	
@@ -60,50 +107,57 @@ angular.module('myApp.heatmap', ['ngRoute'])
 		}, 1000);
 	}
 	
-	vm.heatmapConfig = {
-		onClick:function(date, value){
-			zoomHeatmapService.setTimestamp(date.getTime());
-			
-			$location.url('/zoomHeatmap');			
-			$route.reload();
-		},
-		domain: 'day',
-		subDomain: 'hour',
-		range: 30,	//number of domains (days in current implementation)
-		cellSize: 20, //px size of cells
-		cellPadding: 1,	//px between cells
-		cellRadius: 2,	//px of cell radius
-		domainGutter: 0, //px padding between dates
-		colLimit: 1, //number of colums per domain
-		legend: [0,1,2,3,4,5,6,7,8,9,10,11,12],	//legend. Remember its like actually the count
-												//TODO: make vm change dependant on dataset
-		legendVerticalPosition: "center",
-		legendHorizontalPosition: "right",
-		legendOrientation: "vertical",
-		legendMargin: [10, 10, 10, 10],
-		legendColors: ['#00FF00', '#FF0000'],	//colors of legend gradient
-		subDomainTextFormat: '%H', /*function(date, value) {
-			if (date.getMinutes() === 0) {
-				return date.getHours();
+	heatmapDataService.getData().then(function (dataddd){
+		vm.heatmapConfig = {
+			onClick:function(date, value){
+				zoomHeatmapService.setTimestamp(date.getTime());
+				
+				$location.url('/zoomHeatmap');			
+				$route.reload();
+			},
+			domain: 'day',
+			data: heatmapDataService.dataObj,
+			subDomain: 'hour',
+			range: 30,	//number of domains (days in current implementation)
+			cellSize: 20, //px size of cells
+			cellPadding: 1,	//px between cells
+			cellRadius: 2,	//px of cell radius
+			domainGutter: 0, //px padding between dates
+			colLimit: 1, //number of colums per domain
+			legend: [0,1,2,3,4,5,6,7,8,9,10,11,12],	//legend. Remember its like actually the count
+													//TODO: make vm change dependant on dataset
+			legendVerticalPosition: "center",
+			legendHorizontalPosition: "right",
+			legendOrientation: "vertical",
+			legendMargin: [10, 10, 10, 10],
+			legendColors: ['#00FF00', '#FF0000'],	//colors of legend gradient
+			subDomainTextFormat: '%H', /*function(date, value) {
+				if (date.getMinutes() === 0) {
+					return date.getHours();
+				}
+				else return date.getMinutes();
+			},*/
+			start : new Date(1413864000000),
+			domainLabelFormat: function(date) {//format of each domain label. "x axis" labels
+				var month = 
+					["Jan", "Feb", "Mar", "Apr",
+					 "May", "Jun", "Jul", "Aug",
+					 "Sep", "Oct", "Nov", "Dec"];
+				if (date.getDate() % 2 === 0) {
+					return date.getDate();
+				}
+				else {
+					return month[date.getMonth()];
+				}
+			},	
+			label: {
+				width: 30,
+				position: 'bottom'
+				//rotate: 'left' doesn't work if position is bottom!
 			}
-			else return date.getMinutes();
-		},*/
-		domainLabelFormat: function(date) {//format of each domain label. "x axis" labels
-			var month = 
-				["Jan", "Feb", "Mar", "Apr",
-				 "May", "Jun", "Jul", "Aug",
-				 "Sep", "Oct", "Nov", "Dec"];
-			if (date.getDate() % 2 === 0) {
-				return date.getDate();
-			}
-			else {
-				return month[date.getMonth()];
-			}
-		},	
-		label: {
-			width: 30,
-			position: 'bottom'
-			//rotate: 'left' doesn't work if position is bottom!
-		}
-	};
+		};
+		
+		vm.rendered = true;
+	});
+	
 }]);
