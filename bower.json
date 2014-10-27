@@ -11,6 +11,8 @@
     "angular-loader": "1.2.x",
     "angular-mocks": "~1.2.x",
     "html5-boilerplate": "~4.3.0",
-	"angular-cal-heatmap-directive": "master"
+	"angular-cal-heatmap-directive": "master",
+	"angular-dc": "~0.0.4",
+	"d3": "~3.4.x"
   }
 }
