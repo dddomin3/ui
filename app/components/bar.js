@@ -147,9 +147,9 @@ angular.module('myApp.bar', ['ngRoute'])
 
 .controller('barCtrl', ['$scope', 'barService',
                         function($scope, barService) {
-	var attrs = {}; var monkey = {
-	//var attrs = {
-		'rotate': 'x',
+	//var attrs = {}; var monkey = {
+	var attrs = {
+		'rotate': 'y',
 		'barStyle': {
 			'fill':'cyan'
 		},
@@ -170,12 +170,12 @@ angular.module('myApp.bar', ['ngRoute'])
 			},
 			'path': {
 				'fill': 'none',
-				'stroke': 'cyan',
+				'stroke': 'steelblue',
 				'shape-rendering': 'crispEdges'
 			},
 			'line': {
 				'fill': 'none',
-				'stroke': 'cyan',
+				'stroke': 'steelblue',
 				'shape-rendering': 'crispEdges'
 			}
 		}
@@ -323,6 +323,19 @@ angular.module('myApp.bar', ['ngRoute'])
 			    .attr("class", "x axis")
 			    .attr("transform", "translate(0," + innerHeight + ")")
 			    .call(xAxis);
+			
+			//styling axis
+			var axis = chart.selectAll("g")
+				.filter(".axis");
+			
+			axis.selectAll("text")
+				.style(barService.getAxisStyle(id).text);
+			
+			axis.selectAll("line")
+				.style(barService.getAxisStyle(id).line);
+	
+			axis.selectAll("path")
+				.style(barService.getAxisStyle(id).path);
 		}
 	}, function(error) { alert('oops');});
 
