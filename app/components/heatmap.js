@@ -26,21 +26,24 @@ angular.module('myApp.heatmap', ['ngRoute'])
 }])
  
 .controller('heatmapCtrl', ['$scope', '$location', '$route', 'zoomHeatmapService', 'persistHeatmapService', function($scope, $location, $route, zoomHeatmapService, persistHeatmapService) {
-	$scope.rendered = true;
 	var vm = this;
 	
+	//control whether the view needs to be reloaded.
+	vm.rendered = true;
+
 	//inject the zoomHeatmapService into the scope.
 	angular.extend(vm, zoomHeatmapService);	
 	angular.extend(vm, persistHeatmapService);
 	
 	//for testing multiple controllers inheriting the same service singleton
-	$scope.change = function(){
+	vm.change = function(){
 		var max = 30;
 		var min = 10;
-		$scope.heatmapConfig.range = Math.floor(Math.random()*(max-min+1)+min);
-		$scope.rendered = false;
+		vm.heatmapConfig.range = Math.floor(Math.random()*(max-min+1)+min);
+		vm.rendered = false;
 
 		console.log('before:');
+		console.log(vm);
 		console.log(vm.getTimestamp());
 		
 		vm.setTimestamp(new Date());
@@ -52,12 +55,12 @@ angular.module('myApp.heatmap', ['ngRoute'])
 		
 		//In one second, reload the heatmap component with the changed configuration.
 		window.setTimeout(function(){
-			$scope.rendered = true;
+			vm.rendered = true;
 			$scope.$apply();
 		}, 1000);
 	}
 	
-	$scope.heatmapConfig = {
+	vm.heatmapConfig = {
 		onClick:function(date, value){
 			zoomHeatmapService.setTimestamp(date.getTime());
 			

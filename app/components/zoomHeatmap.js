@@ -31,15 +31,9 @@ angular.module('myApp.zoomHeatmap', ['ngRoute'])
 }])
 
 .service('zoomHeatmapService', [ 'zoomHeatmapFactory', function(zoomHeatmapFactory){
-	var _servObj = {};
-	angular.extend(_servObj, zoomHeatmapFactory);
-	
-	this.timestamp = new Date(0);
-	
-	_servObj.timestamp = this.timestamp;
-	
-	return _servObj;
-	
+	angular.extend(this, zoomHeatmapFactory);
+
+	this.setTimestamp(new Date(0));	
 }])
  
 .controller('zoomHeatmapCtrl', ['$scope', '$routeParams', 'zoomHeatmapService', function($scope, $routeParams, zoomHeatmapService) {
