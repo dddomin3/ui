@@ -9,6 +9,9 @@ angular.module('myApp.timeSeries', ['ngRoute'])
         var ndx = crossfilter(experiments)
         $scope.runDimension  = ndx.dimension(function(d) {return "run-"+d.Run;})
         $scope.speedSumGroup = $scope.runDimension.group().reduceSum(function(d) {return d.Speed * d.Run;});
+        
+        $scope.barDimension = ndx.dimension(function(d) {return +d.Run;});
+        $scope.barGroup = $scope.barDimension.group().reduceSum(function(d) {return d.Speed;});
 		// for simplicity we use d3.csv, but normally, we should use $http in order for this
 		// to be called in the $digest
         $scope.$apply()
