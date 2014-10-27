@@ -1,1 +1,20 @@
 <div>Hello, {{timeSeries}}</div>
+     
+<div dc-chart="barChart" dc-chart-group="1"
+     dc-width="500" dc-height="480"
+     dc-dimension="barDimension" dc-group="barGroup" dc-center-bar="true"
+     dc-x="d3.scale.linear().domain([0,21])"
+     >Bar Chart</div>
+     
+<div dc-chart="lineChart" dc-chart-group="1"
+     dc-width="500" dc-height="480"
+     dc-dimension="barDimension" dc-group="barGroup"
+     dc-x="d3.scale.linear().domain([0,21])"
+     >Line Chart</div>
+     
+<div dc-chart="lineChart" dc-chart-group="1" dc-render-area="true"
+     dc-width="500" dc-height="480"
+     dc-dimension="barDimension" dc-group="barGroup"
+     dc-x="d3.scale.linear().domain([0,21])"
+     >Area Chart</div>
+

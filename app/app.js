@@ -8,7 +8,8 @@ angular.module('myApp', [
   'myApp.persistView',
   'myApp.bar',
   'myApp.timeSeries',
-  'calHeatmap'
+  'calHeatmap',
+  'angularDc'
 ]).
 
 config(['$routeProvider', function($routeProvider) {
