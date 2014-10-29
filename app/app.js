@@ -7,6 +7,7 @@ angular.module('myApp', [
   'myApp.zoomHeatmap',
   'myApp.persistView',
   'myApp.bar',
+  'myApp.energyProfile',
   'myApp.timeSeries',
   'calHeatmap',
   'angularDc'
@@ -20,6 +21,10 @@ config(['$routeProvider', function($routeProvider) {
 	when('/timeSeries', {
 		templateUrl: 'views/timeSeries.html',
 		controller: 'timeSeriesCtrl'
+	}).
+	when('/energyProfile', {
+		templateUrl: 'views/timeSeries.html',
+		controller: 'energyProfileCtrl'
 	}).
 	otherwise({redirectTo: '/heatmap'});
 }]);
