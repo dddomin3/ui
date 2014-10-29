@@ -23,7 +23,7 @@ config(['$routeProvider', function($routeProvider) {
 		controller: 'timeSeriesCtrl'
 	}).
 	when('/energyProfile', {
-		templateUrl: 'views/timeSeries.html',
+		templateUrl: 'views/energyProfile.html',
 		controller: 'energyProfileCtrl'
 	}).
 	otherwise({redirectTo: '/heatmap'});

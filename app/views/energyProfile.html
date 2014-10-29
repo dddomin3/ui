@@ -1,0 +1,24 @@
+<div>Hello, {{timeSeries}}</div>
+<!-- Latest compiled and minified CSS -->
+<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.0/css/bootstrap.min.css">
+
+<div class="panel panel-default" width=250px>
+  <div class="panel-heading">
+    <h3 class="panel-title">User Configuration Zone</h3>
+  </div>
+  <div class="panel-body">
+  	<strong>Savings Color:</strong> <input ng-model="userParameters.savingsColor"></input></br>
+  	<strong>Actual Color:</strong> <input ng-model="userParameters.actualColor"></input></br>
+  	<strong>Expected Color:</strong> <input ng-model="userParameters.expectedColor"></input></br>
+  	<strong>Cumulative Color:</strong> <input ng-model="userParameters.cumulativeColor"></input></br>
+  </div>
+  <hr><hr>
+  <div class="panel-footer">
+  	<button ng-if = "showButtons" ng-click="drawHttpChart()">Http</button>
+	<button ng-if = "showButtons" ng-click="drawCsvChart()">Csv</button>
+	<button ng-if = "chartInit" ng-click="redrawChart()">Refresh</button>
+  </div>
+</div>
+
+
+<div id="test_composed"></div>
