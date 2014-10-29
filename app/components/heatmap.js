@@ -108,6 +108,8 @@ angular.module('myApp.heatmap', ['ngRoute'])
 	}
 	
 	heatmapDataService.getData().then(function (dataddd){
+		console.log(dataddd);
+		
 		vm.heatmapConfig = {
 			onClick:function(date, value){
 				zoomHeatmapService.setTimestamp(date.getTime());
@@ -157,6 +159,7 @@ angular.module('myApp.heatmap', ['ngRoute'])
 			}
 		};
 		
+		//after setting heatmap config, unhide the component.
 		vm.rendered = true;
 	});
 	
