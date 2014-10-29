@@ -1,23 +1,26 @@
 <div>Hello, {{timeSeries}}</div>
 <!-- Latest compiled and minified CSS -->
-<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.0/css/bootstrap.min.css">
+<link rel="stylesheet"
+	href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.0/css/bootstrap.min.css">
 
 <div class="panel panel-default" width=250px>
-  <div class="panel-heading">
-    <h3 class="panel-title">User Configuration Zone</h3>
-  </div>
-  <div class="panel-body">
-  	<strong>Savings Color:</strong> <input ng-model="userParameters.savingsColor"></input></br>
-  	<strong>Actual Color:</strong> <input ng-model="userParameters.actualColor"></input></br>
-  	<strong>Expected Color:</strong> <input ng-model="userParameters.expectedColor"></input></br>
-  	<strong>Cumulative Color:</strong> <input ng-model="userParameters.cumulativeColor"></input></br>
-  </div>
-  <hr><hr>
-  <div class="panel-footer">
-  	<button ng-if = "showButtons" ng-click="drawHttpChart()">Http</button>
-	<button ng-if = "showButtons" ng-click="drawCsvChart()">Csv</button>
-	<button ng-if = "chartInit" ng-click="redrawChart()">Refresh</button>
-  </div>
+	<div class="panel-heading">
+		<h3 class="panel-title">User Configuration Zone</h3>
+	</div>
+	<div class="panel-body">
+		<ul>
+			<li ng-repeat="(paramName, param) in userParameters | orderBy:'paramName'"><span>{{phone.name}}</span>
+				<strong>{{paramName}}:</strong> <input ng-model="userParameters[paramName]"></input></br>
+			</li>
+		</ul>
+	</div>
+	<hr>
+	<hr>
+	<div class="panel-footer">
+		<button ng-if="showButtons" ng-click="drawHttpChart()">Http</button>
+		<button ng-if="showButtons" ng-click="drawCsvChart()">Csv</button>
+		<button ng-if="chartInit" ng-click="redrawChart()">Refresh</button>
+	</div>
 </div>
 
 
