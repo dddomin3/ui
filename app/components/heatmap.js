@@ -88,17 +88,6 @@ angular.module('myApp.heatmap', ['ngRoute'])
 		var min = 10;
 		vm.heatmapConfig.range = Math.floor(Math.random()*(max-min+1)+min);
 		vm.rendered = false;
-
-		console.log('before:');
-		console.log(vm);
-		console.log(vm.getTimestamp());
-		
-		vm.setTimestamp(new Date());
-		
-		console.log('after:');		
-		console.log(vm.getTimestamp());
-		
-		$scope.myTimestamp = vm.getTimestamp();
 		
 		//In one second, reload the heatmap component with the changed configuration.
 		window.setTimeout(function(){
