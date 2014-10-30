@@ -2,6 +2,7 @@
 	<div ng-controller="heatmapCtrl as heat1">
 		<button ng-click="heat1.change()">Change heat1</button>
 		<div ng-if="heat1.rendered"> 
+		<heatmap-config></heatmap-config>
 		<cal-heatmap config="heat1.heatmapConfig"></cal-heatmap>
 		</div>
 	</div>
