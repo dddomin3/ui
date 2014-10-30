@@ -26,8 +26,10 @@ angular.module('myApp.heatmap', ['ngRoute'])
 	
 	//get data and format it as cal-heatmap expects 
 	//TODO - data obj does not need to be refereshed every time we want to get??? can we re-serve from memory if we dont believe anthing has changed???
+	
+	//To show up as empty, the timestamp NEEDS to be in the data object as "timestamp":null - UGHHHHHHH ; Phil
 	var _getData = function(){ 
-		return $http.get('http://10.239.3.132:8080/dailyhistory/544876bf2e905908b6e5f595').
+		return $http.get('http://192.168.1.5:8080/dailyhistory/544f0fae44aec41e184c70d6').
 		success(function(data){
 				var i = 0;
 				var historyArray = data.his;
@@ -38,6 +40,11 @@ angular.module('myApp.heatmap', ['ngRoute'])
 					_dataObj[(historyArray[i].timestamp / 1000)+""] = +historyArray[i].value;
 				}
 				
+				_dataObj[((1413949500000+900000) / 1000)+""] = null;
+				_dataObj[((1413949500000+1800000) / 1000)+""] = null;
+				_dataObj[((1413949500000+2700000) / 1000)+""] = null;
+				_dataObj[((1413949500000+3600000) / 1000)+""] = null;
+				
 			}).
 		error(function(data){
 			console.log('error???');
@@ -45,9 +52,44 @@ angular.module('myApp.heatmap', ['ngRoute'])
 		});
 	}
 	
+	
+	var _getMax = function(){
+		var max = 0;
+		
+		for(var timestamp in _dataObj){
+			if(_dataObj.hasOwnProperty(timestamp)){
+				if(_dataObj[timestamp] > max){
+					console.log(_dataObj[timestamp]+' greater than previous '+max);
+					max = _dataObj[timestamp];
+				}
+			}
+		}
+		
+		//4 fifteen minute timestamps in the hour... just get a decent number....
+		return max*4;
+	}
+	
+	var _getMin = function(){
+		var min = 999999999999999;
+		
+		for(var timestamp in _dataObj){
+			if(_dataObj.hasOwnProperty(timestamp)){
+				if(_dataObj[timestamp] < min && _dataObj[timestamp] != 0 & _dataObj[timestamp] != null){
+					console.log(_dataObj[timestamp]+' less than previous '+min);
+					min = _dataObj[timestamp];
+				}
+			}
+		}
+		
+		//4 fifteen minute timestamps in the hour... just get a decent number....
+		return min*4;
+	}
+	
 	_servObj = {
 		getUrl : _getUrl,
 		setUrl: _setUrl,
+		getMax : _getMax,
+		getMin : _getMin,
 		getData : _getData,
 		dataObj : _dataObj
 	}
@@ -84,9 +126,21 @@ angular.module('myApp.heatmap', ['ngRoute'])
 	
 	//for testing multiple controllers inheriting the same service singleton
 	vm.change = function(){
-		var max = 30;
-		var min = 10;
-		vm.heatmapConfig.range = Math.floor(Math.random()*(max-min+1)+min);
+		//var max = 30;
+		//var min = 10;
+		//vm.heatmapConfig.range = Math.floor(Math.random()*(max-min+1)+min);
+		
+		var max = heatmapDataService.getMax();
+		var min = heatmapDataService.getMin();
+		var delta = max-min;
+		
+		vm.heatmapConfig.legend = [
+			min, min + delta/10, min + delta/5, min+3*delta/10, min+2*delta/5, min+delta/2, min+3*delta/5, min+7*delta/10,
+			min+4*delta/5, min+9*delta/10, max, max+delta/10
+		];
+		
+		console.log(vm.heatmapConfig.legend);
+		
 		vm.rendered = false;
 		
 		//In one second, reload the heatmap component with the changed configuration.
@@ -113,15 +167,16 @@ angular.module('myApp.heatmap', ['ngRoute'])
 			cellSize: 20, //px size of cells
 			cellPadding: 1,	//px between cells
 			cellRadius: 2,	//px of cell radius
+			considerMissingDataAsZero: true,
 			domainGutter: 0, //px padding between dates
 			colLimit: 1, //number of colums per domain
-			legend: [0,1,2,3,4,5,6,7,8,9,10,11,12],	//legend. Remember its like actually the count
+			legend: [1,2,3,4,5,6,7,8,9,10,11,12,13],	//legend. Remember its like actually the count
 													//TODO: make vm change dependant on dataset
 			legendVerticalPosition: "center",
 			legendHorizontalPosition: "right",
 			legendOrientation: "vertical",
 			legendMargin: [10, 10, 10, 10],
-			legendColors: ['#00FF00', '#FF0000'],	//colors of legend gradient
+			legendColors: {empty:'#C2C2A3', base: '#C2C2A3', min:'#00FF00', max:'#FF0000'},	//colors of legend gradient
 			subDomainTextFormat: '%H', /*function(date, value) {
 				if (date.getMinutes() === 0) {
 					return date.getHours();
