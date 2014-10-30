@@ -132,11 +132,33 @@ angular.module('myApp.energyProfile', ['ngRoute'])
 	//populated by drawChart
 	
 	var drawChart = function () {
-		var composite = dc.compositeChart("#test_composed");
-	    
+		composite = dc.compositeChart("#test_composed");
+		var cumulativeArea = dc.lineChart(composite)
+		    .dimension($scope.dateDimension)
+		    .interpolate("basis")
+		    .colors($scope.userParameters.cumulativeColor)
+		    .group($scope.savingsSum, "Total Savings/Waste")
+		    .renderArea(true);
+		var actualLine = dc.lineChart(composite)
+	        .dimension($scope.dateDimension)
+	        .interpolate("basis")
+	        .colors($scope.userParameters.actualColor)
+	        .group($scope.actualGroup, "Actual KWH");
+		var expectedLine = dc.lineChart(composite)
+	        .dimension($scope.dateDimension)
+	        .interpolate("basis")
+	        .colors($scope.userParameters.expectedColor)
+	        .group($scope.expectedGroup, "Expected KWH");
+		var savingsBar = dc.barChart(composite)
+	        .dimension($scope.dateDimension)
+	        .group($scope.savingsGroup[0], "Savings")
+	        .ordinalColors([$scope.userParameters.savingsColor, 'rgba(255,0,0,0.3)']);
+		
+		for (var i = 1, len = $scope.savingsGroup.length; i < len; i++) {
+			savingsBar = savingsBar.stack($scope.savingsGroup[i], "Savings"+i); //TODO:these should hav emore meaningful names
+		}
+		
 	    composite.margins().left = 75;
-	    
-	    console.log(dc.lineChart(composite));
 	    
 	    composite
 	      .width($scope.userParameters.width)
@@ -149,26 +171,10 @@ angular.module('myApp.energyProfile', ['ngRoute'])
 	      .renderHorizontalGridLines(true)
 	      .mouseZoomable(true)
 	    .compose([
-	        dc.barChart(composite)
-	            .dimension($scope.dateDimension)
-	            .colors($scope.userParameters.savingsColor)
-	            .group($scope.savingsGroup, "Savings"),
-	        dc.lineChart(composite)
-	            .dimension($scope.dateDimension)
-	            .interpolate("basis")
-	            .colors($scope.userParameters.actualColor)
-	            .group($scope.actualGroup, "Actual KWH"),
-	         dc.lineChart(composite)
-	            .dimension($scope.dateDimension)
-	            .interpolate("basis")
-	            .colors($scope.userParameters.expectedColor)
-	            .group($scope.expectedGroup, "Expected KWH"),
-	        dc.lineChart(composite)
-	            .dimension($scope.dateDimension)
-	            .interpolate("basis")
-	            .colors($scope.userParameters.cumulativeColor)
-	            .group($scope.savingsSum, "Total Savings/Waste")
-	            .renderArea(true)
+			cumulativeArea,
+	        savingsBar,
+	        actualLine,
+	        expectedLine
 	        ])
 	    .brushOn(false)
 	    .render();
@@ -182,7 +188,7 @@ angular.module('myApp.energyProfile', ['ngRoute'])
         
         $scope.actualGroup = dataService.getActualGroup();
         $scope.expectedGroup = dataService.getExpectedGroup();
-        $scope.savingsGroup = dataService.getSavingsGroup();
+        $scope.savingsGroup = [dataService.getSavingsGroup(), dataService.getSavingsGroup()]; //TODO:dataService.getSavingsGroups!?!?
         
         $scope.savingsSum = dataService.getCumulativeSavingsGroup();
        
@@ -196,7 +202,7 @@ angular.module('myApp.energyProfile', ['ngRoute'])
         $scope.showButtons = true;
     };
     
-	var csv = function (data) {
+	var csv = function (doubleize) {
 		d3.csv("expectedActual.csv", function(error, energyData) {
 			$scope.showButtons = false;
 	    	dataService.csvInit(energyData);
@@ -206,26 +212,28 @@ angular.module('myApp.energyProfile', ['ngRoute'])
 	        
 	        $scope.actualGroup = dataService.getActualGroup();
 	        $scope.expectedGroup = dataService.getExpectedGroup();
-	        $scope.savingsGroup = dataService.getSavingsGroup();
+	        $scope.savingsGroup = [dataService.getSavingsGroup(), dataService.getSavingsGroup()];
 	        
 	        $scope.savingsSum = dataService.getCumulativeSavingsGroup();
 	        
 	        var bottom = (new Date($scope.dateDimension.bottom(1)[0].timestamp)).getMonth();
 	        var top = (new Date($scope.dateDimension.top(1)[0].timestamp)).getMonth();
-	        console.log([bottom, top]);
+	        console.log([bottom, top]); //TODO:this is borken
 	        $scope.domainX = d3.scale.linear().domain([bottom, top]);
 	        
 	        composite = drawChart();
 	        $scope.showButtons = true;
-	        $scope.$apply();	//required to make button show up after everything is done.
-	        //watchers not active in this block...
 	    });
 	};
 	
 	$scope.drawHttpChart = function () {
 		$scope.chartInit = true;
-		$scope.showButtons = false;
 		dataService.getData().then( http, csv );
+	}
+	
+	$scope.drawCsvChart = function () {
+		$scope.chartInit = true;
+		csv();
 	}
 	
 	$scope.drawCsvChart = function () {
@@ -236,5 +244,11 @@ angular.module('myApp.energyProfile', ['ngRoute'])
 	$scope.redrawChart = function () {
 		composite = drawChart();
 	}
+	
+	$scope.isColor = function (paramName) {
+		var regex = /color/ig;
+		return regex.test(paramName);
+	}
+
 	
 }]);

@@ -3,19 +3,23 @@
 <link rel="stylesheet"
 	href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.0/css/bootstrap.min.css">
 
-<div class="panel panel-default" width=250px>
+<div class="panel panel-default col-md-2">
 	<div class="panel-heading">
 		<h3 class="panel-title">User Configuration Zone</h3>
 	</div>
 	<div class="panel-body">
 		<ul>
 			<li ng-repeat="(paramName, param) in userParameters | orderBy:'paramName'"><span>{{phone.name}}</span>
-				<strong>{{paramName}}:</strong> <input ng-model="userParameters[paramName]"></input></br>
+				<strong>{{paramName}}:</strong>
+				<button class="btn btn-default" style="background-color:{{userParameters[paramName]}}" ng-if="isColor(paramName)" 
+				colorpicker-position="right" colorpicker="rgba" type="text" ng-model="userParameters[paramName]">
+				Color</button>
+				<input ng-if="!isColor(paramName)" ng-model="userParameters[paramName]"></input>
+				</br>
 			</li>
 		</ul>
 	</div>
-	<hr>
-	<hr>
+
 	<div class="panel-footer">
 		<button ng-if="showButtons" ng-click="drawHttpChart()">Http</button>
 		<button ng-if="showButtons" ng-click="drawCsvChart()">Csv</button>
@@ -24,4 +28,4 @@
 </div>
 
 
-<div id="test_composed"></div>
+<div class="col-md-10" id="test_composed"></div>
