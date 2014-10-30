@@ -7,7 +7,7 @@ angular.module('myApp.timeSeries', ['ngRoute'])
 	$scope.timeSeries = 'timeSeries';
     d3.csv("expectedActual.csv", function(error, energyData) {
     	
-    	var parse = d3.time.format("%m/%d/%Y").parse;
+    	var parse = d3.time.format("%m/%d/%Y").parse; // parses out the date object from the string
     	
         var ndx = crossfilter(energyData)
         
@@ -27,29 +27,30 @@ angular.module('myApp.timeSeries', ['ngRoute'])
         
         $scope.domainX = function () { return d3.scale.linear().domain([1,12]); } // returnable domain, this feeds into the timeSeries.html page for the other charts
         
-        var composite = dc.compositeChart("#test_composed"); // names the chart
-
-        d3.select(".dc-chart"); // selects the chart
-            
         var w = 900, // sets the width, height, margin, legend X and legend Y values
-        	h = 680,
-        	m = [75,150],
-        	lX = (w-m[1])+25,
-        	lY = (h)-650;
+    	h = 680,
+    	m = [75,150],
+    	lX = (w-m[1])+25,
+    	lY = (h)-650;
+    
+        var displayDate = d3.time.format("%m-%Y"); // function to change the format of a date object to mm-yyyy
         
-        composite.margins().left = m[0]; // sets the left margin
-        composite.margins().right = m[1]; // sets the right margin
-                
         var minDate = $scope.dateDimension.bottom(1)[0].date; // sets the lowest date value from the available data
         var maxDate = $scope.dateDimension.top(1)[0].date; // sets the highest date value from the available data
         
-        var displayDate = d3.time.format("%m-%d-%Y"); // not working
+        var composite = dc.compositeChart("#test_composed"); // names the chart
+        composite.xAxis().tickFormat(function(v) {return displayDate(new Date(v));}); // sets the tick format to be the month/year only
+        composite.margins().left = m[0]; // sets the left margin
+        composite.margins().right = m[1]; // sets the right margin
+        
+        d3.select(".dc-chart"); // selects the chart
         
         composite // creates the graph object
           .width(w) // sets width
           .height(h)
           .x(d3.scale.linear().domain([minDate,maxDate])) // sets X axis
           .xUnits(d3.time.months) // sets X axis units
+          
           .elasticX(true) // allows X axis to be zoomed in/out
           .elasticY(true)
           .yAxisLabel("The Y Axis")
