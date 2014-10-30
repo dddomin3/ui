@@ -139,11 +139,6 @@ angular.module('myApp.energyProfile', ['ngRoute'])
 		    .colors($scope.userParameters.cumulativeColor)
 		    .group($scope.savingsSum, "Total Savings/Waste")
 		    .renderArea(true);
-		var savingsBar = dc.barChart(composite)
-	        .dimension($scope.dateDimension)
-	        .group($scope.savingsGroup, "Savings")
-	        .ordinalColors([$scope.userParameters.savingsColor, 'rgba(255,0,0,0.3)'])
-	        .stack($scope.savingsSum, "Summadat");
 		var actualLine = dc.lineChart(composite)
 	        .dimension($scope.dateDimension)
 	        .interpolate("basis")
@@ -154,6 +149,14 @@ angular.module('myApp.energyProfile', ['ngRoute'])
 	        .interpolate("basis")
 	        .colors($scope.userParameters.expectedColor)
 	        .group($scope.expectedGroup, "Expected KWH");
+		var savingsBar = dc.barChart(composite)
+	        .dimension($scope.dateDimension)
+	        .group($scope.savingsGroup[0], "Savings")
+	        .ordinalColors([$scope.userParameters.savingsColor, 'rgba(255,0,0,0.3)']);
+		
+		for (var i = 1, len = $scope.savingsGroup.length; i < len; i++) {
+			savingsBar = savingsBar.stack($scope.savingsGroup[i], "Savings"+i); //TODO:these should hav emore meaningful names
+		}
 		
 	    composite.margins().left = 75;
 	    
@@ -185,7 +188,7 @@ angular.module('myApp.energyProfile', ['ngRoute'])
         
         $scope.actualGroup = dataService.getActualGroup();
         $scope.expectedGroup = dataService.getExpectedGroup();
-        $scope.savingsGroup = dataService.getSavingsGroup();
+        $scope.savingsGroup = [dataService.getSavingsGroup(), dataService.getSavingsGroup()]; //TODO:dataService.getSavingsGroups!?!?
         
         $scope.savingsSum = dataService.getCumulativeSavingsGroup();
        
@@ -199,7 +202,7 @@ angular.module('myApp.energyProfile', ['ngRoute'])
         $scope.showButtons = true;
     };
     
-	var csv = function (data) {
+	var csv = function (doubleize) {
 		d3.csv("expectedActual.csv", function(error, energyData) {
 			$scope.showButtons = false;
 	    	dataService.csvInit(energyData);
@@ -209,7 +212,7 @@ angular.module('myApp.energyProfile', ['ngRoute'])
 	        
 	        $scope.actualGroup = dataService.getActualGroup();
 	        $scope.expectedGroup = dataService.getExpectedGroup();
-	        $scope.savingsGroup = dataService.getSavingsGroup();
+	        $scope.savingsGroup = [dataService.getSavingsGroup(), dataService.getSavingsGroup()];
 	        
 	        $scope.savingsSum = dataService.getCumulativeSavingsGroup();
 	        
@@ -226,6 +229,11 @@ angular.module('myApp.energyProfile', ['ngRoute'])
 	$scope.drawHttpChart = function () {
 		$scope.chartInit = true;
 		dataService.getData().then( http, csv );
+	}
+	
+	$scope.drawCsvChart = function () {
+		$scope.chartInit = true;
+		csv();
 	}
 	
 	$scope.drawCsvChart = function () {

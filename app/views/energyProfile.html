@@ -10,10 +10,10 @@
 	<div class="panel-body">
 		<ul>
 			<li ng-repeat="(paramName, param) in userParameters | orderBy:'paramName'"><span>{{phone.name}}</span>
-				<strong>{{paramName}}:</strong></br> 
+				<strong>{{paramName}}:</strong>
 				<button class="btn btn-default" style="background-color:{{userParameters[paramName]}}" ng-if="isColor(paramName)" 
 				colorpicker-position="right" colorpicker="rgba" type="text" ng-model="userParameters[paramName]">
-				Color Chooser</button>
+				Color</button>
 				<input ng-if="!isColor(paramName)" ng-model="userParameters[paramName]"></input>
 				</br>
 			</li>
