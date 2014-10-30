@@ -133,6 +133,26 @@ angular.module('myApp.energyProfile', ['ngRoute'])
 	
 	var drawChart = function () {
 		var composite = dc.compositeChart("#test_composed");
+		var cumulativeArea = dc.lineChart(composite)
+		    .dimension($scope.dateDimension)
+		    .interpolate("basis")
+		    .colors($scope.userParameters.cumulativeColor)
+		    .group($scope.savingsSum, "Total Savings/Waste")
+		    .renderArea(true);
+		var savingsBar = dc.barChart(composite)
+	        .dimension($scope.dateDimension)
+	        .colors($scope.userParameters.savingsColor)
+	        .group($scope.savingsGroup, "Savings");
+		var actualLine = dc.lineChart(composite)
+	        .dimension($scope.dateDimension)
+	        .interpolate("basis")
+	        .colors($scope.userParameters.actualColor)
+	        .group($scope.actualGroup, "Actual KWH");
+		var expectedLine = dc.lineChart(composite)
+	        .dimension($scope.dateDimension)
+	        .interpolate("basis")
+	        .colors($scope.userParameters.expectedColor)
+	        .group($scope.expectedGroup, "Expected KWH");
 	    
 	    composite.margins().left = 75;
 	    
@@ -149,26 +169,10 @@ angular.module('myApp.energyProfile', ['ngRoute'])
 	      .renderHorizontalGridLines(true)
 	      .mouseZoomable(true)
 	    .compose([
-	        dc.barChart(composite)
-	            .dimension($scope.dateDimension)
-	            .colors($scope.userParameters.savingsColor)
-	            .group($scope.savingsGroup, "Savings"),
-	        dc.lineChart(composite)
-	            .dimension($scope.dateDimension)
-	            .interpolate("basis")
-	            .colors($scope.userParameters.actualColor)
-	            .group($scope.actualGroup, "Actual KWH"),
-	         dc.lineChart(composite)
-	            .dimension($scope.dateDimension)
-	            .interpolate("basis")
-	            .colors($scope.userParameters.expectedColor)
-	            .group($scope.expectedGroup, "Expected KWH"),
-	        dc.lineChart(composite)
-	            .dimension($scope.dateDimension)
-	            .interpolate("basis")
-	            .colors($scope.userParameters.cumulativeColor)
-	            .group($scope.savingsSum, "Total Savings/Waste")
-	            .renderArea(true)
+			cumulativeArea,
+	        savingsBar,
+	        actualLine,
+	        expectedLine
 	        ])
 	    .brushOn(false)
 	    .render();
