@@ -19,8 +19,11 @@ angular.module('myApp.timeSeries', ['ngRoute'])
         $scope.expectedGroup = $scope.dateDimension.group().reduceSum(function(e) { return +e.expectedKWH;})
         $scope.savingsGroup = $scope.dateDimension.group().reduceSum(function(e) { return +e.savings;})
 
-
-        $scope.savingsSum = $scope.dateDimension.group().reduceSum(function(e) { totalSum = totalSum+(+e.savings);  return totalSum});
+        $scope.savingsSum = $scope.dateDimension.group().reduce(
+        		function(p,v) {totalSum = (+v.savings) + totalSum;  return totalSum;},
+        		function(p,v) {totalSum = totalSum-(+v.savings); return totalSum;},
+        		function() {totalSum = 0; return totalSum;}	
+        );
         
         $scope.domainX = function () { return d3.scale.linear().domain([0,12]); } // 12 months in a year.  make this adjustable to fit the possibility of a dynamically changing view
         
@@ -28,9 +31,7 @@ angular.module('myApp.timeSeries', ['ngRoute'])
         d3.select(".dc-chart");
             
         composite.margins().left = 75;
-        
-        console.log(dc.lineChart(composite));
-        
+                
         composite
           .width(750)
           .height(680)
@@ -45,7 +46,8 @@ angular.module('myApp.timeSeries', ['ngRoute'])
             dc.barChart(composite)
                 .dimension($scope.dateDimension)
                 .colors('cyan')
-                .group($scope.savingsGroup, "Savings"),
+                .group($scope.savingsGroup, "Savings")
+                .centerBar(true),
             dc.lineChart(composite)
                 .dimension($scope.dateDimension)
                 .interpolate("basis")
@@ -58,8 +60,8 @@ angular.module('myApp.timeSeries', ['ngRoute'])
                 .group($scope.expectedGroup, "Expected KWH"),
             dc.lineChart(composite)
                 .dimension($scope.dateDimension)
-                .interpolate("basis")
                 .colors('gray')
+                .interpolate("basis")
                 .group($scope.savingsSum, "Total Savings/Waste")
                 .renderArea(true)
             ])
