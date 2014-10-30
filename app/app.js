@@ -10,7 +10,8 @@ angular.module('myApp', [
   'myApp.energyProfile',
   'myApp.timeSeries',
   'calHeatmap',
-  'angularDc'
+  'angularDc',
+  'colorpicker.module'
 ]).
 
 config(['$routeProvider', function($routeProvider) {

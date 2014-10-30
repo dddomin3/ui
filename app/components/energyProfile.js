@@ -132,7 +132,7 @@ angular.module('myApp.energyProfile', ['ngRoute'])
 	//populated by drawChart
 	
 	var drawChart = function () {
-		var composite = dc.compositeChart("#test_composed");
+		composite = dc.compositeChart("#test_composed");
 		var cumulativeArea = dc.lineChart(composite)
 		    .dimension($scope.dateDimension)
 		    .interpolate("basis")
@@ -141,8 +141,9 @@ angular.module('myApp.energyProfile', ['ngRoute'])
 		    .renderArea(true);
 		var savingsBar = dc.barChart(composite)
 	        .dimension($scope.dateDimension)
-	        .colors($scope.userParameters.savingsColor)
-	        .group($scope.savingsGroup, "Savings");
+	        .group($scope.savingsGroup, "Savings")
+	        .ordinalColors([$scope.userParameters.savingsColor, 'rgba(255,0,0,0.3)'])
+	        .stack($scope.savingsSum, "Summadat");
 		var actualLine = dc.lineChart(composite)
 	        .dimension($scope.dateDimension)
 	        .interpolate("basis")
@@ -153,10 +154,8 @@ angular.module('myApp.energyProfile', ['ngRoute'])
 	        .interpolate("basis")
 	        .colors($scope.userParameters.expectedColor)
 	        .group($scope.expectedGroup, "Expected KWH");
-	    
+		
 	    composite.margins().left = 75;
-	    
-	    console.log(dc.lineChart(composite));
 	    
 	    composite
 	      .width($scope.userParameters.width)
@@ -216,19 +215,16 @@ angular.module('myApp.energyProfile', ['ngRoute'])
 	        
 	        var bottom = (new Date($scope.dateDimension.bottom(1)[0].timestamp)).getMonth();
 	        var top = (new Date($scope.dateDimension.top(1)[0].timestamp)).getMonth();
-	        console.log([bottom, top]);
+	        console.log([bottom, top]); //TODO:this is borken
 	        $scope.domainX = d3.scale.linear().domain([bottom, top]);
 	        
 	        composite = drawChart();
 	        $scope.showButtons = true;
-	        $scope.$apply();	//required to make button show up after everything is done.
-	        //watchers not active in this block...
 	    });
 	};
 	
 	$scope.drawHttpChart = function () {
 		$scope.chartInit = true;
-		$scope.showButtons = false;
 		dataService.getData().then( http, csv );
 	}
 	
@@ -240,5 +236,11 @@ angular.module('myApp.energyProfile', ['ngRoute'])
 	$scope.redrawChart = function () {
 		composite = drawChart();
 	}
+	
+	$scope.isColor = function (paramName) {
+		var regex = /color/ig;
+		return regex.test(paramName);
+	}
+
 	
 }]);
