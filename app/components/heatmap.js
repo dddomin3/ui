@@ -9,58 +9,56 @@ angular.module('myApp.heatmap', ['ngRoute'])
   });
 }])
 
-.factory('heatmapDataService', ['$http', function($http){
+.factory('heatmapDataFactory', ['$http', function($http){
 	var _servObj = {};	
-	var _dataObj = {};
-
 	
-	var _setUrl = function(url){
-		_url = url;
-
+	var _setUrl = function(Url){
+		this.url = Url;
+		console.log('I set url');
+		console.log(this);
+		
 		return _servObj;
 	}
 	
 	var _getUrl = function(){
-		return _url;
+		console.log(this);
+		
+		return this.url;
 	}
 	
 	//get data and format it as cal-heatmap expects 
 	//TODO - data obj does not need to be refereshed every time we want to get??? can we re-serve from memory if we dont believe anthing has changed???
 	
 	//To show up as empty, the timestamp NEEDS to be in the data object as "timestamp":null - UGHHHHHHH ; Phil
-	var _getData = function(){ 
-		return $http.get('http://192.168.1.5:8080/dailyhistory/544f0fae44aec41e184c70d6').
-		success(function(data){
-				var i = 0;
-				var historyArray = data.his;
-				
-				console.log('success????');
-				
-				for(i = 0; i < historyArray.length; i++){
-					_dataObj[(historyArray[i].timestamp / 1000)+""] = +historyArray[i].value;
-				}
-				
-				_dataObj[((1413949500000+900000) / 1000)+""] = null;
-				_dataObj[((1413949500000+1800000) / 1000)+""] = null;
-				_dataObj[((1413949500000+2700000) / 1000)+""] = null;
-				_dataObj[((1413949500000+3600000) / 1000)+""] = null;
-				
-			}).
-		error(function(data){
-			console.log('error???');
-			throw('there was problem getting data');
-		});
+	var _getData = function(){
+		var caller = this;
+		
+		return $http.get(caller.getUrl())
+			.success(function(data){
+					
+					var i = 0;
+					var historyArray = data.his;
+					
+					console.log('success????');
+					
+					for(i = 0; i < historyArray.length; i++){
+						caller.dataObj[(historyArray[i].timestamp / 1000)+""] = +historyArray[i].value;
+					};
+				})
+			.error(function(data){
+				console.log('error???');
+				throw('there was problem getting data');
+			});
 	}
 	
 	
 	var _getMax = function(){
 		var max = 0;
 		
-		for(var timestamp in _dataObj){
-			if(_dataObj.hasOwnProperty(timestamp)){
-				if(_dataObj[timestamp] > max){
-					console.log(_dataObj[timestamp]+' greater than previous '+max);
-					max = _dataObj[timestamp];
+		for(var timestamp in this.dataObj){
+			if(this.dataObj.hasOwnProperty(timestamp)){
+				if(this.dataObj[timestamp] > max){
+					max = this.dataObj[timestamp];
 				}
 			}
 		}
@@ -72,11 +70,10 @@ angular.module('myApp.heatmap', ['ngRoute'])
 	var _getMin = function(){
 		var min = 999999999999999;
 		
-		for(var timestamp in _dataObj){
-			if(_dataObj.hasOwnProperty(timestamp)){
-				if(_dataObj[timestamp] < min && _dataObj[timestamp] != 0 & _dataObj[timestamp] != null){
-					console.log(_dataObj[timestamp]+' less than previous '+min);
-					min = _dataObj[timestamp];
+		for(var timestamp in this.dataObj){
+			if(this.dataObj.hasOwnProperty(timestamp)){
+				if(this.dataObj[timestamp] < min && this.dataObj[timestamp] != 0 & this.dataObj[timestamp] != null){
+					min = this.dataObj[timestamp];
 				}
 			}
 		}
@@ -91,11 +88,18 @@ angular.module('myApp.heatmap', ['ngRoute'])
 		getMax : _getMax,
 		getMin : _getMin,
 		getData : _getData,
-		dataObj : _dataObj
 	}
 	
 	return _servObj;
 	
+}])
+
+.service('heatmapDataService', ['heatmapDataFactory', function(heatmapDataFactory){
+	//inherit common functionality from the factory...
+	angular.extend(this, heatmapDataFactory);
+	
+	this.dataObj = {};
+	this.url = "";
 }])
 
 .factory('persistHeatmapService', ['persistViewService', function(persistViewService){
@@ -113,55 +117,27 @@ angular.module('myApp.heatmap', ['ngRoute'])
 	
 	return _servObj;
 }])
- 
-.controller('heatmapCtrl', ['$scope', '$location', '$route', 'zoomHeatmapService', 'persistHeatmapService', 'heatmapDataService', function($scope, $location, $route, zoomHeatmapService, persistHeatmapService, heatmapDataService) {
-	var vm = this;
-	
-	//control whether the view needs to be reloaded.
-	vm.rendered = false;
 
-	//inject the zoomHeatmapService into the scope.
-	angular.extend(vm, zoomHeatmapService);	
-	angular.extend(vm, persistHeatmapService);
+.factory('heatmapConfigFactory', [ function(){
+	var _servObj = {};
 	
-	//for testing multiple controllers inheriting the same service singleton
-	vm.change = function(){
-		//var max = 30;
-		//var min = 10;
-		//vm.heatmapConfig.range = Math.floor(Math.random()*(max-min+1)+min);
+	var _init = function(){
+		//caller is the controller which is currently invoking this function
+		var caller = this;
+		caller.setUrl('http://10.239.3.132:8080/dailyhistory/544876bf2e905908b6e5f595');
 		
-		var max = heatmapDataService.getMax();
-		var min = heatmapDataService.getMin();
-		var delta = max-min;
-		
-		vm.heatmapConfig.legend = [
-			min, min + delta/10, min + delta/5, min+3*delta/10, min+2*delta/5, min+delta/2, min+3*delta/5, min+7*delta/10,
-			min+4*delta/5, min+9*delta/10, max, max+delta/10
-		];
-		
-		console.log(vm.heatmapConfig.legend);
-		
-		vm.rendered = false;
-		
-		//In one second, reload the heatmap component with the changed configuration.
-		window.setTimeout(function(){
-			vm.rendered = true;
-			$scope.$apply();
-		}, 1000);
-	}
-	
-	heatmapDataService.getData().then(function (dataddd){
-		console.log(dataddd);
-		
-		vm.heatmapConfig = {
+		console.log(caller);
+		caller.getData().then(function (dataddd){
+				
+		caller.heatmapConfig = {
 			onClick:function(date, value){
-				zoomHeatmapService.setTimestamp(date.getTime());
+				caller.setTimestamp(date.getTime());
 				
 				$location.url('/zoomHeatmap');			
 				$route.reload();
 			},
 			domain: 'day',
-			data: heatmapDataService.dataObj,
+			data: caller.dataObj,
 			subDomain: 'hour',
 			range: 30,	//number of domains (days in current implementation)
 			cellSize: 20, //px size of cells
@@ -204,7 +180,63 @@ angular.module('myApp.heatmap', ['ngRoute'])
 		};
 		
 		//after setting heatmap config, unhide the component.
-		vm.rendered = true;
+		caller.rendered = true;
 	});
+	}
+	
+	_servObj = {
+		init : _init
+	};
+	
+	return _servObj;
+}])
+
+.service('heatmapConfigService', [ 'heatmapConfigFactory', function(heatmapConfigFactory){
+	this.heatmapConfig = {};
+	this.rendered = false;
+	
+	//inherit common functions / global variables from factory
+	angular.extend(this, heatmapConfigFactory);
+}])
+ 
+.controller('heatmapCtrl', ['$scope', '$location', '$route', 'zoomHeatmapService', 'persistHeatmapService', 'heatmapDataService', 'heatmapConfigService', function($scope, $location, $route, zoomHeatmapService, persistHeatmapService, heatmapDataService, heatmapConfigService) {
+	var vm = this;
+	
+	//control whether the view needs to be reloaded.
+	vm.rendered = false;
+
+	//inject the zoomHeatmapService into the scope.
+	angular.extend(vm, zoomHeatmapService);	
+	angular.extend(vm, persistHeatmapService);
+	angular.extend(vm, heatmapDataService);
+	angular.extend(vm, heatmapConfigService);
+	
+	//for testing multiple controllers inheriting the same service singleton
+	vm.change = function(){
+		//var max = 30;
+		//var min = 10;
+		//vm.heatmapConfig.range = Math.floor(Math.random()*(max-min+1)+min);
+		
+		var max = vm.getMax();
+		var min = vm.getMin();
+		var delta = max-min;
+		
+		vm.heatmapConfig.legend = [
+			min, min + delta/10, min + delta/5, min+3*delta/10, min+2*delta/5, min+delta/2, min+3*delta/5, min+7*delta/10,
+			min+4*delta/5, min+9*delta/10, max, max+delta/10
+		];
+		
+		console.log(vm.heatmapConfig.legend);
+		
+		vm.rendered = false;
+		
+		//In one second, reload the heatmap component with the changed configuration.
+		window.setTimeout(function(){
+			vm.rendered = true;
+			$scope.$apply();
+		}, 1000);
+	}
+	
+	vm.init();
 	
 }]);
