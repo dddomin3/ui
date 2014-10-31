@@ -9,11 +9,24 @@
 	</div>
 	<div class="panel-body">
 		<ul>
-			<li ng-repeat="(paramName, param) in userParameters | orderBy:'paramName'"><span>{{phone.name}}</span>
+			<li ng-repeat="(paramName, param) in userParameters | orderBy:'paramName'">
 				<strong>{{paramName}}:</strong>
-				<button class="btn btn-default" style="background-color:{{userParameters[paramName]}}" ng-if="isColor(paramName)" 
+				
+				<button ng-if="isColor(paramName)&&!isArray(param)" class="btn btn-default" style="background-color:{{userParameters[paramName]}}"  
 				colorpicker-position="right" colorpicker="rgba" type="text" ng-model="userParameters[paramName]">
 				Color</button>
+				
+				<ul ng-if="isColor(paramName)&&isArray(param)">
+					<li ng-repeat="(index, element) in param track by index">
+						<button class="btn btn-default" style="background-color:{{userParameters[paramName][index]}}" 
+						colorpicker-position="right" colorpicker="rgba" type="text" ng-model="userParameters[paramName][index]">
+						Color</button>
+					</li>
+					<div class="panel-body">
+						<button class="btn btn-success" ng-click="addColor(param)">Add</button>
+						<button class="btn btn-danger" ng-click="removeColor(param)">Remove</button>
+					</div>
+				</ul>
 				<input ng-if="!isColor(paramName)" ng-model="userParameters[paramName]"></input>
 				</br>
 			</li>
@@ -21,15 +34,15 @@
 	</div>
 
 	<div class="panel-footer">
-		<button ng-if="showButtons" ng-click="drawHttpChart()">Http</button>
-		<button ng-if="showButtons" ng-click="drawCsvChart()">Csv</button>
-		<button ng-if="showButtons" ng-click="drawMultiChart()">MultiCsv</button>
-		<button ng-if="chartInit" ng-click="redrawChart()">Refresh</button>
+		<button class="btn btn-default" ng-if="showButtons" ng-click="drawHttpChart()">Http</button>
+		<button class="btn btn-default" ng-if="showButtons" ng-click="drawCsvChart()">Csv</button>
+		<button class="btn btn-default" ng-if="showButtons" ng-click="drawMultiChart()">MultiCsv</button>
+		<button class="btn btn-default" ng-if="chartInit" ng-click="redrawChart()">Refresh</button>
 	</div>
 </div>
 
 
 <div class="col-md-10">
-	<div class="row"><div id="ranger"></div></div>
 	<div class="row"><div id="test_composed"></div></div>
+	<div class="row"><div id="ranger"></div></div>
 </div>
