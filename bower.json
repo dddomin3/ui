@@ -13,6 +13,7 @@
     "html5-boilerplate": "~4.3.0",
 	"angular-cal-heatmap-directive": "master",
 	"angular-dc": "~0.0.4",
-	"d3": "~3.4.x"
+	"d3": "~3.4.x",
+	"jstat": "master"
   }
 }

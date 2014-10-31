@@ -8,7 +8,7 @@ angular.module('myApp.heatmap', ['ngRoute'])
   });
 }])
 
-.factory('heatmapDataFactory', ['$http', function($http){
+.factory('heatmapDataService', ['$http', function($http){
 	var _servObj = {};	
 	
 	var _setUrl = function(Url){
@@ -29,18 +29,78 @@ angular.module('myApp.heatmap', ['ngRoute'])
 	var _getData = function(){
 		var caller = this;
 		
-		return $http.get(caller.getUrl())
+		return $http.post('http://10.239.3.132:9763/MongoServlet-0.0.1-SNAPSHOT/send',"{\"name\":\"G02NSHVHV7S45Q1_kWh\"}")
 			.success(function(data){
+				var j = 0;
+				var last = 0;
+				var dateSortedResult = {};
+				var startDate = new Date(Date.now());
+				var endDate = new Date();
+				
+				for(j = 0; j < data.result.length; j++){
+					dateSortedResult[new Date(data.result[j].date)] = data.result[j].his;
 					
-					var i = 0;
-					var historyArray = data.his;
+					if(new Date(data.result[j].date).getTime() < startDate.getTime()){
+						startDate = new Date(data.result[j].date);
+					}
+					if(new Date(data.result[j].date).getTime() > endDate.getTime()){
+						endDate = new Date(data.result[j].date);
+					}
+				}
+				
+				var loopDate = startDate;
+				var interpolate= [];
 
-					for(i = 0; i < historyArray.length; i++){
-						caller.dataObj[(historyArray[i].timestamp / 1000)+""] = +historyArray[i].value;
+				console.log(startDate);
+				while(loopDate.getTime() < endDate.getTime()){
+					var historyArray = dateSortedResult[loopDate];
+					var i = 0;
+					
+					try{
+						for(i = 0; i < historyArray.length; i++){
+					
+						if( +historyArray[i].value == 0){
+							continue;
+						}
+						else if(last != 0){
+							var delta = +historyArray[i].value - last;
+							//delta is 0, add to an array of timestamps to be interpolated.
+							if(delta == 0){
+								interpolate[interpolate.length] = (new Date(historyArray[i].timestamp).getTime() / 1000)+"";
+							}
+							//delat is not 0, but there is an array of timestamps to be interpolated.
+							else if(interpolate.length > 0){
+								var iz = 0;
+								
+								interpolate[interpolate.length] = (new Date(historyArray[i].timestamp).getTime() / 1000)+"";
+								
+								for(iz = 0; iz < interpolate.length; iz++){
+									caller.dataObj[interpolate[iz]] = delta / interpolate.length;
+								}
+								
+								interpolate = [];
+							}
+							//delta is not 0, and no interpolation required.
+							else{
+
+								caller.dataObj[(new Date(historyArray[i].timestamp).getTime() / 1000)+""] = delta;
+							}
+						}
+						
+						last = +historyArray[i].value
 					};
 					
-					caller.fillData();
-				})
+					}
+					catch(err){
+						//Date missing... don't bother for now...
+					}
+					
+					loopDate = new Date(loopDate.getTime()+1000*60*60*24);
+
+				}
+				
+				caller.fillData();
+			})
 			.error(function(data){
 				console.log('error???');
 				throw('there was problem getting data');
@@ -75,9 +135,9 @@ angular.module('myApp.heatmap', ['ngRoute'])
 			
 			//move to next minute (should do this based on sub domain instead???)
 			currentTime = currentTime + subDomainDelta;
+			
 		}
-		
-		caller.someObj.bird = "still fucking with me?";
+
 	}
 	
 	var _getMax = function(){
@@ -100,7 +160,7 @@ angular.module('myApp.heatmap', ['ngRoute'])
 		
 		for(var timestamp in this.dataObj){
 			if(this.dataObj.hasOwnProperty(timestamp)){
-				if(this.dataObj[timestamp] < min && this.dataObj[timestamp] != 0 & this.dataObj[timestamp] != null){
+				if(this.dataObj[timestamp] < min && this.dataObj[timestamp] > 0 & this.dataObj[timestamp] != null){
 					min = this.dataObj[timestamp];
 				}
 			}
@@ -110,25 +170,34 @@ angular.module('myApp.heatmap', ['ngRoute'])
 		return min*4;
 	}
 	
+	var _dataAsArray = function(){
+		var i = 0;
+		var array = [];
+		
+		for(var timestamp in this.dataObj){
+			if(this.dataObj.hasOwnProperty(timestamp)){
+				if(this.dataObj[timestamp] != 0 && this.dataObj[timestamp] != null){
+					array[i] = this.dataObj[timestamp];
+					i++;
+				}
+			}
+		}
+		
+		return array;
+	}
+	
 	_servObj = {
 		getUrl : _getUrl,
 		setUrl: _setUrl,
 		getMax : _getMax,
 		getMin : _getMin,
 		getData : _getData,
-		fillData : _fillData
+		fillData : _fillData,
+		dataAsArray : _dataAsArray
 	}
 	
 	return _servObj;
 	
-}])
-
-.service('heatmapDataService', ['heatmapDataFactory', function(heatmapDataFactory){
-	//inherit common functionality from the factory...
-	angular.extend(this, heatmapDataFactory);
-	
-	this.dataObj = {};
-	this.url = "";
 }])
 
 .factory('persistHeatmapService', ['persistViewService', function(persistViewService){
@@ -174,13 +243,15 @@ angular.module('myApp.heatmap', ['ngRoute'])
 		legendOrientation: "vertical",
 		legendMargin: [10, 10, 10, 10],
 		legendColors: {empty:'#C2C2A3', base: '#C2C2A3', min:'#00FF00', max:'#FF0000'},	//colors of legend gradient
+		itemName: ["kWh", "kWh"],
+		subDomainDateFormat: '%c',
 		subDomainTextFormat: '%H', /*function(date, value) {
 			if (date.getMinutes() === 0) {
 				return date.getHours();
 			}
 			else return date.getMinutes();
 		},*/
-		start : new Date(1413864000000),
+		start : new Date(1412136000000),
 		domainLabelFormat: function(date) {//format of each domain label. "x axis" labels
 			var month = 
 				["Jan", "Feb", "Mar", "Apr",
@@ -207,13 +278,11 @@ angular.module('myApp.heatmap', ['ngRoute'])
 	var _init = function(){
 		//caller is the controller which is currently invoking this function
 		var caller = this;
-		caller.setUrl('http://192.168.1.5:8080/dailyhistory/544f0fae44aec41e184c70d6');
+		caller.setUrl('http://10.239.3.132:8080/dailyhistory/544876bf2e905908b6e5f595');
 		
-		console.log(caller);
 		caller.getData().then(function (dataddd){
 		
 		caller.heatmapConfig.data = caller.dataObj;
-		caller.getUrl;
 
 		//after setting heatmap config, unhide the component.
 		caller.rendered = true;
@@ -271,44 +340,34 @@ angular.module('myApp.heatmap', ['ngRoute'])
 	
 	//control whether the view needs to be reloaded.
 	vm.rendered = false;
-	vm.someObj = {
-	
-		cat: "meow",
-		dog: "woof",
-		bird: "cheep"
-	};
+
+	vm.url = "";
+	vm.dataObj = {};
 	
 	vm.heatmapConfig = vm.getDefaultConfig();
 	
-	vm.rand = Math.floor(Math.random()*(100+1)+7);
 	//for testing multiple controllers inheriting the same service singleton
 	vm.change = function(){
 		//var max = 30;
 		//var min = 10;
 		//vm.heatmapConfig.range = Math.floor(Math.random()*(max-min+1)+min);
-		vm.rand = Math.floor(Math.random()*(100+1)+7);
-		vm.url = "are both this?";
-		vm.someObj = {
-			an: "entirely",
-			new: "object"
-		};
+
+		var mean = jStat.mean(vm.dataAsArray())*4;
+		var std = jStat.stdev(vm.dataAsArray())*4;
 		
-		var max = vm.getMax();
-		var min = vm.getMin();
-		var delta = max-min;
+		console.log(mean);
+		console.log(std);
 		
-		/*
 		vm.heatmapConfig.legend = [
-			min, min + delta/10, min + delta/5, min+3*delta/10, min+2*delta/5, min+delta/2, min+3*delta/5, min+7*delta/10,
-			min+4*delta/5, min+9*delta/10, max, max+delta/10
+			mean - .5 * std, mean - .4*std, mean - .3*std, mean - .2*std, mean - .1*std,  mean,
+			mean + .1*std, mean + .2*std, mean + .3*std, mean + .4*std, mean + .5*std
 		];
-		*/
 		
 		vm.rendered = false;
 		
 		//In one second, reload the heatmap component with the changed configuration.
 		window.setTimeout(function(){
-			//vm.rendered = true;
+			vm.rendered = true;
 			$scope.$apply();
 		}, 1000);
 	}

@@ -1,15 +1,15 @@
 <div>
-	<div ng-controller="heatmapCtrl as heat1">
-		<button ng-click="heat1.change()">Change heat1</button>
-		<div ng-if="heat1.rendered"> 
+	<div ng-controller="heatmapCtrl as heat">
+		<button ng-click="heat.change()">Change heat</button>
+		<div ng-if="heat.rendered"> 
 		<heatmap-config></heatmap-config>
-		<cal-heatmap config="heat1.heatmapConfig"></cal-heatmap>
+		<cal-heatmap config="heat.heatmapConfig"></cal-heatmap>
 		</div>
 	</div>
-	<div ng-controller="heatmapCtrl as heat2">
-		<button ng-click="heat2.change()">Change heat2</button>
-		<div ng-if="heat2.rendered"> 
-			<cal-heatmap config="heat2.heatmapConfig"></cal-heatmap>
+	<div ng-controller="heatmapCtrl as heat">
+		<button ng-click="heat.change()">Change heat</button>
+		<div ng-if="heat.rendered"> 
+			<cal-heatmap config="heat.heatmapConfig"></cal-heatmap>
 		</div>
 	</div>
 </div>
