@@ -4,8 +4,7 @@ angular.module('myApp.heatmap', ['ngRoute'])
  
 .config(['$routeProvider', function($routeProvider) {
   $routeProvider.when('/heatmap', {
-    templateUrl: 'views/heatmap.html',
-    controller: 'heatmapCtrl'
+    templateUrl: 'views/heatmap.html'
   });
 }])
 
@@ -77,6 +76,8 @@ angular.module('myApp.heatmap', ['ngRoute'])
 			//move to next minute (should do this based on sub domain instead???)
 			currentTime = currentTime + subDomainDelta;
 		}
+		
+		caller.someObj.bird = "still fucking with me?";
 	}
 	
 	var _getMax = function(){
@@ -146,121 +147,73 @@ angular.module('myApp.heatmap', ['ngRoute'])
 	return _servObj;
 }])
 
-.factory('heatmapConfigFactory', [ function(){
+.factory('heatmapConfigService', [ function(){
 	var _servObj = {};
 	
-	var DefaultConfig = {
-			onClick:function(date, value){
-				caller.setTimestamp(date.getTime());
-				
-				$location.url('/zoomHeatmap');			
-				$route.reload();
-			},
-			domain: 'day',
-			domainMargin : 2,
-			subDomain: 'hour',
-			range: 30,	//number of domains (days in current implementation)
-			cellSize: 20, //px size of cells
-			cellPadding: 1,	//px between cells
-			cellRadius: 2,	//px of cell radius
-			considerMissingDataAsZero: true,
-			domainGutter: 0, //px padding between dates
-			colLimit: 1, //number of colums per domain
-			legend: [1,2,3,4,5,6,7,8,9,10,11,12,13],	//legend. Remember its like actually the count
-													//TODO: make vm change dependant on dataset
-			legendVerticalPosition: "center",
-			legendHorizontalPosition: "right",
-			legendOrientation: "vertical",
-			legendMargin: [10, 10, 10, 10],
-			legendColors: {empty:'#C2C2A3', base: '#C2C2A3', min:'#00FF00', max:'#FF0000'},	//colors of legend gradient
-			subDomainTextFormat: '%H', /*function(date, value) {
-				if (date.getMinutes() === 0) {
-					return date.getHours();
-				}
-				else return date.getMinutes();
-			},*/
-			start : new Date(1413864000000),
-			domainLabelFormat: function(date) {//format of each domain label. "x axis" labels
-				var month = 
-					["Jan", "Feb", "Mar", "Apr",
-					 "May", "Jun", "Jul", "Aug",
-					 "Sep", "Oct", "Nov", "Dec"];
-				if (date.getDate() % 2 === 0) {
-					return date.getDate();
-				}
-				else {
-					return month[date.getMonth()];
-				}
-			},	
-			label: {
-				width: 30,
-				position: 'bottom'
-				//rotate: 'left' doesn't work if position is bottom!
+	var _defaultConfig = {
+		onClick:function(date, value){
+			caller.setTimestamp(date.getTime());
+			
+			$location.url('/zoomHeatmap');			
+			$route.reload();
+		},
+		domain: 'day',
+		domainMargin : 2,
+		subDomain: 'hour',
+		range: 30,	//number of domains (days in current implementation)
+		cellSize: 20, //px size of cells
+		cellPadding: 1,	//px between cells
+		cellRadius: 2,	//px of cell radius
+		considerMissingDataAsZero: true,
+		domainGutter: 0, //px padding between dates
+		colLimit: 1, //number of colums per domain
+		legend: [1,2,3,4,5,6,7,8,9,10,11,12,13],	//legend. Remember its like actually the count
+												//TODO: make vm change dependant on dataset
+		legendVerticalPosition: "center",
+		legendHorizontalPosition: "right",
+		legendOrientation: "vertical",
+		legendMargin: [10, 10, 10, 10],
+		legendColors: {empty:'#C2C2A3', base: '#C2C2A3', min:'#00FF00', max:'#FF0000'},	//colors of legend gradient
+		subDomainTextFormat: '%H', /*function(date, value) {
+			if (date.getMinutes() === 0) {
+				return date.getHours();
 			}
-		};
+			else return date.getMinutes();
+		},*/
+		start : new Date(1413864000000),
+		domainLabelFormat: function(date) {//format of each domain label. "x axis" labels
+			var month = 
+				["Jan", "Feb", "Mar", "Apr",
+				 "May", "Jun", "Jul", "Aug",
+				 "Sep", "Oct", "Nov", "Dec"];
+			if (date.getDate() % 2 === 0) {
+				return date.getDate();
+			}
+			else {
+				return month[date.getMonth()];
+			}
+		},	
+		label: {
+			width: 30,
+			position: 'bottom'
+			//rotate: 'left' doesn't work if position is bottom!
+		}
+	};
+
 	
-	var _defaultConfig = function(){
-		return {
-			onClick:function(date, value){
-				caller.setTimestamp(date.getTime());
-				
-				$location.url('/zoomHeatmap');			
-				$route.reload();
-			},
-			domain: 'day',
-			domainMargin : 2,
-			subDomain: 'hour',
-			range: 30,	//number of domains (days in current implementation)
-			cellSize: 20, //px size of cells
-			cellPadding: 1,	//px between cells
-			cellRadius: 2,	//px of cell radius
-			considerMissingDataAsZero: true,
-			domainGutter: 0, //px padding between dates
-			colLimit: 1, //number of colums per domain
-			legend: [1,2,3,4,5,6,7,8,9,10,11,12,13],	//legend. Remember its like actually the count
-													//TODO: make vm change dependant on dataset
-			legendVerticalPosition: "center",
-			legendHorizontalPosition: "right",
-			legendOrientation: "vertical",
-			legendMargin: [10, 10, 10, 10],
-			legendColors: {empty:'#C2C2A3', base: '#C2C2A3', min:'#00FF00', max:'#FF0000'},	//colors of legend gradient
-			subDomainTextFormat: '%H', /*function(date, value) {
-				if (date.getMinutes() === 0) {
-					return date.getHours();
-				}
-				else return date.getMinutes();
-			},*/
-			start : new Date(1413864000000),
-			domainLabelFormat: function(date) {//format of each domain label. "x axis" labels
-				var month = 
-					["Jan", "Feb", "Mar", "Apr",
-					 "May", "Jun", "Jul", "Aug",
-					 "Sep", "Oct", "Nov", "Dec"];
-				if (date.getDate() % 2 === 0) {
-					return date.getDate();
-				}
-				else {
-					return month[date.getMonth()];
-				}
-			},	
-			label: {
-				width: 30,
-				position: 'bottom'
-				//rotate: 'left' doesn't work if position is bottom!
-			}
-		};
+	var _getDefaultConfig = function(){
+		return _defaultConfig;
 	}
-	
 	var _init = function(){
 		//caller is the controller which is currently invoking this function
 		var caller = this;
-		caller.setUrl('http://10.239.3.132:8080/dailyhistory/544876bf2e905908b6e5f595');
+		caller.setUrl('http://192.168.1.5:8080/dailyhistory/544f0fae44aec41e184c70d6');
 		
 		console.log(caller);
 		caller.getData().then(function (dataddd){
 		
 		caller.heatmapConfig.data = caller.dataObj;
-		caller.getUrl = 1000;
+		caller.getUrl;
 
 		//after setting heatmap config, unhide the component.
 		caller.rendered = true;
@@ -301,25 +254,14 @@ angular.module('myApp.heatmap', ['ngRoute'])
 		init : _init,
 		calEnd : _calEnd,
 		calRange : _calRange,
-		defaultConfig : _defaultConfig
+		getDefaultConfig : _getDefaultConfig
 	};
 	
 	return _servObj;
 }])
-
-.service('heatmapConfigService', [ 'heatmapConfigFactory', function(heatmapConfigFactory){
-	//inherit common functions / global variables from factory
-	angular.extend(this, heatmapConfigFactory);
-	
-	this.heatmapConfig = this.defaultConfig();
-	this.rendered = false;
-}])
  
 .controller('heatmapCtrl', ['$scope', '$location', '$route', 'zoomHeatmapService', 'persistHeatmapService', 'heatmapDataService', 'heatmapConfigService', function($scope, $location, $route, zoomHeatmapService, persistHeatmapService, heatmapDataService, heatmapConfigService) {
 	var vm = this;
-	
-	//control whether the view needs to be reloaded.
-	vm.rendered = false;
 
 	//inject the zoomHeatmapService into the scope.
 	angular.extend(vm, zoomHeatmapService);	
@@ -327,28 +269,46 @@ angular.module('myApp.heatmap', ['ngRoute'])
 	angular.extend(vm, heatmapDataService);
 	angular.extend(vm, heatmapConfigService);
 	
+	//control whether the view needs to be reloaded.
+	vm.rendered = false;
+	vm.someObj = {
+	
+		cat: "meow",
+		dog: "woof",
+		bird: "cheep"
+	};
+	
+	vm.heatmapConfig = vm.getDefaultConfig();
+	
 	vm.rand = Math.floor(Math.random()*(100+1)+7);
 	//for testing multiple controllers inheriting the same service singleton
 	vm.change = function(){
 		//var max = 30;
 		//var min = 10;
 		//vm.heatmapConfig.range = Math.floor(Math.random()*(max-min+1)+min);
-			vm.rand = Math.floor(Math.random()*(100+1)+7);
-
+		vm.rand = Math.floor(Math.random()*(100+1)+7);
+		vm.url = "are both this?";
+		vm.someObj = {
+			an: "entirely",
+			new: "object"
+		};
+		
 		var max = vm.getMax();
 		var min = vm.getMin();
 		var delta = max-min;
 		
+		/*
 		vm.heatmapConfig.legend = [
 			min, min + delta/10, min + delta/5, min+3*delta/10, min+2*delta/5, min+delta/2, min+3*delta/5, min+7*delta/10,
 			min+4*delta/5, min+9*delta/10, max, max+delta/10
 		];
+		*/
 		
 		vm.rendered = false;
 		
 		//In one second, reload the heatmap component with the changed configuration.
 		window.setTimeout(function(){
-			vm.rendered = true;
+			//vm.rendered = true;
 			$scope.$apply();
 		}, 1000);
 	}
@@ -357,6 +317,7 @@ angular.module('myApp.heatmap', ['ngRoute'])
 	
 }])
 
+//.directive('galHeatmap', [ function() {
 .directive('heatmapConfig', [ function() {
 	return {
 		restrict: 'E',
