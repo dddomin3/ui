@@ -8,6 +8,7 @@
 		<h3 class="panel-title">User Configuration Zone</h3>
 	</div>
 	<div class="panel-body">
+	<!--  this mess deals with user configuration. This should be done in a less horrible manner -->
 		<ul>
 			<li ng-repeat="(paramName, param) in userParameters | orderBy:'paramName'">
 				<strong>{{paramName}}:</strong>
