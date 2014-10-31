@@ -23,9 +23,13 @@
 	<div class="panel-footer">
 		<button ng-if="showButtons" ng-click="drawHttpChart()">Http</button>
 		<button ng-if="showButtons" ng-click="drawCsvChart()">Csv</button>
+		<button ng-if="showButtons" ng-click="drawMultiChart()">MultiCsv</button>
 		<button ng-if="chartInit" ng-click="redrawChart()">Refresh</button>
 	</div>
 </div>
 
 
-<div class="col-md-10" id="test_composed"></div>
+<div class="col-md-10">
+	<div class="row"><div id="ranger"></div></div>
+	<div class="row"><div id="test_composed"></div></div>
+</div>
