@@ -60,6 +60,7 @@ angular.module('myApp.timeSeries', ['ngRoute'])
         timeChart.margins().left = m[0];
         timeChart.margins().right = m[1];
         timeChart.xAxis().tickFormat(function(v) { return displayDate(new Date(v));});
+        timeChart.yAxis().ticks(0);
         
         composite.margins().left = m[0]; // sets the left margin for the composite chart
         composite.margins().right = m[1]; // sets the right margin for the composite chart
