@@ -10,7 +10,13 @@ angular.module('myApp.heatmap', ['ngRoute'])
 
 .factory('heatmapDataService', ['$http', function($http){
 	var _servObj = {};	
-	
+	var dataDict = {
+		kWh1 : '/app/data2.json',
+		kWh2 : '/app/data3.json',
+		kWh3 : '/app/data4.json',
+		kWh4 : '/app/data5.json'
+	};
+
 	var _setUrl = function(Url){
 		this.url = Url;
 
@@ -28,8 +34,10 @@ angular.module('myApp.heatmap', ['ngRoute'])
 	//To show up as empty, the timestamp NEEDS to be in the data object as "timestamp":null - UGHHHHHHH ; Phil
 	var _getData = function(){
 		var caller = this;
+		console.log('my URL: ' + dataDict[caller.dataSource]);
 		
-		return $http.post('http://10.239.3.132:9763/MongoServlet-0.0.1-SNAPSHOT/send',"{\"name\":\"G02NSHVHV7S45Q1_kWh\"}")
+		//return $http.post('http://10.239.3.132:9763/MongoServlet-0.0.1-SNAPSHOT/send',"{\"name\":\"G02NSHVHV7S45Q1_kWh\"}")
+		return $http.get(dataDict[caller.dataSource])
 			.success(function(data){
 				var j = 0;
 				var last = 0;
@@ -342,6 +350,9 @@ angular.module('myApp.heatmap', ['ngRoute'])
 	vm.rendered = false;
 
 	vm.url = "";
+
+	//default data source
+	vm.dataSource = 'kWh2';
 	vm.dataObj = {};
 	
 	vm.heatmapConfig = vm.getDefaultConfig();
@@ -373,7 +384,7 @@ angular.module('myApp.heatmap', ['ngRoute'])
 	}
 	
 	vm.init();
-	
+
 }])
 
 //.directive('galHeatmap', [ function() {

@@ -1,8 +1,8 @@
 <div>
 	<div ng-controller="heatmapCtrl as heat">
 		<button ng-click="heat.change()">Change heat</button>
-		<div ng-if="heat.rendered"> 
 		<heatmap-config></heatmap-config>
+		<div ng-if="heat.rendered"> 
 		<cal-heatmap config="heat.heatmapConfig"></cal-heatmap>
 		</div>
 	</div>
