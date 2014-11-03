@@ -47,6 +47,8 @@ angular.module('myApp.timeSeries', ['ngRoute'])
         var timeChart = dc.barChart("#time_chart")
           .width(w)
           .height(100)
+          .elasticX(false)
+          .elasticY(false)
           .dimension(dailyDimension) // use the date Dimension for the objects
           .colors('cyan')
           .group(timeGroup, "Savings") // use the savings group for the grouped values
@@ -61,6 +63,7 @@ angular.module('myApp.timeSeries', ['ngRoute'])
         timeChart.yAxis().ticks(0);
         timeChart.xAxis().ticks(12);
         
+        
         composite.margins().left = m[0]; // sets the left margin for the composite chart
         composite.margins().right = m[1]; // sets the right margin for the composite chart
         
@@ -71,6 +74,7 @@ angular.module('myApp.timeSeries', ['ngRoute'])
           .width(w) // sets width
           .height(h) // sets height
           .x(myDomain) // sets X axis
+          .xAxisPadding(10)
           .elasticX(true) // allows X axis to be zoomed in/out
           .elasticY(true)
           .xUnits(d3.time.months)
@@ -84,18 +88,23 @@ angular.module('myApp.timeSeries', ['ngRoute'])
                 .colors('cyan')
                 .group(savingsGroup, "Savings")// use the savings group for the grouped values
                 .centerBar(true)
+                .rangeChart(timeChart)
             ,
             dc.lineChart(composite)
                 .dimension(dateDimension) // use the date dimension for the objects
                 .interpolate("basis")
                 .colors('blue')
                 .group(actualGroup, "Actual KWH")// use the savings group for the grouped values
+                .rangeChart(timeChart)
+
              , 
              dc.lineChart(composite)
                 .dimension(dateDimension) // use the date dimension for the objects
                 .interpolate("basis")
                 .colors('red')
                 .group(expectedGroup, "Expected KWH")  // use the savings group for the grouped values
+                .rangeChart(timeChart)
+
             ,
             dc.lineChart(composite)
                 .dimension(dateDimension) // use the date dimension for the objects
@@ -103,6 +112,8 @@ angular.module('myApp.timeSeries', ['ngRoute'])
                 .interpolate("basis")
                 .group(savingsSum, "Total Savings/Waste") // use the savings group for the grouped values
                 .renderArea(true)
+                .rangeChart(timeChart)
+
             ])
           .brushOn(false) // disables the fiddle/violin selection tool
         ;
