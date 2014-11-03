@@ -28,3 +28,7 @@
   content: "";
   padding: 0;
 }
+
+.alarmflagusa {
+    background-image: url('usa.png');
+}

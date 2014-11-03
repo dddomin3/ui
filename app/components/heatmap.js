@@ -367,15 +367,40 @@ angular.module('myApp.heatmap', ['ngRoute'])
 	
 	//take a javascript date, and return the HTML5 cell in the heatmap associated with it
 	var _getTimeCell = function(date){
-		var list = document.getElementsByClassName("graph-domain d_24 dy_3 w_38 m_9 y_2014");
+		console.log(date);
+		var caller = this;
+		
+		//heatmaps week starts on a mondays (it is the +1).This function is added to ALL date objects
+		Date.prototype.getWeekNumber = function(){
+			var d = new Date(+this);
+			d.setHours(0,0,0);
+			d.setDate(d.getDate()+1-(d.getDay()||7));
+			return Math.ceil((((d-new Date(d.getFullYear(),0,1))/8.64e7)+1)/7);
+		};
+		
+		var query = "graph-domain d_"+date.getDate()
+			+" dy_"+date.getDay()
+			+" w_"+(date.getWeekNumber())
+			+" m_"+(date.getMonth()+1)
+			+" y_"+date.getFullYear();
+		
+		var list = document.getElementsByClassName(query);
+		
+		console.log(query);
 		console.log(list);
 		
 		for(var p = 0; p < list.length; p++){
-			list[p].onmouseover = function(){
-				console.log('moused over');
+			//If the current HTML5 element being examined does not reference back to THIS controller, continue iterating through elements
+			if(!(angular.element(list[p]).controller() === caller)){
+				continue;
 			}
 			console.log(list[p]);
-			console.log(angular.element(list[p]).controller());
+			
+			var cells = list[p].getElementsByTagName('g');
+			var length = cells.length;
+
+			var inputHour = date.getHours();
+			return cells[inputHour];
 		}
 	};
 	
@@ -415,7 +440,15 @@ angular.module('myApp.heatmap', ['ngRoute'])
 	
 	//for testing retrieving an individual time cell in the heatmap.
 	vm.grab = function(){
-		vm.getTimeCell();
+		var selectDate = new Date(vm.heatmapConfig.start.getTime() + 1000*60*60*24*10 + 1000*60*60*14);
+		console.log(selectDate);
+		
+		vm.getTimeCell(selectDate).getElementsByTagName('title')[0].innerHTML = 'An event is here!!!';
+		
+		angular.element(vm.getTimeCell(selectDate).getElementsByTagName('text')[0]);
+		angular.element(vm.getTimeCell(selectDate).getElementsByTagName('rect')[0]).append('<svg><image width=\"20\" height=\"20\" xlink:href=\"http://localhost:8080/app/usa.png\"/></svg>');
+		
+		vm.getTimeCell(selectDate).getElementsByTagName('text')[0].innerHTML = '!!';
 	}
 	
 	//for testing multiple controllers inheriting the same service singleton
