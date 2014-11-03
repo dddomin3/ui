@@ -83,7 +83,8 @@ angular.module('myApp.heatmap', ['ngRoute'])
 						}
 						else if(last != 0){
 							var delta = +historyArray[i].value - last;
-							delta = +delta.toFixed(2);
+							delta = Math.round(delta);
+							
 							//delta is 0, add to an array of timestamps to be interpolated.
 							if(delta == 0){
 								interpolate[interpolate.length] = (new Date(historyArray[i].timestamp).getTime() / 1000)+"";
@@ -97,7 +98,7 @@ angular.module('myApp.heatmap', ['ngRoute'])
 								for(iz = 0; iz < interpolate.length; iz++){
 									var date = new Date(interpolate[iz]*1000)
 
-									caller.dataObj[interpolate[iz]] = +(delta / interpolate.length).toFixed(2);
+									caller.dataObj[interpolate[iz]] = +((delta / interpolate.length).toFixed(2));
 								}
 								
 								interpolate = [];
@@ -109,7 +110,7 @@ angular.module('myApp.heatmap', ['ngRoute'])
 							}
 						}
 						
-						last = +historyArray[i].value
+						last = +(+historyArray[i].value).toFixed(2);
 					};
 					
 					loopDate = new Date(loopDate.getTime()+1000*60*60*24);
@@ -274,7 +275,7 @@ angular.module('myApp.heatmap', ['ngRoute'])
 		domain: 'day',
 		domainMargin : 2,
 		subDomain: 'hour',
-		range: 30,	//number of domains (days in current implementation)
+		range: 40,	//number of domains (days in current implementation)
 		cellSize: 20, //px size of cells
 		cellPadding: 1,	//px between cells
 		cellRadius: 2,	//px of cell radius
@@ -290,13 +291,13 @@ angular.module('myApp.heatmap', ['ngRoute'])
 		legendColors: {empty:'#C2C2A3', base: '#C2C2A3', min:'#00FF00', max:'#FF0000'},	//colors of legend gradient
 		itemName: ["kWh", "kWh"],
 		subDomainDateFormat: '%c',
-		subDomainTextFormat: '%H', /*function(date, value) {
-			if (date.getMinutes() === 0) {
-				return date.getHours();
+		subDomainTextFormat: function(date, value) {
+			if (date.getHours() == 8) {
+				return 'X';
 			}
-			else return date.getMinutes();
-		},*/
-		start : new Date(1412136000000),
+			else return '';
+		},
+		start : new Date(1412136000000-7*24*60*60*1000),
 		domainLabelFormat: function(date) {//format of each domain label. "x axis" labels
 			var month = 
 				["Jan", "Feb", "Mar", "Apr",
@@ -332,13 +333,13 @@ angular.module('myApp.heatmap', ['ngRoute'])
 		//after setting heatmap config, unhide the component.
 		caller.rendered = true;
 	});
-	}
+	};
 	
 	var _calEnd = function(){
 		var caller = this;
 		
 		return caller.heatmapConfig.start.getTime() / 1000 + caller.calRange();
-	}
+	};
 	
 	var _calRange = function(){
 		var caller = this;
@@ -362,13 +363,28 @@ angular.module('myApp.heatmap', ['ngRoute'])
 		}
 
 		return caller.heatmapConfig.range * multiplier;
-	}
+	};
+	
+	//take a javascript date, and return the HTML5 cell in the heatmap associated with it
+	var _getTimeCell = function(date){
+		var list = document.getElementsByClassName("graph-domain d_24 dy_3 w_38 m_9 y_2014");
+		console.log(list);
+		
+		for(var p = 0; p < list.length; p++){
+			list[p].onmouseover = function(){
+				console.log('moused over');
+			}
+			console.log(list[p]);
+			console.log(angular.element(list[p]).controller());
+		}
+	};
 	
 	_servObj = {
 		init : _init,
 		calEnd : _calEnd,
 		calRange : _calRange,
-		getDefaultConfig : _getDefaultConfig
+		getDefaultConfig : _getDefaultConfig,
+		getTimeCell : _getTimeCell
 	};
 	
 	return _servObj;
@@ -383,6 +399,8 @@ angular.module('myApp.heatmap', ['ngRoute'])
 	angular.extend(vm, heatmapDataService);
 	angular.extend(vm, heatmapConfigService);
 	
+
+	
 	//control whether the view needs to be reloaded.
 	vm.rendered = false;
 
@@ -395,6 +413,11 @@ angular.module('myApp.heatmap', ['ngRoute'])
 	
 	vm.heatmapConfig = vm.getDefaultConfig();
 	
+	//for testing retrieving an individual time cell in the heatmap.
+	vm.grab = function(){
+		vm.getTimeCell();
+	}
+	
 	//for testing multiple controllers inheriting the same service singleton
 	vm.change = function(){
 		//var max = 30;
@@ -405,8 +428,8 @@ angular.module('myApp.heatmap', ['ngRoute'])
 		var std = jStat.stdev(vm.dataAsArray())*4;
 		
 		vm.heatmapConfig.legend = [
-			mean - .5 * std, mean - .4*std, mean - .3*std, mean - .2*std, mean - .1*std,  mean,
-			mean + .1*std, mean + .2*std, mean + .3*std, mean + .4*std, mean + .5*std
+			Math.round(mean - .5 * std), Math.round(mean - .4*std), Math.round(mean - .3*std), Math.round(mean - .2*std), Math.round(mean - .1*std),  Math.round(mean),
+			Math.round(mean + .1*std), Math.round(mean + .2*std), Math.round(mean + .3*std), Math.round(mean + .4*std), Math.round(mean + .5*std)
 		];
 		
 		vm.rendered = false;
