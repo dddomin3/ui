@@ -34,7 +34,6 @@ angular.module('myApp.heatmap', ['ngRoute'])
 	//To show up as empty, the timestamp NEEDS to be in the data object as "timestamp":null - UGHHHHHHH ; Phil
 	var _getData = function(){
 		var caller = this;
-		console.log('my URL: ' + dataDict[caller.dataSource]);
 		
 		//return $http.post('http://10.239.3.132:9763/MongoServlet-0.0.1-SNAPSHOT/send',"{\"name\":\"G02NSHVHV7S45Q1_kWh\"}")
 		return $http.get(dataDict[caller.dataSource])
@@ -44,6 +43,8 @@ angular.module('myApp.heatmap', ['ngRoute'])
 				var dateSortedResult = {};
 				var startDate = new Date(Date.now());
 				var endDate = new Date();
+				
+				caller.clearData();
 				
 				for(j = 0; j < data.result.length; j++){
 					dateSortedResult[new Date(data.result[j].date)] = data.result[j].his;
@@ -59,7 +60,9 @@ angular.module('myApp.heatmap', ['ngRoute'])
 				var loopDate = startDate;
 				var interpolate= [];
 
-				console.log(startDate);
+				//when there is no day at all, the interpolate operation does not occur for times within that day.
+				//also, loading a new data source will stuff readings into the old data object which will then persist after we switch back, causing it took look like data has been processed for those times.
+				
 				while(loopDate.getTime() < endDate.getTime()){
 					var historyArray = dateSortedResult[loopDate];
 					var i = 0;
@@ -67,11 +70,20 @@ angular.module('myApp.heatmap', ['ngRoute'])
 					try{
 						for(i = 0; i < historyArray.length; i++){
 					
+						/*
+						if(loopDate.toString().indexOf('Oct 22') >= 0){
+							console.log(loopDate);
+							console.log(interpolate);
+							console.log(+historyArray[i].value);
+						}
+						*/
+						
 						if( +historyArray[i].value == 0){
 							continue;
 						}
 						else if(last != 0){
 							var delta = +historyArray[i].value - last;
+							delta = +delta.toFixed(2);
 							//delta is 0, add to an array of timestamps to be interpolated.
 							if(delta == 0){
 								interpolate[interpolate.length] = (new Date(historyArray[i].timestamp).getTime() / 1000)+"";
@@ -83,7 +95,9 @@ angular.module('myApp.heatmap', ['ngRoute'])
 								interpolate[interpolate.length] = (new Date(historyArray[i].timestamp).getTime() / 1000)+"";
 								
 								for(iz = 0; iz < interpolate.length; iz++){
-									caller.dataObj[interpolate[iz]] = delta / interpolate.length;
+									var date = new Date(interpolate[iz]*1000)
+
+									caller.dataObj[interpolate[iz]] = +(delta / interpolate.length).toFixed(2);
 								}
 								
 								interpolate = [];
@@ -98,12 +112,27 @@ angular.module('myApp.heatmap', ['ngRoute'])
 						last = +historyArray[i].value
 					};
 					
+					loopDate = new Date(loopDate.getTime()+1000*60*60*24);
 					}
 					catch(err){
-						//Date missing... don't bother for now...
+						
+						//populate the non-existent date with null values, and allow the loop to repeat and interpolate.
+						dateSortedResult[loopDate] = [];
+						var arrayIndex = 0;
+						var makeDate = new Date(loopDate.getTime());
+						var endDayDate = new Date(loopDate.getTime()+1000*60*60*24);
+						
+						while(makeDate.getTime() < endDayDate){
+							dateSortedResult[loopDate][arrayIndex] = {
+								timestamp : makeDate.getTime(),
+								value : last
+							};
+							
+							makeDate = new Date(makeDate.getTime()+1000*60*15)
+							arrayIndex++;
+						}
+						
 					}
-					
-					loopDate = new Date(loopDate.getTime()+1000*60*60*24);
 
 				}
 				
@@ -194,6 +223,13 @@ angular.module('myApp.heatmap', ['ngRoute'])
 		return array;
 	}
 	
+	var _clearData = function(){
+		var caller = this;
+		
+		delete caller.dataObj;
+		caller.dataObj = {};
+	}
+	
 	_servObj = {
 		getUrl : _getUrl,
 		setUrl: _setUrl,
@@ -201,6 +237,7 @@ angular.module('myApp.heatmap', ['ngRoute'])
 		getMin : _getMin,
 		getData : _getData,
 		fillData : _fillData,
+		clearData : _clearData,
 		dataAsArray : _dataAsArray
 	}
 	
@@ -353,6 +390,7 @@ angular.module('myApp.heatmap', ['ngRoute'])
 
 	//default data source
 	vm.dataSource = 'kWh2';
+	vm.sources = [{ 'text':'kWh1'},{'text':'kWh2'},{'text':'kWh3'},{'text':'kWh4'}];
 	vm.dataObj = {};
 	
 	vm.heatmapConfig = vm.getDefaultConfig();
@@ -365,9 +403,6 @@ angular.module('myApp.heatmap', ['ngRoute'])
 
 		var mean = jStat.mean(vm.dataAsArray())*4;
 		var std = jStat.stdev(vm.dataAsArray())*4;
-		
-		console.log(mean);
-		console.log(std);
 		
 		vm.heatmapConfig.legend = [
 			mean - .5 * std, mean - .4*std, mean - .3*std, mean - .2*std, mean - .1*std,  mean,
@@ -382,6 +417,14 @@ angular.module('myApp.heatmap', ['ngRoute'])
 			$scope.$apply();
 		}, 1000);
 	}
+	
+	//this happens when the heatmaps load... not only when the select is chosen.
+	$scope.$watch('heat.dataSource', function(){
+		vm.getData().then(function (dataddd){
+			vm.heatmapConfig.data = vm.dataObj;
+			vm.change();
+		});
+	});
 	
 	vm.init();
 
