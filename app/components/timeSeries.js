@@ -10,13 +10,13 @@ angular.module('myApp.timeSeries', ['ngRoute'])
     	var composite = dc.compositeChart("#test_composed"); // names/creates the chart
         
     	var parse = d3.time.format("%m/%d/%Y").parse; // parses out the date object from the string
-    	var displayDate = d3.time.format("%m-%Y"); // function to change the format of a date object to mm-yyyy
+    	var displayDate = d3.time.format("%m-%y"); // function to change the format of a date object to mm-yyyy
     	
         var ndx = crossfilter(energyData)
         var totalSum = 0;
         
         var dateDimension = ndx.dimension(function(d) { return d3.time.month(parse(d.date));}) // creates the x-axis components using their date as a guide
-        var dailyDimension = ndx.dimension(function(d) { return d3.time.day(parse(d.date));})
+        var dailyDimension = ndx.dimension(function(d) { return d3.time.week(parse(d.date));})
         
         var actualGroup = dateDimension.group().reduceSum(function(d) { return d.actualKWH;}) // groups a value for each entry in the dimension by summing all the 'actualKWH' values of all objects within that dimension
         var expectedGroup = dateDimension.group().reduceSum(function(e) { return +e.expectedKWH;}) // same as above with expectedKWH
@@ -46,33 +46,38 @@ angular.module('myApp.timeSeries', ['ngRoute'])
         
         var timeChart = dc.barChart("#time_chart")
           .width(w)
-          .height(50)
+          .height(100)
+          .elasticX(false)
+          .elasticY(false)
           .dimension(dailyDimension) // use the date Dimension for the objects
           .colors('cyan')
           .group(timeGroup, "Savings") // use the savings group for the grouped values
-          .centerBar(true)
           .x(myDomain)
-          .xUnits(d3.time.days)
-          .round(d3.time.week.round)
-          .alwaysUseRounding(true)
+          .xUnits(d3.time.weeks)
+          .centerBar(true)
         ;
         
         timeChart.margins().left = m[0];
         timeChart.margins().right = m[1];
         timeChart.xAxis().tickFormat(function(v) { return displayDate(new Date(v));});
+        timeChart.yAxis().ticks(0);
+        timeChart.xAxis().ticks(12);
+        
         
         composite.margins().left = m[0]; // sets the left margin for the composite chart
         composite.margins().right = m[1]; // sets the right margin for the composite chart
         
         composite.xAxis().tickFormat(function(v) {return displayDate(new Date(v));}); // sets the tick format to be the month/year only
+        composite.xAxis().ticks(12);
         
         composite // creates the graph object
           .width(w) // sets width
           .height(h) // sets height
           .x(myDomain) // sets X axis
-          .xUnits(d3.time.months) // sets X axis units
+          .xAxisPadding(10)
           .elasticX(true) // allows X axis to be zoomed in/out
           .elasticY(true)
+          .xUnits(d3.time.months)
           .yAxisLabel("The Y Axis")
           .legend(dc.legend().x(lX).y(lY).itemHeight(13).gap(5)) // legend position and add'l info
           .renderHorizontalGridLines(true)
@@ -81,27 +86,36 @@ angular.module('myApp.timeSeries', ['ngRoute'])
             dc.barChart(composite) // creates the bar chart
                 .dimension(dateDimension) // use the date Dimension for the objects
                 .colors('cyan')
-                .group(savingsGroup, "Savings") // use the savings group for the grouped values
-                .centerBar(true),
+                .group(savingsGroup, "Savings")// use the savings group for the grouped values
+                .centerBar(true)
+                .rangeChart(timeChart)
+            ,
             dc.lineChart(composite)
                 .dimension(dateDimension) // use the date dimension for the objects
                 .interpolate("basis")
                 .colors('blue')
-                .group(actualGroup, "Actual KWH"), // use the savings group for the grouped values
+                .group(actualGroup, "Actual KWH")// use the savings group for the grouped values
+                .rangeChart(timeChart)
+
+             , 
              dc.lineChart(composite)
                 .dimension(dateDimension) // use the date dimension for the objects
                 .interpolate("basis")
                 .colors('red')
-                .group(expectedGroup, "Expected KWH"), // use the savings group for the grouped values
+                .group(expectedGroup, "Expected KWH")  // use the savings group for the grouped values
+                .rangeChart(timeChart)
+
+            ,
             dc.lineChart(composite)
                 .dimension(dateDimension) // use the date dimension for the objects
                 .colors('gray')
                 .interpolate("basis")
                 .group(savingsSum, "Total Savings/Waste") // use the savings group for the grouped values
                 .renderArea(true)
+                .rangeChart(timeChart)
+
             ])
           .brushOn(false) // disables the fiddle/violin selection tool
-          .rangeChart(timeChart)
         ;
 
         dc.renderAll();
