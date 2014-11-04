@@ -32,6 +32,12 @@
 				</br>
 			</li>
 		</ul>
+		<div>
+			Organization: <input ng-model="organization"></input></br>
+			lowDate: <input ng-model="lowDate"></input></br>
+			highDate: <input ng-model="highDate"></input></br>
+			<button class="btn btn-info" ng-click="getOrganization()">getData</button></br>
+		</div>
 	</div>
 
 	<div class="panel-footer">
@@ -39,6 +45,7 @@
 		<button class="btn btn-default" ng-if="showButtons" ng-click="drawCsvChart()">Csv</button>
 		<button class="btn btn-default" ng-if="showButtons" ng-click="drawMultiChart()">MultiCsv</button>
 		<button class="btn btn-default" ng-if="chartInit" ng-click="redrawChart()">Refresh</button>
+		<button class="btn btn-danger" ng-click="logScope()">console.log($scope)</button>
 	</div>
 </div>
 
