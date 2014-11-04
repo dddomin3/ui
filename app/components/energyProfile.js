@@ -253,19 +253,19 @@ angular.module('myApp.energyProfile', ['ngRoute'])
 	        .group($scope.expectedGroup, "Expected KWH");
 		var savingsBar = dc.barChart(composite)
 	        .dimension($scope.dateDimension)
-	        .group($scope.savingsGroup[0], "Savings")
+	        .group($scope.savingsGroups[0], "Savings")
 	        .ordinalColors($scope.userParameters.savingsColor)
 	        .centerBar(true);
 		
 		var ranger = dc.barChart("#ranger")
 	        .dimension($scope.dateDimension)
-	        .group($scope.savingsGroup[0], "Savings")
+	        .group($scope.savingsGroups[0], "Savings")
 	        .ordinalColors($scope.userParameters.savingsColor)
 	        .x($scope.domainX);
 		
 		
-		for (var i = 1, len = $scope.savingsGroup.length; i < len; i++) {
-			savingsBar = savingsBar.stack($scope.savingsGroup[i], "Savings"+i); //TODO:these should hav emore meaningful names
+		for (var i = 1, len = $scope.savingsGroups.length; i < len; i++) {
+			savingsBar = savingsBar.stack($scope.savingsGroups[i], "Savings"+i); //TODO:these should hav emore meaningful names
 		}
 		
 		composite.xAxis().tickFormat($scope.chartParameters.tickFormat); // sets the tick format to be the month/year only
@@ -314,19 +314,25 @@ angular.module('myApp.energyProfile', ['ngRoute'])
 	    return composite;
 	};
 	
-	var http = function(data) {
-		$scope.showButtons = false;
-        $scope.dateDimension  = dataService.getDateDimension();
+	var populateScope = function () {
+		//this function populates necessary variables onto the scope.
+		$scope.dateDimension  = dataService.getDateDimension();
         
         $scope.actualGroup = dataService.getActualGroup();
         $scope.expectedGroup = dataService.getExpectedGroup();
-        $scope.savingsGroup = dataService.getSavingsGroups(); //[dataService.getSavingsGroup(), dataService.getSavingsGroup()];
+        $scope.savingsGroups = dataService.getSavingsGroups();
         
         $scope.savingsSum = dataService.getCumulativeSavingsGroup();
         
         $scope.domainX = dataService.getDomainX();
         $scope.chartParameters.xUnits = dataService.getXUnits();
         $scope.chartParameters.tickFormat = dataService.getTickFormat();
+	};
+	
+	var http = function(data) {
+		$scope.showButtons = false;
+        
+		populateScope();
         
         composite = drawChart();
         $scope.showButtons = true;
@@ -337,18 +343,7 @@ angular.module('myApp.energyProfile', ['ngRoute'])
 			$scope.showButtons = false;
 	    	dataService.csvInit(energyData, doubleize);
 	    	
-	    	$scope.dateDimension  = dataService.getDateDimension();
-	        
-	        $scope.actualGroup = dataService.getActualGroup();
-	        $scope.expectedGroup = dataService.getExpectedGroup();
-	        $scope.savingsGroup = dataService.getSavingsGroups();
-	        
-	        $scope.savingsSum = dataService.getCumulativeSavingsGroup();
-	        
-	        $scope.domainX = dataService.getDomainX();
-	        
-	        $scope.chartParameters.xUnits = d3.time.months;
-	        $scope.chartParameters.tickFormat = dataService.getTickFormat();
+	    	populateScope();
 	        
 	        composite = drawChart();
 	        $scope.showButtons = true;
