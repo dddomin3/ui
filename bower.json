@@ -15,6 +15,6 @@
 	"angular-dc": "~0.0.4",
 	"d3": "~3.4.x",
 	"jstat": "master",
-	"angular-bootstrap":"0.11.2"
+	"angular-bootstrap":"~0.11.2"
   }
 }
