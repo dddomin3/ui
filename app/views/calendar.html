@@ -1,10 +1,10 @@
-    <div ng-controller="DatepickerDemoCtrl">
+    <div >
     
       <pre>From: <em>{{start | date:'fullDate' }}</em> To: <em>{{end | date:'fullDate'}}</em></pre>
 
       <div class="row">
         <div class="col-md-6">
-            <p class="input-group">
+            <p ng-controller="DatepickerDemoCtrl" class="input-group">
               <input type="text" class="form-control" 
                 datepicker-popup="{{format}}" 
                 ng-model="start" 
@@ -23,7 +23,7 @@
               </span>
             </p>
            To
-           <p class="input-group">
+           <p ng-controller="DatepickerDemoCtrl" class="input-group">
              <input type="text" class="form-control" 
                 datepicker-popup="{{format}}" 
                 ng-model="end" 
