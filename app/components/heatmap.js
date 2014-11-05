@@ -469,18 +469,21 @@ angular.module('myApp.heatmap', ['ngRoute'])
 		vm.getTimeCell(selectDate).getElementsByTagName('title')[0].innerHTML = 'An event is here!!!';
 		
 		console.log(vm.getTimeCell(selectDate));
-		
+
 		var g = d3.select(vm.getTimeCell(selectDate));
 		g.append("svg:image")
 		.attr("xlink:href", "http://localhost:8000/app/usa.png")
 		.attr("width", 20)
-		.attr("height", 20);
+		.attr("height", 20)
+		.attr("x",0)
+		.attr("y", 294);
 		
-		/*angular.element(vm.getTimeCell(selectDate)).append('<svg:image width="20" height="20" href="http://localhost:8000/app/usa.png"/>');
+		/*
+		angular.element(vm.getTimeCell(selectDate)).append('<svg:image width="20" height="20" href="http://localhost:8000/app/usa.png"/>');
 		angular.element(vm.getTimeCell(selectDate).getElementsByTagName('rect')[0]).append('<svg:image width="20" height="20" href="http://localhost:8000/app/usa.png"/>');
 		*/
+		
 		vm.getTimeCell(selectDate).getElementsByTagName('text')[0].innerHTML = '!!';
-		$scope.$apply();
 	}
 	
 	//for testing multiple controllers inheriting the same service singleton
