@@ -38,7 +38,8 @@ angular.module('myApp.calendar', ['ngRoute'])
 		
 		$scope.dateOptions = {
 		  formatYear: 'yyyy',
-		  startingDay: 0
+		  startingDay: 0,
+		  showWeeks: false,
 		};
 				
 		$scope.format = 'yyyy-MM-dd';
