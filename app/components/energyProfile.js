@@ -19,15 +19,24 @@ angular.module('myApp.energyProfile', ['ngRoute'])
 			marginLeft: 75,
 			marginRight: 150,
 			marginTop: 25,
-			marginBottom: 25
+			marginBottom: 25,
+			lowDate: new Date((new Date()) - (28*24*60*60*1000)),
+			highDate: new Date(),
+			organization: "ANDO"
 	};
 	var chartParameters = {};
 	var monthNumber = d3.time.format("%m").parse;
 	var tfMonthYear = d3.time.format("%m-%Y"); //format for x-axis labels
 	var tfHour = d3.time.format("%H");
+	var _tfIso = d3.time.format.iso.parse; //TODO: maybe the service can populate the users scope with convienence values like this?
+	var _tfDate = d3.time.format("%d");
 	var minDate;
 	var maxDate;
 	var _composite;
+	//TODO: set-get for low/high dates
+	var _lowDate = new Date((new Date()) - (28*24*60*60*1000)); //28 days*hours*minutes*seconds*milliseconds
+	var _highDate = new Date();
+	
 	
 	var _setUrl = function(url){
 		_url = url;
@@ -39,9 +48,69 @@ angular.module('myApp.energyProfile', ['ngRoute'])
 		return _url;
 	};
 	
-	//get data and format it as cal-heatmap expects 
-	//TODO - data obj does not need to be refereshed every time we want to get???
-	//can we re-serve from memory if we dont believe anthing has changed???
+	var _getOrganization = function () {	
+		return $http.post('http://10.239.3.132:9763/MongoServlet-0.0.1-SNAPSHOT/send',
+				'{'
+					+'"organization": "'+_userParameters.organization+'",'
+					+'"date": {'
+				        +'"$gt": {'
+				            +'"$date": "'+_userParameters.lowDate.toISOString()+'",'
+				        +'},'
+				        +'"$lt": {'
+				            +'"$date": "'+_userParameters.highDate.toISOString()+'"'
+				        +'}'
+				    +'}'
+				+'}')
+		.success(_successOrganization)
+		.error(function () { alert('fail to query data'); });
+	};
+	var _successOrganization = function (data) {
+		ndx = crossfilter();
+		console.log(data);
+		for(var i = 0, len = data.result.length; i < len; i++) {
+			ndx.add(data.result[i].his);
+		}
+		
+		dimensions.dateDimension = ndx.dimension(function(d) {
+			var ts = _tfIso(d.timestamp);
+			var tDate = ts.getDate();
+			var tMonth = ts.getMonth();
+			return tDate;
+		});
+		
+		
+		var totalSum = 0;
+		groups.savingsGroups = [];
+		
+		groups.actualGroup = dimensions.dateDimension.group().reduceSum(function(d) { return d.value*.85;});
+		groups.expectedGroup = dimensions.dateDimension.group().reduceSum(function(d) { return d.value;});
+		groups.savingsGroups[0] = dimensions.dateDimension.group().reduceSum(function(d) { return d.value*.15;});
+		groups.cumulativeSavingsGroup = dimensions.dateDimension.group().reduce( // groups a value for each entry in the dimension by finding the total aggregated savings
+        		function(p,v) {totalSum = (v.value*.15) + totalSum;  return totalSum;}, // sets the method for adding an entry into the total
+        		function(p,v) {totalSum = totalSum-(v.value*.15); return totalSum;}, // sets the method for removing an entry from the total
+        		function() {totalSum = 0; return totalSum;}	 // sets the method for initializing the total
+		);
+		//TODO:below code is not checked at all
+		//TODO:This may not be correct... 
+		var lowest = new Date(dimensions.dateDimension.bottom(1)[0].timestamp);
+		var highest = new Date(dimensions.dateDimension.top(1)[0].timestamp);
+		
+		chartParameters.minDate = lowest.getDate(); // sets the lowest date value from the available data
+        chartParameters.maxDate = highest.getDate();// sets the highest date value from the available data
+        
+        console.log([chartParameters.minDate, chartParameters.maxDate]);
+        
+        chartParameters.domainX = d3.scale.linear().domain([chartParameters.minDate, chartParameters.maxDate]);
+		
+        console.log(d3.time);
+        chartParameters.xUnits = dc.units.integers;
+        
+        chartParameters.tickFormat = function(v) {return v;};
+        
+		console.log('success????');
+		//TODO: this is the extent of below, lol.
+	};
+	
 	var _getData = function(){ 
 		return $http.get('http://10.239.3.132:8080/dailyhistory/544876bf2e905908b6e5f595')
 		.success(successHandler)
@@ -215,6 +284,7 @@ angular.module('myApp.energyProfile', ['ngRoute'])
 		getUrl : _getUrl,
 		setUrl: _setUrl,
 		getData : _getData,
+		getOrganization : _getOrganization,
 		dataArr : function () { return _dataArr; },
 		
 		getDateDimension : _getDateDimension,
@@ -264,7 +334,7 @@ angular.module('myApp.energyProfile', ['ngRoute'])
 		console.log($scope.charts);
 		var cumulativeArea = dc.lineChart(composite)
 		    .dimension($scope.dateDimension)
-		    .interpolate("basis")
+		  // .interpolate("basis")
 		    .colors($scope.userParameters.cumulativeColor)
 		    .group($scope.savingsSum, "Total Savings/Waste")
 		    .renderArea(true);
@@ -272,12 +342,12 @@ angular.module('myApp.energyProfile', ['ngRoute'])
 		console.log(cumulativeArea);
 		var actualLine = dc.lineChart(composite)
 	        .dimension($scope.dateDimension)
-	        .interpolate("basis")
+	       //.interpolate("basis")
 	        .colors($scope.userParameters.actualColor)
 	        .group($scope.actualGroup, "Actual KWH");
 		var expectedLine = dc.lineChart(composite)
 	        .dimension($scope.dateDimension)
-	        .interpolate("basis")
+	       // .interpolate("basis")
 	        .colors($scope.userParameters.expectedColor)
 	        .group($scope.expectedGroup, "Expected KWH");
 		var savingsBar = dc.barChart(composite)
@@ -400,10 +470,16 @@ angular.module('myApp.energyProfile', ['ngRoute'])
 		var regex = /color/ig;
 		return regex.test(paramName);
 	};
+	$scope.isDate = function (paramName) {
+		var regex = /date/ig;
+		return regex.test(paramName);
+	};
 	$scope.isArray = function (param) {
 		return typeof param === "object";
 	};
-	
+	$scope.isntSpecial = function (param, paramName) {		//true when isn't a color, date or array, or something else
+		return !$scope.isColor(paramName)&&!$scope.isDate(paramName)&&!$scope.isArray(param);
+	};
 	$scope.addColor = function (param) {
 		console.log($scope);
 		param.push('cyan');
@@ -417,8 +493,10 @@ angular.module('myApp.energyProfile', ['ngRoute'])
 		console.log($scope);
 	};
 	$scope.getOrganization = function () {
-		
-		$http.post('http://10.239.3.132:9763/MongoServlet-0.0.1-SNAPSHOT/send',
+		$scope.chartInit = true;
+		dataService.getOrganization().then(http, csv);
+	};
+		/*$http.post('http://10.239.3.132:9763/MongoServlet-0.0.1-SNAPSHOT/send',
 				'{'
 					+'"organization": "'+$scope.organization+'",'
 					+'"date": {'
@@ -439,5 +517,5 @@ angular.module('myApp.energyProfile', ['ngRoute'])
 		console.log('fuckyou');
 		console.log(data);
 		console.log(Date());
-	};
+	};*/
 }]);

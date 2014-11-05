@@ -1,5 +1,4 @@
-angular.module('myApp.calendar',['ui.bootstrap']);
-angular.module('myApp.calendar',['ngRoute'])
+angular.module('myApp.calendar', ['ngRoute'])
   .directive('myCalendar', function(){
     return{
 	  restrict: "E",
@@ -21,8 +20,13 @@ angular.module('myApp.calendar',['ngRoute'])
 		$scope.open = function($event) {
 		  $event.preventDefault();
 		  $event.stopPropagation();
-		  $scope.opened = true;
-		  console.log($scope);
+		  
+		  if($scope.opened === true){
+		    $scope.opened = false;
+		  }
+		  else {
+		    $scope.opened = true;
+		  };
 		};
 		
 		$scope.log = function(){
@@ -34,7 +38,8 @@ angular.module('myApp.calendar',['ngRoute'])
 		
 		$scope.dateOptions = {
 		  formatYear: 'yyyy',
-		  startingDay: 0
+		  startingDay: 0,
+		  showWeeks: false,
 		};
 				
 		$scope.format = 'yyyy-MM-dd';
