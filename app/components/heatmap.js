@@ -271,14 +271,9 @@ angular.module('myApp.heatmap', ['ngRoute'])
 
 .factory('heatmapConfigService', [ function(){
 	var _servObj = {};
-	
+
 	var _defaultConfig = {
-		onClick:function(date, value){
-			caller.setTimestamp(date.getTime());
-			
-			$location.url('/zoomHeatmap');			
-			$route.reload();
-		},
+		
 		domain: 'day',
 		domainMargin : 2,
 		subDomain: 'hour',
@@ -327,6 +322,7 @@ angular.module('myApp.heatmap', ['ngRoute'])
 
 	
 	var _getDefaultConfig = function(){
+		
 		return _defaultConfig;
 	}
 	var _init = function(){
@@ -457,6 +453,13 @@ angular.module('myApp.heatmap', ['ngRoute'])
 	vm.assets = "";
 	
 	vm.heatmapConfig = vm.getDefaultConfig();
+	vm.heatmapConfig.onClick =  function(date, value){	
+		console.log('clicking');
+		vm.setTimestamp(date.getTime());
+		
+		$location.url('/zoomHeatmap');			
+		$route.reload();
+	}
 	
 	//for testing retrieving an individual time cell in the heatmap.
 	vm.grab = function(){
@@ -465,10 +468,19 @@ angular.module('myApp.heatmap', ['ngRoute'])
 		
 		vm.getTimeCell(selectDate).getElementsByTagName('title')[0].innerHTML = 'An event is here!!!';
 		
-		angular.element(vm.getTimeCell(selectDate).getElementsByTagName('text')[0]);
-		angular.element(vm.getTimeCell(selectDate).getElementsByTagName('rect')[0]).append('<image width=\"20\" height=\"20\" xlink:href=\"http://localhost:8000/app/usa.png\"/>');
+		console.log(vm.getTimeCell(selectDate));
 		
+		var g = d3.select(vm.getTimeCell(selectDate));
+		g.append("svg:image")
+		.attr("xlink:href", "http://localhost:8000/app/usa.png")
+		.attr("width", 20)
+		.attr("height", 20);
+		
+		/*angular.element(vm.getTimeCell(selectDate)).append('<svg:image width="20" height="20" href="http://localhost:8000/app/usa.png"/>');
+		angular.element(vm.getTimeCell(selectDate).getElementsByTagName('rect')[0]).append('<svg:image width="20" height="20" href="http://localhost:8000/app/usa.png"/>');
+		*/
 		vm.getTimeCell(selectDate).getElementsByTagName('text')[0].innerHTML = '!!';
+		$scope.$apply();
 	}
 	
 	//for testing multiple controllers inheriting the same service singleton

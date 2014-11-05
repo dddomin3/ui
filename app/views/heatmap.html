@@ -1,5 +1,6 @@
 <div>
 	<div ng-controller="heatmapCtrl as heat">
+		<image width="20" height="20" src="http://localhost:8000/app/usa.png"/>
 		<button ng-click="heat.grab()">grab time</button>
 		<heatmap-config></heatmap-config>
 		<div ng-if="heat.rendered"> 
