@@ -49,7 +49,7 @@ angular.module('myApp.heatmap', ['ngRoute'])
 				var j = 0;
 				var last = 0;
 				var dateSortedResult = {};
-				var startDate = new Date(Date.now());
+				var startDate = new Date();
 				var endDate = new Date();
 				
 				caller.clearData();
@@ -298,7 +298,7 @@ angular.module('myApp.heatmap', ['ngRoute'])
 	var _defaultConfig = {
 		
 		domain: 'day',
-		domainMargin : 2,
+		domainMargin : 0,
 		subDomain: 'hour',
 		range: 40,	//number of domains (days in current implementation)
 		cellSize: 20, //px size of cells
@@ -412,7 +412,7 @@ angular.module('myApp.heatmap', ['ngRoute'])
 			+" w_"+(date.getWeekNumber())
 			+" m_"+(date.getMonth()+1)
 			+" y_"+date.getFullYear();
-		
+				
 		var list = document.getElementsByClassName(query);
 		
 		//currently only works for hours because it iterates through the array of <g> objects by assuming 1 hour = 1 item in a sorted time based aray....
@@ -426,29 +426,31 @@ angular.module('myApp.heatmap', ['ngRoute'])
 			var length = cells.length;
 
 			var inputHour = date.getHours();
-			return new timeCell(cells[inputHour], date);
+			return new timeCell(cells[inputHour]);
 		}
 	};
 	
-	var timeCell = function(svg, date){
+	var timeCell = function(svg){
 		var tc = this;
 		tc.svg = svg;
-		tc.date = date;
+		
+		tc.date = new Date(svg.getElementsByTagName('title')[0].innerHTML
+			.substring(svg.getElementsByTagName('title')[0].innerHTML.indexOf('at ')+3));
 		
 		tc.getX = function(){
-			return angular.element(svg.getElementsByTagName('rect')).attr("x");
+			return +angular.element(svg.getElementsByTagName('rect')).attr("x");
 		}
 		
 		tc.getY = function(){
-			return angular.element(svg.getElementsByTagName('rect')).attr("y");
+			return +angular.element(svg.getElementsByTagName('rect')).attr("y");
 		}
 		
 		tc.getWidth = function(){
-			return angular.element(svg.getElementsByTagName('rect')).attr("width");
+			return +angular.element(svg.getElementsByTagName('rect')).attr("width");
 		}
 		
 		tc.getHeight = function(){
-			return angular.element(svg.getElementsByTagName('rect')).attr("height");
+			return+angular.element(svg.getElementsByTagName('rect')).attr("height");
 		}
 		
 		tc.getTitle = function(){
@@ -470,6 +472,69 @@ angular.module('myApp.heatmap', ['ngRoute'])
 			
 			return tc;
 		}
+		
+		tc.drawSides = function(){
+			
+			var g = d3.select(svg);
+			var caller = angular.element(svg).controller();
+			
+			g.append('line')
+			.attr('x1', 0-caller.heatmapConfig.cellPadding)
+			.attr('x2', 0-caller.heatmapConfig.cellPadding)
+			.attr('y1', tc.getY())
+			.attr('y2', tc.getY()+tc.getHeight())
+			.attr('style', 'stroke:rgb(0,0,0);stroke-width:4');
+			
+			g.append('line')
+			.attr('x1', 0+(+tc.getWidth())+caller.heatmapConfig.cellPadding)
+			.attr('x2', 0+(+tc.getWidth())+caller.heatmapConfig.cellPadding)
+			.attr('y1', tc.getY())
+			.attr('y2', tc.getY()+tc.getHeight())
+			.attr('style', 'stroke:rgb(0,0,0);stroke-width:4');
+		}
+		
+		tc.drawOcc = function(){
+			var g = d3.select(svg);
+			var caller = angular.element(svg).controller();
+			
+			//iterate through all svg elements (rectangles) and draw occ lines on either side
+			d3.selectAll(angular.element(svg).parent()[0].childNodes).each(function(){
+					var nutc = new timeCell(this);
+					var day = nutc.date.getDay()+'';
+					var sched = caller.schedules[day];
+					
+					if((nutc.date.getHours() > sched.start.getHours() || (nutc.date.getHours() == sched.start.getHours() 
+							&& nutc.date.getMinutes() >= sched.start.getMinutes)) 
+							&& (nutc.date.getHours() < sched.end.getHours() || (nutc.date.getHours == sched.end.getHours() && nutc.date.getMinutes() <= sched.end.getMinutes()))){
+						nutc.drawSides();
+					}
+					else if(nutc.date.getHours() == sched.start.getHours() 
+						&& nutc.date.getMinutes() >= sched.start.getMinutes){
+						nutc.drawSides();
+					}
+			});
+			
+			g.append('line')
+			.attr('x1', 0-caller.heatmapConfig.cellPadding)
+			.attr('x2', 0+(+tc.getWidth())+caller.heatmapConfig.cellPadding)
+			.attr('y1', tc.getY())
+			.attr('y2', tc.getY())
+			.attr('style', 'stroke:rgb(0,0,0);stroke-width:2');
+		}
+		
+		
+		tc.drawUnocc = function(){
+			var g = d3.select(svg);
+			var caller = angular.element(svg).controller();
+
+			g.append('line')
+			.attr('x1', 0-caller.heatmapConfig.cellPadding)
+			.attr('x2', 0+(+tc.getWidth())+caller.heatmapConfig.cellPadding)
+			.attr('y1', tc.getY())
+			.attr('y2', tc.getY())
+			.attr('style', 'stroke:rgb(0,0,0);stroke-width:2');
+		}
+		
 		
 		tc.setEvent = function(){
 			var g = d3.select(svg);
@@ -501,7 +566,7 @@ angular.module('myApp.heatmap', ['ngRoute'])
 			.attr("x",tc.getX())
 			.attr("y", tc.getY())
 			.on("click", function(){
-				console.log('you were out of occupancy: '+tc.date);
+				console.log('you were out of occupancy at '+tc.date);
 			});
 		}
 		
@@ -518,13 +583,50 @@ angular.module('myApp.heatmap', ['ngRoute'])
 			.attr("x",tc.getX())
 			.attr("y", tc.getY())
 			.on("click", function(){
-				console.log('you were deviating from set point: '+tc.date);
+				console.log('you were deviating from set point at '+tc.date);
 			});
 		}
 	}
 	
+	var _drawOcc = function(){
+		var caller = this;
+		var startDate = caller.heatmapConfig.start;
+		var loopDate = startDate;
+		var endDate = new Date(caller.calEnd()*1000);
+		
+		console.log(startDate);
+		console.log(endDate);
+		
+		while(loopDate.getTime() <= endDate.getTime()){
+			var day = loopDate.getDay()+'';
+			var sched = caller.schedules[day];
+			
+			try{
+				var startTime = new Date(loopDate.getTime());
+				startTime.setHours(sched.start.getHours());
+				startTime.setMinutes(sched.start.getMinutes());
+				
+				var endTime = new Date(loopDate.getTime());
+				endTime.setHours(sched.end.getHours());
+				endTime.setMinutes(sched.end.getMinutes());
+				
+				caller.getTimeCell(startTime).drawOcc();
+				caller.getTimeCell(endTime).drawUnocc();
+			}
+			//should be an error if there is no schedule defined for the day.
+			catch(err){
+				console.log('theres an error?');
+				console.log(err);
+			}
+			
+			loopDate = new Date(loopDate.getTime() + 24*60*60*1000);
+		}
+		
+	}
+	
 	_servObj = {
 		//init : _init,
+		drawOcc : _drawOcc,
 		calEnd : _calEnd,
 		calRange : _calRange,
 		getDefaultConfig : _getDefaultConfig,
@@ -551,6 +653,23 @@ angular.module('myApp.heatmap', ['ngRoute'])
 	//default data source
 	vm.dataSource = '/app/data2.json';
 	vm.eventSource = '';
+	
+	// 0 is Sunday
+	vm.schedules = { 
+		'0' : { },
+		'1' : { start : new Date(new Date(new Date().setHours(6)).setMinutes(30)), 
+			end : new Date(new Date(new Date().setHours(20)).setMinutes(30)) },
+		'2' : { start : new Date(new Date(new Date().setHours(6)).setMinutes(30)), 
+			end : new Date(new Date(new Date().setHours(20)).setMinutes(30)) },
+		'3' : { start : new Date(new Date(new Date().setHours(6)).setMinutes(30)), 
+			end : new Date(new Date(new Date().setHours(20)).setMinutes(30)) },
+		'4' : { start : new Date(new Date(new Date().setHours(6)).setMinutes(30)), 
+			end : new Date(new Date(new Date().setHours(20)).setMinutes(30)) },
+		'5' : { start : new Date(new Date(new Date().setHours(6)).setMinutes(30)), 
+			end : new Date(new Date(new Date().setHours(20)).setMinutes(30)) },
+		'6' : { start : new Date(new Date(new Date().setHours(12)).setMinutes(0)), 
+			end : new Date(new Date(new Date().setHours(16)).setMinutes(30)) }
+		};
 	
 	vm.sources = [
 		{ 'text':'kWh1', 'source':'/app/data2.json' }
@@ -677,6 +796,11 @@ angular.module('myApp.heatmap', ['ngRoute'])
 		vm.getData().then(function (dataddd){
 			vm.heatmapConfig.data = vm.dataObj;
 			vm.change();
+			
+			window.setTimeout(function(){
+				vm.drawOcc();
+				$scope.$apply();
+			}, 1000);
 		});
 	});
 	
