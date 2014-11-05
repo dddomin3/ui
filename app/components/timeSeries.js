@@ -9,7 +9,6 @@ angular.module('myApp.timeSeries', ['ngRoute'])
     	$scope.log = function() {
   		  console.log($scope);
   	  	};
-  	  	$scope.log();
     	
     	var composite = dc.compositeChart("#test_composed"); // names/creates the chart
         
