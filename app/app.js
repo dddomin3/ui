@@ -11,7 +11,9 @@ angular.module('myApp', [
   'myApp.timeSeries',
   'calHeatmap',
   'angularDc',
-  'colorpicker.module'
+  'colorpicker.module',
+  'myApp.calendar',
+  'ui.bootstrap'
 ]).
 
 config(['$routeProvider', function($routeProvider) {
@@ -26,6 +28,10 @@ config(['$routeProvider', function($routeProvider) {
 	when('/energyProfile', {
 		templateUrl: 'views/energyProfile.html',
 		controller: 'energyProfileCtrl'
+	}).
+	when('/calendar',{
+		templateUrl: 'views/calendar.html',
+		controller: 'DatepickerDemoCtrl'
 	}).
 	otherwise({redirectTo: '/heatmap'});
 }]);

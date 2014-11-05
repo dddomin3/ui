@@ -8,6 +8,7 @@ angular.module('myApp.energyProfile', ['ngRoute'])
 	var ndx;	//TODO:Underscores dood
 	var dimensions = {};
 	var groups = {};
+	var _charts = {};
 	var _userParameters = {
 			savingsColor : ['cyan', 'orange'],
 			actualColor : 'blue',
@@ -26,6 +27,7 @@ angular.module('myApp.energyProfile', ['ngRoute'])
 	var tfHour = d3.time.format("%H");
 	var minDate;
 	var maxDate;
+	var _composite;
 	
 	var _setUrl = function(url){
 		_url = url;
@@ -41,9 +43,9 @@ angular.module('myApp.energyProfile', ['ngRoute'])
 	//TODO - data obj does not need to be refereshed every time we want to get???
 	//can we re-serve from memory if we dont believe anthing has changed???
 	var _getData = function(){ 
-		return $http.get('http://10.239.3.132:8080/dailyhistory/544876bf2e905908b6e5f595').
-		success(successHandler).
-		error(errorHandler);
+		return $http.get('http://10.239.3.132:8080/dailyhistory/544876bf2e905908b6e5f595')
+		.success(successHandler)
+		.error(errorHandler);
 	};
 	
 	var successHandler = function(data) {
@@ -83,7 +85,7 @@ angular.module('myApp.energyProfile', ['ngRoute'])
         chartParameters.domainX = d3.scale.linear().domain([chartParameters.minDate, chartParameters.maxDate]);
 		
         chartParameters.xUnits = d3.time.hours;
-        chartParameters.tickFormat = function(v) {return tfHour(new Date(v));}
+        chartParameters.tickFormat = function(v) {return tfHour(new Date(v));};
         
 		console.log('success????');
 	};
@@ -132,38 +134,45 @@ angular.module('myApp.energyProfile', ['ngRoute'])
 	};
 	
 	//TODO: make this work
-	var _initCompositeChart = function () {
-		composite = dc.compositeChart("#test_composed");
+	var _initCompositeChart = function (domString) {
+		_composite = dc.compositeChart("#"+domString);
+		return _composite;
 	};
 	//TODO: make this work
 	var _generateCharts = function () {
-		var cumulativeArea = dc.lineChart(composite)
+		_charts.cumulativeArea = dc.lineChart(_composite)
 		    .dimension(dimensions.dateDimension)
 		    .interpolate("basis")
-		    .colors(userParameters.cumulativeColor)
+		    .colors(_userParameters.cumulativeColor)
 		    .group(groups.savingsSum, "Total Savings/Waste")
 		    .renderArea(true);
-		var actualLine = dc.lineChart(composite)
+		_charts.actualLine = dc.lineChart(_composite)
 	        .dimension(dimensions.dateDimension)
 	        .interpolate("basis")
-	        .colors(userParameters.actualColor)
+	        .colors(_userParameters.actualColor)
 	        .group(groups.actualGroup, "Actual KWH");
-		var expectedLine = dc.lineChart(composite)
+		_charts.expectedLine = dc.lineChart(_composite)
 	        .dimension(dimensions.dateDimension)
 	        .interpolate("basis")
-	        .colors(userParameters.expectedColor)
+	        .colors(_userParameters.expectedColor)
 	        .group(groups.expectedGroup, "Expected KWH");
-		var savingsBar = dc.barChart(composite)
+		_charts.savingsBar = dc.barChart(_composite)
 	        .dimension(dimensions.dateDimension)
 	        .group(groups.savingsGroups[0], "Savings")
-	        .ordinalColors(userParameters.savingsColor)
+	        .ordinalColors(_userParameters.savingsColor)
 	        .centerBar(true);
 		
-		var ranger = dc.barChart("#ranger")
+		//TODO: take care, since this defaults and writes the ranger to the ranger DOM id
+		_charts.ranger = dc.barChart("#ranger")
 	        .dimension(dimensions.dateDimension)
 	        .group(groups.savingsGroups[0], "Savings")
-	        .ordinalColors(userParameters.savingsColor)
-	        .x($scope.domainX);
+	        .ordinalColors(_userParameters.savingsColor)
+	        .x(chartParameters.domainX);
+		
+		for (var i = 1, len = groups.savingsGroups.length; i < len; i++) {
+			_charts.savingsBar = _charts.savingsBar.stack(groups.savingsGroups[i], "Savings"+i); //TODO:these should hav emore meaningful names
+		}
+		return _charts;
 	};
 	
 	var _getUserParameters = function () {
@@ -187,6 +196,7 @@ angular.module('myApp.energyProfile', ['ngRoute'])
 	var _getCumulativeSavingsGroup = function() {
 		return groups.cumulativeSavingsGroup;
 	};
+	
 	var _getXUnits = function () {
 		return chartParameters.xUnits;
 	};
@@ -197,11 +207,16 @@ angular.module('myApp.energyProfile', ['ngRoute'])
 		return chartParameters.domainX;
 	};
 	
+	var _getCharts = function () {
+		return _charts;
+	};
+	
 	_servObj = {
 		getUrl : _getUrl,
 		setUrl: _setUrl,
 		getData : _getData,
 		dataArr : function () { return _dataArr; },
+		
 		getDateDimension : _getDateDimension,
 		getExpectedGroup : _getExpectedGroup,
 		getActualGroup : _getActualGroup,
@@ -209,22 +224,31 @@ angular.module('myApp.energyProfile', ['ngRoute'])
 		getSavingsGroups : _getSavingsGroups,
 		getCumulativeSavingsGroup : _getCumulativeSavingsGroup,
 		getUserParameters : _getUserParameters,
+		
 		getXUnits : _getXUnits,
 		getTickFormat : _getTickFormat,
 		getDomainX : _getDomainX,
-		csvInit : _csvInit
+		
+		csvInit : _csvInit,
+		initCompositeChart : _initCompositeChart,
+		generateCharts : _generateCharts,
+		getCharts : _getCharts
 	};
 	
 	return _servObj;
 	
-}])
-.controller('energyProfileCtrl', ['$scope', '$location', '$route', 'energyProfileDataService',
-                    function($scope, $location, $route, dataService) {
+}])	//TODO:controller shouldn't have http...
+.controller('energyProfileCtrl', ['$scope', '$location', '$route', 'energyProfileDataService', '$http', 
+                    function($scope, $location, $route, dataService, $http) {
 	$scope.timeSeries = 'energyProfile';
 	$scope.showButtons = true;
 	$scope.chartInit = false;
 	$scope.userParameters = dataService.getUserParameters();
 	$scope.chartParameters = {};
+	//data init stuff
+	$scope.organization = 'ANDO';
+	$scope.highDate = new Date();
+	$scope.lowDate = new Date((new Date()) - (28*24*60*60*1000)); //28 days*hours*minutes*seconds*milliseconds
 	
 	var composite; //variable that stores the composite chart generated by program
 	//populated by drawChart
@@ -233,14 +257,19 @@ angular.module('myApp.energyProfile', ['ngRoute'])
 		var lX = $scope.userParameters.width - $scope.userParameters.marginRight + 25,
 			lY = $scope.userParameters.height - 650;
 		
-		composite = dc.compositeChart("#test_composed");
+		composite = dataService.initCompositeChart("test_composed");
+		//composite = dc.compositeChart("#test_composed");
 		
+		$scope.charts = dataService.generateCharts();
+		console.log($scope.charts);
 		var cumulativeArea = dc.lineChart(composite)
 		    .dimension($scope.dateDimension)
 		    .interpolate("basis")
 		    .colors($scope.userParameters.cumulativeColor)
 		    .group($scope.savingsSum, "Total Savings/Waste")
 		    .renderArea(true);
+		console.log($scope.charts.cumulativeArea);
+		console.log(cumulativeArea);
 		var actualLine = dc.lineChart(composite)
 	        .dimension($scope.dateDimension)
 	        .interpolate("basis")
@@ -253,19 +282,19 @@ angular.module('myApp.energyProfile', ['ngRoute'])
 	        .group($scope.expectedGroup, "Expected KWH");
 		var savingsBar = dc.barChart(composite)
 	        .dimension($scope.dateDimension)
-	        .group($scope.savingsGroup[0], "Savings")
+	        .group($scope.savingsGroups[0], "Savings")
 	        .ordinalColors($scope.userParameters.savingsColor)
 	        .centerBar(true);
 		
 		var ranger = dc.barChart("#ranger")
 	        .dimension($scope.dateDimension)
-	        .group($scope.savingsGroup[0], "Savings")
+	        .group($scope.savingsGroups[0], "Savings")
 	        .ordinalColors($scope.userParameters.savingsColor)
 	        .x($scope.domainX);
 		
 		
-		for (var i = 1, len = $scope.savingsGroup.length; i < len; i++) {
-			savingsBar = savingsBar.stack($scope.savingsGroup[i], "Savings"+i); //TODO:these should hav emore meaningful names
+		for (var i = 1, len = $scope.savingsGroups.length; i < len; i++) {
+			savingsBar = savingsBar.stack($scope.savingsGroups[i], "Savings"+i); //TODO:these should hav emore meaningful names
 		}
 		
 		composite.xAxis().tickFormat($scope.chartParameters.tickFormat); // sets the tick format to be the month/year only
@@ -314,19 +343,25 @@ angular.module('myApp.energyProfile', ['ngRoute'])
 	    return composite;
 	};
 	
-	var http = function(data) {
-		$scope.showButtons = false;
-        $scope.dateDimension  = dataService.getDateDimension();
+	var populateScope = function () {
+		//this function populates necessary variables onto the scope.
+		$scope.dateDimension  = dataService.getDateDimension();
         
         $scope.actualGroup = dataService.getActualGroup();
         $scope.expectedGroup = dataService.getExpectedGroup();
-        $scope.savingsGroup = dataService.getSavingsGroups(); //[dataService.getSavingsGroup(), dataService.getSavingsGroup()];
+        $scope.savingsGroups = dataService.getSavingsGroups();
         
         $scope.savingsSum = dataService.getCumulativeSavingsGroup();
         
         $scope.domainX = dataService.getDomainX();
         $scope.chartParameters.xUnits = dataService.getXUnits();
         $scope.chartParameters.tickFormat = dataService.getTickFormat();
+	};
+	
+	var http = function(data) {
+		$scope.showButtons = false;
+        
+		populateScope();
         
         composite = drawChart();
         $scope.showButtons = true;
@@ -337,18 +372,7 @@ angular.module('myApp.energyProfile', ['ngRoute'])
 			$scope.showButtons = false;
 	    	dataService.csvInit(energyData, doubleize);
 	    	
-	    	$scope.dateDimension  = dataService.getDateDimension();
-	        
-	        $scope.actualGroup = dataService.getActualGroup();
-	        $scope.expectedGroup = dataService.getExpectedGroup();
-	        $scope.savingsGroup = dataService.getSavingsGroups();
-	        
-	        $scope.savingsSum = dataService.getCumulativeSavingsGroup();
-	        
-	        $scope.domainX = dataService.getDomainX();
-	        
-	        $scope.chartParameters.xUnits = d3.time.months;
-	        $scope.chartParameters.tickFormat = dataService.getTickFormat();
+	    	populateScope();
 	        
 	        composite = drawChart();
 	        $scope.showButtons = true;
@@ -383,9 +407,37 @@ angular.module('myApp.energyProfile', ['ngRoute'])
 	$scope.addColor = function (param) {
 		console.log($scope);
 		param.push('cyan');
-	}
+	};
 	$scope.removeColor = function (param) {
 		console.log($scope);
 		param.pop();
-	}
+	};
+	
+	$scope.logScope = function () {
+		console.log($scope);
+	};
+	$scope.getOrganization = function () {
+		
+		$http.post('http://10.239.3.132:9763/MongoServlet-0.0.1-SNAPSHOT/send',
+				'{'
+					+'"organization": "'+$scope.organization+'",'
+					+'"date": {'
+				        +'"$gt": {'
+				            +'"$date": "'+$scope.lowDate.toISOString()+'",'
+				        +'},'
+				        +'"$lt": {'
+				            +'"$date": "'+$scope.highDate.toISOString()+'"'
+				        +'}'
+				    +'}'
+				+'}'
+				
+				)
+		.success(showOrganizationDetails)
+		.error(function () { alert('fail to query data'); });
+	};
+	var showOrganizationDetails = function (data) {
+		console.log('fuckyou');
+		console.log(data);
+		console.log(Date());
+	};
 }]);
