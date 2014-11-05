@@ -16,6 +16,13 @@ angular.module('myApp.heatmap', ['ngRoute'])
 		kWh3 : '/app/data4.json',
 		kWh4 : '/app/data5.json'
 	};
+	
+	var schedDict = {
+		kWh1 : '/app/sched2.json',
+		kWh2 : '/app/sched3.json',
+		kWh3 : '/app/sched4.json',
+		kWh4 : '/app/sched5.json'
+	}
 
 	var _setUrl = function(Url){
 		this.url = Url;
@@ -36,7 +43,7 @@ angular.module('myApp.heatmap', ['ngRoute'])
 		var caller = this;
 		
 		//return $http.post('http://10.239.3.132:9763/MongoServlet-0.0.1-SNAPSHOT/send',"{\"name\":\"G02NSHVHV7S45Q1_kWh\"}")
-		return $http.get(dataDict[caller.dataSource])
+		return $http.get(caller.dataSource)
 			.success(function(data){
 				var j = 0;
 				var last = 0;
@@ -292,10 +299,11 @@ angular.module('myApp.heatmap', ['ngRoute'])
 		itemName: ["kWh", "kWh"],
 		subDomainDateFormat: '%c',
 		subDomainTextFormat: function(date, value) {
-			if (date.getHours() == 8) {
+			/*if (date.getHours() == 8) {
 				return 'X';
 			}
-			else return '';
+			else */
+			return '';
 		},
 		start : new Date(1412136000000-7*24*60*60*1000),
 		domainLabelFormat: function(date) {//format of each domain label. "x axis" labels
@@ -432,9 +440,21 @@ angular.module('myApp.heatmap', ['ngRoute'])
 	vm.url = "";
 
 	//default data source
-	vm.dataSource = 'kWh2';
-	vm.sources = [{ 'text':'kWh1'},{'text':'kWh2'},{'text':'kWh3'},{'text':'kWh4'}];
+	vm.dataSource = '/app/data2.json';
+	vm.sources = [
+		{ 'text':'kWh1', 'source':'/app/data2.json' }
+		,{'text':'kWh2', 'source':'/app/data3.json' }
+		,{'text':'kWh3', 'source':'/app/data4.json' }
+		,{'text':'kWh4', 'source':'/app/data5.json' }
+		,{'text':'all', 'source':[
+			'/app/data2.json',
+			'/app/data3.json',
+			'/app/data4.json',
+			'/app/data5.json']}
+	];
+	
 	vm.dataObj = {};
+	vm.assets = "";
 	
 	vm.heatmapConfig = vm.getDefaultConfig();
 	
