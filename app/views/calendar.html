@@ -1,48 +1,22 @@
-    <div >
-    
-      <pre>From: <em>{{start | date:'fullDate' }}</em> To: <em>{{end | date:'fullDate'}}</em></pre>
-
-      <div class="row">
-        <div class="col-md-6">
-            <p ng-controller="DatepickerDemoCtrl" class="input-group">
-              <input type="text" class="form-control" 
-                datepicker-popup="{{format}}" 
-                ng-model="start" 
-                is-open="opened" 
-                min-date="minDate" 
-                max-date="'today'" 
-                datepicker-options="dateOptions" 
-                date-disabled="disabled(date, mode)" 
-                ng-required="true" 
-                close-text="Close" 
-              />
-              <span class="input-group-btn">
-                <button type="button" class="btn btn-default" ng-click="open($event)">
-                  <i class="glyphicon glyphicon-calendar"></i>
-                </button>
-              </span>
-            </p>
-           To
-           <p ng-controller="DatepickerDemoCtrl" class="input-group">
-             <input type="text" class="form-control" 
-                datepicker-popup="{{format}}" 
-                ng-model="end" 
-                is-open="opened" 
-                min-date="minDate" 
-                max-date="'today'" 
-                datepicker-options="dateOptions" 
-                date-disabled="disabled(date, mode)" 
-                ng-required="true" 
-                close-text="Close" 
-              />
-              <span class="input-group-btn">
-                <button type="button" class="btn btn-default" ng-click="open($event)">
-                  <i class="glyphicon glyphicon-calendar"></i>
-                </button>
-              </span>
-            </p>
-            
-         </div>
-      </div>
+  <div class="col-md-2">
+      <p ng-controller="DatepickerDemoCtrl" class="input-group">
+        <input type="text" class="form-control" 
+          datepicker-popup="yyyy-MM-dd" 
+          ng-model="start" 
+          is-open="opened" 
+          min-date="minDate" 
+          max-date="'today'" 
+          datepicker-options="dateOptions" 
+          date-disabled="disabled(date, mode)" 
+          ng-required="true" 
+          close-text="Close" 
+        />
+        <span class="input-group-btn">
+          <button type="button" class="btn btn-default" ng-click="open($event)">
+            <i class="glyphicon glyphicon-calendar"></i>
+          </button>
+        </span>
+      </p>
+   </div>
       
-    </div>
+    
