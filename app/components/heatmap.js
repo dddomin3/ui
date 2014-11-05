@@ -45,6 +45,7 @@ angular.module('myApp.heatmap', ['ngRoute'])
 		//return $http.post('http://10.239.3.132:9763/MongoServlet-0.0.1-SNAPSHOT/send',"{\"name\":\"G02NSHVHV7S45Q1_kWh\"}")
 		return $http.get(caller.dataSource)
 			.success(function(data){
+				console.log('getting data');
 				var j = 0;
 				var last = 0;
 				var dateSortedResult = {};
@@ -371,7 +372,6 @@ angular.module('myApp.heatmap', ['ngRoute'])
 	
 	//take a javascript date, and return the HTML5 cell in the heatmap associated with it
 	var _getTimeCell = function(date){
-		console.log(date);
 		var caller = this;
 		
 		//heatmaps week starts on a mondays (it is the +1).This function is added to ALL date objects
@@ -390,23 +390,75 @@ angular.module('myApp.heatmap', ['ngRoute'])
 		
 		var list = document.getElementsByClassName(query);
 		
-		console.log(query);
-		console.log(list);
-		
 		for(var p = 0; p < list.length; p++){
 			//If the current HTML5 element being examined does not reference back to THIS controller, continue iterating through elements
 			if(!(angular.element(list[p]).controller() === caller)){
 				continue;
 			}
-			console.log(list[p]);
 			
 			var cells = list[p].getElementsByTagName('g');
 			var length = cells.length;
 
 			var inputHour = date.getHours();
-			return cells[inputHour];
+			return new timeCell(cells[inputHour], date);
 		}
 	};
+	
+var timeCell = function(svg, date){
+		var tc = this;
+		tc.svg = svg;
+		tc.date = date;
+		
+		tc.getX = function(){
+			return angular.element(svg.getElementsByTagName('rect')).attr("x");
+		}
+		
+		tc.getY = function(){
+			return angular.element(svg.getElementsByTagName('rect')).attr("y");
+		}
+		
+		tc.getWidth = function(){
+			return angular.element(svg.getElementsByTagName('rect')).attr("width");
+		}
+		
+		tc.getHeight = function(){
+			return angular.element(svg.getElementsByTagName('rect')).attr("height");
+		}
+		
+		tc.getTitle = function(){
+			return svg.getElementsByTagName('title')[0].innerHTML;
+		}
+		
+		tc.setTitle = function(title){
+			svg.getElementsByTagName('title')[0].innerHTML = title;
+			
+			return tc;
+		}
+		
+		tc.getText = function(){
+			return svg.getElementsByTagName('text')[0].innerHtml;
+		}
+		
+		tc.setText = function(text){
+			svg.getElementsByTagName('text')[0].innerHtml = text;
+			
+			return tc;
+		}
+		
+		tc.setEvent = function(){
+			var g = d3.select(svg);
+			
+			//remove the image if it is already there
+			g.select("image").remove();
+			
+			g.append("svg:image")
+			.attr("xlink:href", "http://localhost:8000/app/usa.png")
+			.attr("width", tc.getWidth())
+			.attr("height", tc.getHeight())
+			.attr("x",tc.getX())
+			.attr("y", tc.getY());
+		}
+	}
 	
 	_servObj = {
 		init : _init,
@@ -427,8 +479,6 @@ angular.module('myApp.heatmap', ['ngRoute'])
 	angular.extend(vm, persistHeatmapService);
 	angular.extend(vm, heatmapDataService);
 	angular.extend(vm, heatmapConfigService);
-	
-
 	
 	//control whether the view needs to be reloaded.
 	vm.rendered = false;
@@ -463,27 +513,22 @@ angular.module('myApp.heatmap', ['ngRoute'])
 	
 	//for testing retrieving an individual time cell in the heatmap.
 	vm.grab = function(){
-		var selectDate = new Date(vm.heatmapConfig.start.getTime() + 1000*60*60*24*10 + 1000*60*60*14);
-		console.log(selectDate);
+		var max = 30;
+		var min = 10;
 		
-		vm.getTimeCell(selectDate).getElementsByTagName('title')[0].innerHTML = 'An event is here!!!';
+		var selectDate = new Date(vm.heatmapConfig.start.getTime() 
+			+ 1000*60*60*24*(Math.random()*(max-min+1)+min) 
+			+ 1000*60*60*14);
 		
 		console.log(vm.getTimeCell(selectDate));
-
-		var g = d3.select(vm.getTimeCell(selectDate));
-		g.append("svg:image")
-		.attr("xlink:href", "http://localhost:8000/app/usa.png")
-		.attr("width", 20)
-		.attr("height", 20)
-		.attr("x",0)
-		.attr("y", 294);
 		
-		/*
-		angular.element(vm.getTimeCell(selectDate)).append('<svg:image width="20" height="20" href="http://localhost:8000/app/usa.png"/>');
-		angular.element(vm.getTimeCell(selectDate).getElementsByTagName('rect')[0]).append('<svg:image width="20" height="20" href="http://localhost:8000/app/usa.png"/>');
-		*/
+		var timeCell = vm.getTimeCell(selectDate);
 		
-		vm.getTimeCell(selectDate).getElementsByTagName('text')[0].innerHTML = '!!';
+		timeCell.setTitle('An event is here!!!');
+		timeCell.setText('!!');
+		
+		timeCell.setEvent();
+		
 	}
 	
 	//for testing multiple controllers inheriting the same service singleton
