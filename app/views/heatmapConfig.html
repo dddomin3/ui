@@ -1,8 +1,13 @@
-<div class="panel panel-primary">
-	<select ng-model="heat.dataSource" ng-options="obj.source as obj.text for obj in heat.sources">
-	<!--
-   <div class="panel-heading" ng-show=geofenceEditShow><h3 class="panel-title">Edit Heatmap</h3></div>
+<div>
+
+<div>
+	<select class ="form-control action" ng-model="heat.dataSource" ng-options="obj.source as obj.text for obj in heat.sources"></select><br>
+   <!--
+	  
+	  <div class="panel-heading" ng-show=geofenceEditShow><h3 class="panel-title">Edit Heatmap</h3></div>
+
    <div class=panel-body>
+   
        <strong>Geo-Fence Name:</strong> <input ng-model="geofenceName"><br>
        <strong>Geo-Fence Organization:</strong> <input ng-model="geofenceOrganization"><br>
        <strong>Geo-Fence Details:</strong> <input ng-model="geofenceDetails"><br>
@@ -17,4 +22,8 @@
        <strong ng-show=geofenceInitShow>Click Save to push to database!</strong>
    </div>
    !-->
+</div>
+<div>
+<select class ="form-control action" ng-model="heat.eventSource" ng-options="obj.source as obj.text for obj in heat.events"></select>
+</div>
 </div>

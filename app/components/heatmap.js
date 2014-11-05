@@ -232,6 +232,27 @@ angular.module('myApp.heatmap', ['ngRoute'])
 		return array;
 	}
 	
+	var _addEvents = function(){
+		var caller = this;
+		var eventsArray = caller.eventSource;
+		
+		for(var i = 0; i < eventsArray.length; i++){
+			var type = eventsArray[i].type;
+			var time = eventsArray[i].time;
+			var description = eventsArray[i].description;
+			
+			console.log(time);
+			console.log(new Date(time));
+			console.log(caller);
+			try{
+				caller.getTimeCell(new Date(time)).setTitle(description)[type]();
+			}
+			catch(err){
+				console.log('date '+new Date(time)+' not in heatmap');
+			}
+		}
+	}
+	
 	var _clearData = function(){
 		var caller = this;
 		
@@ -240,6 +261,7 @@ angular.module('myApp.heatmap', ['ngRoute'])
 	}
 	
 	_servObj = {
+		addEvents : _addEvents,
 		getUrl : _getUrl,
 		setUrl: _setUrl,
 		getMax : _getMax,
@@ -326,6 +348,8 @@ angular.module('myApp.heatmap', ['ngRoute'])
 		
 		return _defaultConfig;
 	}
+	
+	/*  Not necessary - gets data on page load regardless? Because of our $watch on data source?
 	var _init = function(){
 		//caller is the controller which is currently invoking this function
 		var caller = this;
@@ -339,6 +363,7 @@ angular.module('myApp.heatmap', ['ngRoute'])
 		caller.rendered = true;
 	});
 	};
+	*/
 	
 	var _calEnd = function(){
 		var caller = this;
@@ -390,6 +415,7 @@ angular.module('myApp.heatmap', ['ngRoute'])
 		
 		var list = document.getElementsByClassName(query);
 		
+		//currently only works for hours because it iterates through the array of <g> objects by assuming 1 hour = 1 item in a sorted time based aray....
 		for(var p = 0; p < list.length; p++){
 			//If the current HTML5 element being examined does not reference back to THIS controller, continue iterating through elements
 			if(!(angular.element(list[p]).controller() === caller)){
@@ -404,7 +430,7 @@ angular.module('myApp.heatmap', ['ngRoute'])
 		}
 	};
 	
-var timeCell = function(svg, date){
+	var timeCell = function(svg, date){
 		var tc = this;
 		tc.svg = svg;
 		tc.date = date;
@@ -456,12 +482,49 @@ var timeCell = function(svg, date){
 			.attr("width", tc.getWidth())
 			.attr("height", tc.getHeight())
 			.attr("x",tc.getX())
-			.attr("y", tc.getY());
+			.attr("y", tc.getY())
+			.on("click", function(){
+				console.log('you clicked on the image at: '+tc.date);
+			});
+		}
+		
+		tc.OutOfOccupancy = function(){
+			var g = d3.select(svg);
+			
+			//remove the image if it is already there
+			g.select("image").remove();
+			
+			g.append("svg:image")
+			.attr("xlink:href", "http://localhost:8000/app/usa.png")
+			.attr("width", tc.getWidth())
+			.attr("height", tc.getHeight())
+			.attr("x",tc.getX())
+			.attr("y", tc.getY())
+			.on("click", function(){
+				console.log('you were out of occupancy: '+tc.date);
+			});
+		}
+		
+		tc.DatDeviation = function(){
+			var g = d3.select(svg);
+			
+			//remove the image if it is already there
+			g.select("image").remove();
+			
+			g.append("svg:image")
+			.attr("xlink:href", "http://localhost:8000/app/hotcool.png")
+			.attr("width", tc.getWidth())
+			.attr("height", tc.getHeight())
+			.attr("x",tc.getX())
+			.attr("y", tc.getY())
+			.on("click", function(){
+				console.log('you were deviating from set point: '+tc.date);
+			});
 		}
 	}
 	
 	_servObj = {
-		init : _init,
+		//init : _init,
 		calEnd : _calEnd,
 		calRange : _calRange,
 		getDefaultConfig : _getDefaultConfig,
@@ -487,6 +550,8 @@ var timeCell = function(svg, date){
 
 	//default data source
 	vm.dataSource = '/app/data2.json';
+	vm.eventSource = '';
+	
 	vm.sources = [
 		{ 'text':'kWh1', 'source':'/app/data2.json' }
 		,{'text':'kWh2', 'source':'/app/data3.json' }
@@ -497,6 +562,62 @@ var timeCell = function(svg, date){
 			'/app/data3.json',
 			'/app/data4.json',
 			'/app/data5.json']}
+	];
+	
+	//dummy data for events
+	vm.events = [
+		{ 'text':'eventSet1', 'source': 
+			[{'type': 'OutOfOccupancy', 'time': 1401957900000+60*24*60*60*1000, 'description': 'The unit was running out of occupancy at '
+				+new Date(1401957900000+60*24*60*60*1000)+'!'},
+			{'type': 'OutOfOccupancy', 'time': 1404468000000+60*24*60*60*1000, 'description': 'The unit was running out of occupancy at '
+				+new Date(1404468000000+60*24*60*60*1000)+'!'},
+			{'type': 'OutOfOccupancy', 'time': 1407351600000+60*24*60*60*1000, 'description': 'The unit was running out of occupancy at '
+				+new Date(1407351600000+60*24*60*60*1000)+'!'},
+			{'type': 'OutOfOccupancy', 'time': 1407513600000+60*24*60*60*1000, 'description': 'The unit was running out of occupancy at '
+				+new Date(1407513600000+60*24*60*60*1000)+'!'},
+			{'type': 'OutOfOccupancy', 'time': 1407617100000+60*24*60*60*1000, 'description': 'The unit was running out of occupancy at '
+				+new Date(1407617100000+60*24*60*60*1000)+'!'},
+			{'type': 'OutOfOccupancy', 'time': 1407718800000+60*24*60*60*1000, 'description': 'The unit was running out of occupancy at '
+				+new Date(1407718800000+60*24*60*60*1000)+'!'},
+			{'type': 'OutOfOccupancy', 'time': 1407718800000+60*24*60*60*1000, 'description': 'The unit was running out of occupancy at '
+				+new Date(1407718800000+60*24*60*60*1000)+'!'}
+			]
+		},
+		{ 'text':'eventSet2', 'source': 
+			[{'type': 'DatDeviation', 'time': 1401957900000+60*24*60*60*1000, 'description': 'The unit was greater than setpoint at '
+				+new Date(1401957900000+60*24*60*60*1000)+'!'},
+			{'type': 'DatDeviation', 'time': 1404468000000+60*24*60*60*1000, 'description': 'The unit was greater than setpoint at  '
+				+new Date(1404468000000+60*24*60*60*1000)+'!'},
+			{'type': 'DatDeviation', 'time': 1407351600000+60*24*60*60*1000, 'description': 'The unit was greater than setpoint at  '
+				+new Date(1407351600000+60*24*60*60*1000)+'!'},
+			{'type': 'DatDeviation', 'time': 1407513600000+60*24*60*60*1000, 'description': 'The unit was greater than setpoint at  '
+				+new Date(1407513600000+60*24*60*60*1000)+'!'},
+			{'type': 'DatDeviation', 'time': 1407617100000+60*24*60*60*1000, 'description': 'The unit was greater than setpoint at  '
+				+new Date(1407617100000+60*24*60*60*1000)+'!'},
+			{'type': 'DatDeviation', 'time': 1407718800000+60*24*60*60*1000, 'description': 'The unit was greater than setpoint at  '
+				+new Date(1407718800000+60*24*60*60*1000)+'!'},
+			{'type': 'DatDeviation', 'time': 1407718800000+60*24*60*60*1000, 'description': 'The unit was greater than setpoint at  '
+				+new Date(1407718800000+60*24*60*60*1000)+'!'}
+			]
+		},
+		{ 'text':'eventSet3', 'source': 
+			[{'type': 'OutOfOccupancy', 'time': 1402057900000+60*24*60*60*1000, 'description': 'The unit was running out of occupancy at '
+				+new Date(1402057900000+60*24*60*60*1000)+'!'},
+			{'type': 'DatDeviation', 'time': 1404568000000+60*24*60*60*1000, 'description': 'The unit was greater than setpoint at '
+				+new Date(1404568000000+60*24*60*60*1000)+'!'},
+			{'type': 'DatDeviation', 'time': 1407351600000+60*24*60*60*1000, 'description': 'The unit was greater than setpoint at '
+				+new Date(1480351600000)+'!'},
+			{'type': 'OutOfOccupancy', 'time': 1408013600000+60*24*60*60*1000, 'description': 'The unit was running out of occupancy at '
+				+new Date(1407513600000+60*24*60*60*1000)+'!'},
+			{'type': 'OutOfOccupancy', 'time': 1407617100000+60*24*60*60*1000, 'description': 'The unit was running out of occupancy at '
+				+new Date(1407617100000)+'!'},
+			{'type': 'DatDeviation', 'time': 1407617100000+60*24*60*60*1000, 'description': 'The unit was greater than setpoint at '
+				+new Date(1407718800+60*24*60*60*1000)+'!'},
+			{'type': 'DatDeviation', 'time': 1407718800000+60*24*60*60*1000, 'description': 'The unit was running out of occupancy at '
+				+new Date(1407718800000+60*24*60*60*1000)+'!'}
+			]
+		}
+	
 	];
 	
 	vm.dataObj = {};
@@ -519,8 +640,6 @@ var timeCell = function(svg, date){
 		var selectDate = new Date(vm.heatmapConfig.start.getTime() 
 			+ 1000*60*60*24*(Math.random()*(max-min+1)+min) 
 			+ 1000*60*60*14);
-		
-		console.log(vm.getTimeCell(selectDate));
 		
 		var timeCell = vm.getTimeCell(selectDate);
 		
@@ -562,7 +681,12 @@ var timeCell = function(svg, date){
 		});
 	});
 	
-	vm.init();
+	//when we change event sets, load the event data into time cells
+	$scope.$watch('heat.eventSource', function(){
+		vm.addEvents();
+	}, true);
+	
+	//vm.init();
 
 }])
 
