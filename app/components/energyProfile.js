@@ -21,7 +21,8 @@ angular.module('myApp.energyProfile', ['ngRoute'])
 			marginTop: 25,
 			marginBottom: 25,
 			lowDate: new Date((new Date()) - (28*24*60*60*1000)),
-			highDate: new Date()
+			highDate: new Date(),
+			organization: "ANDO"
 	};
 	var chartParameters = {};
 	var monthNumber = d3.time.format("%m").parse;
@@ -32,7 +33,6 @@ angular.module('myApp.energyProfile', ['ngRoute'])
 	var minDate;
 	var maxDate;
 	var _composite;
-	var organization = "ANDO";
 	//TODO: set-get for low/high dates
 	var _lowDate = new Date((new Date()) - (28*24*60*60*1000)); //28 days*hours*minutes*seconds*milliseconds
 	var _highDate = new Date();
@@ -51,13 +51,13 @@ angular.module('myApp.energyProfile', ['ngRoute'])
 	var _getOrganization = function () {	
 		return $http.post('http://10.239.3.132:9763/MongoServlet-0.0.1-SNAPSHOT/send',
 				'{'
-					+'"organization": "'+organization+'",'
+					+'"organization": "'+_userParameters.organization+'",'
 					+'"date": {'
 				        +'"$gt": {'
-				            +'"$date": "'+_lowDate.toISOString()+'",'
+				            +'"$date": "'+_userParameters.lowDate.toISOString()+'",'
 				        +'},'
 				        +'"$lt": {'
-				            +'"$date": "'+_highDate.toISOString()+'"'
+				            +'"$date": "'+_userParameters.highDate.toISOString()+'"'
 				        +'}'
 				    +'}'
 				+'}')
