@@ -13,7 +13,7 @@
 				<button ng-if="isColor(paramName)&&!isArray(param)" class="btn btn-default" style="background-color:{{userParameters[paramName]}}"  
 				colorpicker-position="right" colorpicker="rgba" type="text" ng-model="userParameters[paramName]">
 				Color</button>
-				<my-calender ng-if="isDate(paramName)" name="userParameters[paramName]"></my-calender><div ng-if="isDate(paramName)">{{userParameters[paramName]}}</div>
+				<my-calendar ng-if="isDate(paramName)" name="userParameters[paramName]"></my-calendar>
 				<ul ng-if="isColor(paramName)&&isArray(param)">
 					<li ng-repeat="(index, element) in param track by index">
 						<button class="btn btn-default" style="background-color:{{userParameters[paramName][index]}}" 
@@ -45,7 +45,7 @@
 		<button class="btn btn-danger" ng-click="logScope()">console.log($scope)</button>
 	</div>
 </div>
-Sup: <my-calender name="foo"></my-calender></br>
+Sup: <my-calendar class="col-md-2"></my-calendar></br>
 
 <div class="col-md-10">
 	<div class="row"><div id="test_composed"></div></div>
