@@ -6,7 +6,10 @@ angular.module('myApp.timeSeries', ['ngRoute'])
                     function($scope, $location, $route) {
 	$scope.timeSeries = 'timeSeries';
     d3.csv("expectedActual.csv", function(error, energyData) {
-
+    	$scope.log = function() {
+  		  console.log($scope);
+  	  	};
+    	
     	var composite = dc.compositeChart("#test_composed"); // names/creates the chart
         
     	var parse = d3.time.format("%m/%d/%Y").parse; // parses out the date object from the string
