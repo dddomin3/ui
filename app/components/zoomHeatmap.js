@@ -9,17 +9,18 @@ angular.module('myApp.zoomHeatmap', ['ngRoute'])
   });
 }])
 
-.factory('zoomHeatmapFactory', [ function() { 
+.factory('zoomHeatmapService', [ function() { 
 	var _servObj;
+	var _timestamp; 
 	
 	var _setTimestamp = function(timestamp){
-		this.timestamp = timestamp;
+		_timestamp = timestamp;
 		
 		return _servObj;
 	}
 	
 	var _getTimestamp = function(){
-		return this.timestamp;
+		return _timestamp;
 	}
 	
 	_servObj = {
@@ -29,13 +30,8 @@ angular.module('myApp.zoomHeatmap', ['ngRoute'])
 	
 	return _servObj;
 }])
-
-.service('zoomHeatmapService', [ 'zoomHeatmapFactory', function(zoomHeatmapFactory){
-	angular.extend(this, zoomHeatmapFactory);
-
-	this.setTimestamp(new Date(0));	
-}])
  
 .controller('zoomHeatmapCtrl', ['$scope', '$routeParams', 'zoomHeatmapService', function($scope, $routeParams, zoomHeatmapService) {
+	console.log(zoomHeatmapService.getTimestamp());
 	$scope.timestamp = new Date(+zoomHeatmapService.getTimestamp()).toString();
 }]);

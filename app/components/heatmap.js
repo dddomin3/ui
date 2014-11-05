@@ -625,8 +625,7 @@ angular.module('myApp.heatmap', ['ngRoute'])
 	
 	vm.heatmapConfig = vm.getDefaultConfig();
 	vm.heatmapConfig.onClick =  function(date, value){	
-		console.log('clicking');
-		vm.setTimestamp(date.getTime());
+		vm.setTimestamp(date);
 		
 		$location.url('/zoomHeatmap');			
 		$route.reload();
