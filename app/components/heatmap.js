@@ -446,7 +446,7 @@ angular.module('myApp.heatmap', ['ngRoute'])
 		vm.getTimeCell(selectDate).getElementsByTagName('title')[0].innerHTML = 'An event is here!!!';
 		
 		angular.element(vm.getTimeCell(selectDate).getElementsByTagName('text')[0]);
-		angular.element(vm.getTimeCell(selectDate).getElementsByTagName('rect')[0]).append('<svg><image width=\"20\" height=\"20\" xlink:href=\"http://localhost:8080/app/usa.png\"/></svg>');
+		angular.element(vm.getTimeCell(selectDate).getElementsByTagName('rect')[0]).append('<image width=\"20\" height=\"20\" xlink:href=\"http://localhost:8000/app/usa.png\"/>');
 		
 		vm.getTimeCell(selectDate).getElementsByTagName('text')[0].innerHTML = '!!';
 	}
