@@ -1,5 +1,4 @@
-angular.module('myApp.calendar',['ui.bootstrap']);
-angular.module('myApp.calendar',['ngRoute'])
+angular.module('myApp.calendar', ['ngRoute'])
   .directive('myCalendar', function(){
     return{
 	  restrict: "E",
