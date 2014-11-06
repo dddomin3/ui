@@ -77,14 +77,6 @@ angular.module('myApp.heatmap', ['ngRoute'])
 					
 					try{
 						for(i = 0; i < historyArray.length; i++){
-					
-						/*
-						if(loopDate.toString().indexOf('Oct 22') >= 0){
-							console.log(loopDate);
-							console.log(interpolate);
-							console.log(+historyArray[i].value);
-						}
-						*/
 						
 						if( +historyArray[i].value == 0){
 							continue;
@@ -241,14 +233,11 @@ angular.module('myApp.heatmap', ['ngRoute'])
 			var time = eventsArray[i].time;
 			var description = eventsArray[i].description;
 			
-			console.log(time);
-			console.log(new Date(time));
-			console.log(caller);
+			//there will be an error thrown if the event's date is not in the heatmap as an svg time cell.
 			try{
 				caller.getTimeCell(new Date(time)).setTitle(description)[type]();
 			}
 			catch(err){
-				console.log('date '+new Date(time)+' not in heatmap');
 			}
 		}
 	}
@@ -300,7 +289,7 @@ angular.module('myApp.heatmap', ['ngRoute'])
 		domain: 'day',
 		domainMargin : 0,
 		subDomain: 'hour',
-		range: 40,	//number of domains (days in current implementation)
+		range: 84,	//number of domains (days in current implementation)
 		cellSize: 20, //px size of cells
 		cellPadding: 0,	//px between cells
 		cellRadius: 2,	//px of cell radius
@@ -313,7 +302,7 @@ angular.module('myApp.heatmap', ['ngRoute'])
 		legendHorizontalPosition: "right",
 		legendOrientation: "vertical",
 		legendMargin: [10, 10, 10, 10],
-		legendColors: {empty:'#C2C2A3', base: '#C2C2A3', min:'#00FF00', max:'#FF0000'},	//colors of legend gradient
+		legendColors: {min:'#33CC33', max:'#FF0000'},	//colors of legend gradient
 		itemName: ["kWh", "kWh"],
 		subDomainDateFormat: '%c',
 		subDomainTextFormat: function(date, value) {
@@ -323,7 +312,7 @@ angular.module('myApp.heatmap', ['ngRoute'])
 			else */
 			return '';
 		},
-		start : new Date(1412136000000-7*24*60*60*1000),
+		start : new Date(1412136000000-61*24*60*60*1000),
 		domainLabelFormat: function(date) {//format of each domain label. "x axis" labels
 			var month = 
 				["Jan", "Feb", "Mar", "Apr",
@@ -599,7 +588,7 @@ angular.module('myApp.heatmap', ['ngRoute'])
 					.attr('style', 'stroke:rgb(0,0,0);stroke-width:8');
 					
 				}
-			}catch(err){console.log('there really is an error here....');}
+			}catch(err){}
 			
 			try{
 				var nextTc = caller.getTimeCell(new Date(tc.date.getTime()+24*60*60*1000));
@@ -626,7 +615,7 @@ angular.module('myApp.heatmap', ['ngRoute'])
 					.attr('style', 'stroke:rgb(0,0,0);stroke-width:8');
 					
 				}
-			}catch(err){console.log('there really is an error here....');}
+			}catch(err){}
 			
 			try{
 				var nextTc = caller.getTimeCell(new Date(tc.date.getTime()-24*60*60*1000));
@@ -653,7 +642,7 @@ angular.module('myApp.heatmap', ['ngRoute'])
 					.attr('style', 'stroke:rgb(0,0,0);stroke-width:8');
 					
 				}
-			}catch(err){console.log('there really is an error here....');}
+			}catch(err){}
 			
 			try{
 				var nextTc = caller.getTimeCell(new Date(tc.date.getTime()-24*60*60*1000));
@@ -680,7 +669,7 @@ angular.module('myApp.heatmap', ['ngRoute'])
 					.attr('style', 'stroke:rgb(0,0,0);stroke-width:8');
 					
 				}
-			}catch(err){console.log('there really is an error here....');}
+			}catch(err){}
 			
 			
 		}
@@ -738,7 +727,7 @@ angular.module('myApp.heatmap', ['ngRoute'])
 					.attr('y2', nextStartPix)
 					.attr('style', 'stroke:rgb(0,0,0);stroke-width:8');
 				}
-			}catch(err){console.log('there really is an error in drawOcc....');}
+			}catch(err){}
 		}
 		
 		
@@ -802,7 +791,8 @@ angular.module('myApp.heatmap', ['ngRoute'])
 					else if(nextTc.date.getHours() == nextSched.end.getHours() && nextTc.date.getMinutes() <= nextSched.end.getMinutes()){
 						nextEndPix = nextEndPix - nextTc.getHeight() * (60-nextSched.end.getMinutes()) / 60;
 					}		
-				
+					g.append('class')
+					.attr
 					g.append('line')
 					.attr('x1', tc.getWidth()+caller.heatmapConfig.cellPadding)
 					.attr('x2', tc.getWidth()+caller.heatmapConfig.cellPadding)
@@ -810,7 +800,7 @@ angular.module('myApp.heatmap', ['ngRoute'])
 					.attr('y2', nextEndPix)
 					.attr('style', 'stroke:rgb(0,0,0);stroke-width:8');
 				}
-			}catch(err){console.log('there really is an error in drawOcc....');}		
+			}catch(err){}		
 	
 		}
 	
@@ -827,7 +817,6 @@ angular.module('myApp.heatmap', ['ngRoute'])
 			.attr("x",tc.getX())
 			.attr("y", tc.getY())
 			.on("click", function(){
-				console.log('you clicked on the image at: '+tc.date);
 			});
 		}
 		
@@ -844,7 +833,6 @@ angular.module('myApp.heatmap', ['ngRoute'])
 			.attr("x",tc.getX())
 			.attr("y", tc.getY())
 			.on("click", function(){
-				console.log('you were out of occupancy at '+tc.date);
 			});
 		}
 		
@@ -861,7 +849,6 @@ angular.module('myApp.heatmap', ['ngRoute'])
 			.attr("x",tc.getX())
 			.attr("y", tc.getY())
 			.on("click", function(){
-				console.log('you were deviating from set point at '+tc.date);
 			});
 		}
 	}
@@ -890,8 +877,7 @@ angular.module('myApp.heatmap', ['ngRoute'])
 			}
 			//should be an error if there is no schedule defined for the day.
 			catch(err){
-				console.log('theres an error?');
-				console.log(err);
+
 			}
 			
 			loopDate = new Date(loopDate.getTime() + 24*60*60*1000);
@@ -1049,13 +1035,18 @@ angular.module('myApp.heatmap', ['ngRoute'])
 		//var min = 10;
 		//vm.heatmapConfig.range = Math.floor(Math.random()*(max-min+1)+min);
 
-		var mean = jStat.mean(vm.dataAsArray())*4;
-		var std = jStat.stdev(vm.dataAsArray())*4;
+		var mean = Math.round(jStat.mean(vm.dataAsArray())*4);
+		var std = Math.round(jStat.stdev(vm.dataAsArray())*4);
 		
-		vm.heatmapConfig.legend = [
-			Math.round(mean - .5 * std), Math.round(mean - .4*std), Math.round(mean - .3*std), Math.round(mean - .2*std), Math.round(mean - .1*std),  Math.round(mean),
-			Math.round(mean + .1*std), Math.round(mean + .2*std), Math.round(mean + .3*std), Math.round(mean + .4*std), Math.round(mean + .5*std)
-		];
+		if(mean - Math.round(mean - .5 * std) <= 6){
+			vm.heatmapConfig.legend =  [mean -6, mean -5, mean -4, mean -3, mean -2, mean -1, mean, mean +1, mean+2, mean+3, mean+4, mean+5] 
+		}
+		else{
+			vm.heatmapConfig.legend = [
+				Math.round(mean - .5 * std), Math.round(mean - .4*std), Math.round(mean - .3*std), Math.round(mean - .2*std), Math.round(mean - .1*std),  Math.round(mean),
+				Math.round(mean + .1*std), Math.round(mean + .2*std), Math.round(mean + .3*std), Math.round(mean + .4*std), Math.round(mean + .5*std), Math.round(mean + .6*std) 
+			];
+		}
 		
 		vm.rendered = false;
 		
@@ -1075,6 +1066,49 @@ angular.module('myApp.heatmap', ['ngRoute'])
 			window.setTimeout(function(){
 				vm.drawOcc();
 				$scope.$apply();
+				
+				/* HOW TO access .css style sheets, and use d3 interpolation functions for color interpolation
+				var stylez = document.styleSheets;
+				
+				var color = d3.scale.linear()
+					.domain([vm.heatmapConfig.legend[0], 
+						vm.heatmapConfig.legend[vm.heatmapConfig.legend.length-1]])
+					.range(['#00FFFF', '#6600CC'])
+					.clamp(true);
+					
+				color.interpolate(d3.interpolateHcl);
+				
+				console.log(color);
+				console.log(color(99999999));
+				
+				for(var i = 0; i < stylez.length; i++){
+					
+					try{
+						if(stylez[i].href.indexOf('cal-heatmap.css') >= 0){
+							var rulez = stylez[i].cssRules;
+							
+							for(var j = 0; j < rulez.length; j++){
+								if(rulez[j].selectorText.indexOf('.q') == 0){
+									var legendIndex = +rulez[j].selectorText.substring(2);
+									var legendDelta = vm.heatmapConfig.legend[vm.heatmapConfig.legend.length-1] 
+										- vm.heatmapConfig.legend[0];
+									
+									console.log(legendIndex);
+
+									rulez[j].style.fill = color(vm.heatmapConfig.legend[0]+legendIndex*legendDelta);
+									
+								}
+							}
+						}
+					}
+					catch(err){
+						//error if href is null
+						console.log(err);
+					}
+				}
+				
+				console.log(stylez);
+				*/
 			}, 1000);
 		});
 	});
