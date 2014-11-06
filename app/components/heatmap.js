@@ -302,7 +302,7 @@ angular.module('myApp.heatmap', ['ngRoute'])
 		subDomain: 'hour',
 		range: 40,	//number of domains (days in current implementation)
 		cellSize: 20, //px size of cells
-		cellPadding: 1,	//px between cells
+		cellPadding: 0,	//px between cells
 		cellRadius: 2,	//px of cell radius
 		considerMissingDataAsZero: true,
 		domainGutter: 0, //px padding between dates
@@ -473,69 +473,260 @@ angular.module('myApp.heatmap', ['ngRoute'])
 			return tc;
 		}
 		
+		tc.isStart = function(){
+			var g = d3.select(svg);
+			var caller = angular.element(svg).controller();
+			
+			var day = tc.date.getDay()+'';
+			var sched = caller.schedules[day];
+			
+			if(tc.date.getHours() == sched.start.getHours()){
+				return true;
+			}
+		}
+		
+		tc.isEnd= function(){
+			var g = d3.select(svg);
+			var caller = angular.element(svg).controller();
+			
+			var day = tc.date.getDay()+'';
+			var sched = caller.schedules[day];
+			
+			if(tc.date.getHours() == sched.end.getHours()){
+				return true;
+			}
+		}
+		
+		tc.shouldDrawSides = function(){
+			var g = d3.select(svg);
+			var caller = angular.element(svg).controller();
+			
+			var day = tc.date.getDay()+'';
+			var sched = caller.schedules[day];
+			
+			//may throw an error if schedule is not defined for the day.
+			try{
+				if(tc.date.getHours() >= sched.start.getHours() && tc.date.getHours() <= sched.end.getHours()) {
+					return true;
+				}
+				else return false;
+			}
+			catch(err){
+				return false;
+			}
+		}
+		
 		tc.drawSides = function(){
 			
 			var g = d3.select(svg);
 			var caller = angular.element(svg).controller();
 			
-			g.append('line')
-			.attr('x1', 0-caller.heatmapConfig.cellPadding)
-			.attr('x2', 0-caller.heatmapConfig.cellPadding)
-			.attr('y1', tc.getY())
-			.attr('y2', tc.getY()+tc.getHeight())
-			.attr('style', 'stroke:rgb(0,0,0);stroke-width:4');
+			var day = tc.date.getDay()+'';
+			var sched = caller.schedules[day];
+			var startPix = tc.getY();
+			var endPix = tc.getY()+tc.getHeight();
 			
-			g.append('line')
-			.attr('x1', 0+(+tc.getWidth())+caller.heatmapConfig.cellPadding)
-			.attr('x2', 0+(+tc.getWidth())+caller.heatmapConfig.cellPadding)
-			.attr('y1', tc.getY())
-			.attr('y2', tc.getY()+tc.getHeight())
-			.attr('style', 'stroke:rgb(0,0,0);stroke-width:4');
+			if(tc.date.getHours() == sched.start.getHours() && tc.date.getMinutes() <= sched.start.getMinutes()){
+				startPix = startPix + tc.getHeight() * sched.start.getMinutes() / 60;
+			}
+			else if(tc.date.getHours() == sched.end.getHours() && tc.date.getMinutes() <= sched.end.getMinutes()){
+				console.log(endPix);
+				endPix = endPix - tc.getHeight() * (60-sched.end.getMinutes()) / 60;
+				console.log(endPix);
+			}		
+			
+			//only draw the left line if the previous day @ same time did not draw right...
+			//The first day in the heatmap will throw an error because that day - 1 will not exist on the heatmap, so getting time cell will return null.
+			try{
+				if(!caller.getTimeCell(new Date(tc.date.getTime()-24*60*60*1000)).shouldDrawSides()){
+					g.append('line')
+					.attr('x1', 0-caller.heatmapConfig.cellPadding)
+					.attr('x2', 0-caller.heatmapConfig.cellPadding)
+					.attr('y1', startPix)
+					.attr('y2', endPix)
+					.attr('style', 'stroke:rgb(0,0,0);stroke-width:8');
+				}
+			}
+			catch(err){
+				g.append('line')
+				.attr('x1', 0-caller.heatmapConfig.cellPadding)
+				.attr('x2', 0-caller.heatmapConfig.cellPadding)
+				.attr('y1', startPix)
+				.attr('y2', endPix)
+				.attr('style', 'stroke:rgb(0,0,0);stroke-width:8');
+			}
+			
+			try{
+				if(!caller.getTimeCell(new Date(tc.date.getTime()+24*60*60*1000)).shouldDrawSides()){
+					g.append('line')
+					.attr('x1', 0+(+tc.getWidth())+caller.heatmapConfig.cellPadding)
+					.attr('x2', 0+(+tc.getWidth())+caller.heatmapConfig.cellPadding)
+					.attr('y1', startPix)
+					.attr('y2', endPix)
+					.attr('style', 'stroke:rgb(0,0,0);stroke-width:8');
+				}
+			}
+			catch(err){
+				g.append('line')
+				.attr('x1', 0+(+tc.getWidth())+caller.heatmapConfig.cellPadding)
+				.attr('x2', 0+(+tc.getWidth())+caller.heatmapConfig.cellPadding)
+				.attr('y1', startPix)
+				.attr('y2', endPix)
+				.attr('style', 'stroke:rgb(0,0,0);stroke-width:8');
+			}
+			
+			//fill gaps (next/previous day is start or end
+			try{
+				var nextTc = caller.getTimeCell(new Date(tc.date.getTime()+24*60*60*1000));
+				
+				if(nextTc.isEnd() && !tc.isEnd()){
+				
+					var nextDay = nextTc.date.getDay()+'';
+					var nextSched = caller.schedules[nextDay];
+					var nextStartPix = nextTc.getY();
+					var nextEndPix = nextTc.getY()+nextTc.getHeight();
+					
+					if(nextTc.date.getHours() == nextSched.start.getHours() && nextTc.date.getMinutes() <= nextSched.start.getMinutes()){
+						nextStartPix = nextStartPix + nextTc.getHeight() * nextSched.start.getMinutes() / 60;
+					}
+					else if(nextTc.date.getHours() == nextSched.end.getHours() && nextTc.date.getMinutes() <= nextSched.end.getMinutes()){
+						nextEndPix = nextEndPix - nextTc.getHeight() * (60-nextSched.end.getMinutes()) / 60;
+					}		
+				
+					g.append('line')
+					.attr('x1', tc.getWidth()+caller.heatmapConfig.cellPadding)
+					.attr('x2', tc.getWidth()+caller.heatmapConfig.cellPadding)
+					.attr('y1', nextEndPix)
+					.attr('y2', tc.getY()+tc.getHeight())
+					.attr('style', 'stroke:rgb(0,0,0);stroke-width:8');
+					
+				}
+			}catch(err){console.log('there really is an error here....');}
+			
+			try{
+				var nextTc = caller.getTimeCell(new Date(tc.date.getTime()+24*60*60*1000));
+				
+				if(nextTc.isStart() && !tc.isStart()){
+				
+					var nextDay = nextTc.date.getDay()+'';
+					var nextSched = caller.schedules[nextDay];
+					var nextStartPix = nextTc.getY();
+					var nextEndPix = nextTc.getY()+nextTc.getHeight();
+					
+					if(nextTc.date.getHours() == nextSched.start.getHours() && nextTc.date.getMinutes() <= nextSched.start.getMinutes()){
+						nextStartPix = nextStartPix + nextTc.getHeight() * nextSched.start.getMinutes() / 60;
+					}
+					else if(nextTc.date.getHours() == nextSched.end.getHours() && nextTc.date.getMinutes() <= nextSched.end.getMinutes()){
+						nextEndPix = nextEndPix - nextTc.getHeight() * (60-nextSched.end.getMinutes()) / 60;
+					}		
+				
+					g.append('line')
+					.attr('x1', tc.getWidth()+caller.heatmapConfig.cellPadding)
+					.attr('x2', tc.getWidth()+caller.heatmapConfig.cellPadding)
+					.attr('y1', tc.getY())
+					.attr('y2', nextStartPix)
+					.attr('style', 'stroke:rgb(0,0,0);stroke-width:8');
+					
+				}
+			}catch(err){console.log('there really is an error here....');}
 		}
 		
 		tc.drawOcc = function(){
 			var g = d3.select(svg);
 			var caller = angular.element(svg).controller();
+			var sched = caller.schedules[tc.date.getDay()+''];
 			
 			//iterate through all svg elements (rectangles) and draw occ lines on either side
 			d3.selectAll(angular.element(svg).parent()[0].childNodes).each(function(){
-					var nutc = new timeCell(this);
-					var day = nutc.date.getDay()+'';
-					var sched = caller.schedules[day];
-					
-					if((nutc.date.getHours() > sched.start.getHours() || (nutc.date.getHours() == sched.start.getHours() 
-							&& nutc.date.getMinutes() >= sched.start.getMinutes)) 
-							&& (nutc.date.getHours() < sched.end.getHours() || (nutc.date.getHours == sched.end.getHours() && nutc.date.getMinutes() <= sched.end.getMinutes()))){
-						nutc.drawSides();
-					}
-					else if(nutc.date.getHours() == sched.start.getHours() 
-						&& nutc.date.getMinutes() >= sched.start.getMinutes){
-						nutc.drawSides();
-					}
+				var nutc = new timeCell(this);
+				var day = nutc.date.getDay()+'';
+				var sched = caller.schedules[day];
+				
+				if(nutc.shouldDrawSides()){ 
+					nutc.drawSides();
+				}
 			});
+			
+			var startPix = tc.getY();
+			
+			if(tc.date.getHours() == sched.start.getHours() && tc.date.getMinutes() <= sched.start.getMinutes()){
+				startPix = startPix + tc.getHeight() * sched.start.getMinutes() / 60;
+			}
 			
 			g.append('line')
 			.attr('x1', 0-caller.heatmapConfig.cellPadding)
 			.attr('x2', 0+(+tc.getWidth())+caller.heatmapConfig.cellPadding)
-			.attr('y1', tc.getY())
-			.attr('y2', tc.getY())
-			.attr('style', 'stroke:rgb(0,0,0);stroke-width:2');
+			.attr('y1', startPix)
+			.attr('y2', startPix)
+			.attr('style', 'stroke:rgb(0,0,0);stroke-width:4');		
 		}
 		
 		
 		tc.drawUnocc = function(){
 			var g = d3.select(svg);
 			var caller = angular.element(svg).controller();
-
+			var sched = caller.schedules[tc.date.getDay()+''];
+			
+			var endPix = tc.getY();
+			
+			if(tc.date.getHours() == sched.end.getHours() && tc.date.getMinutes() <= sched.end.getMinutes()){
+				endPix = endPix + tc.getHeight() * sched.end.getMinutes() / 60;
+			}		
+			
 			g.append('line')
 			.attr('x1', 0-caller.heatmapConfig.cellPadding)
 			.attr('x2', 0+(+tc.getWidth())+caller.heatmapConfig.cellPadding)
-			.attr('y1', tc.getY())
-			.attr('y2', tc.getY())
-			.attr('style', 'stroke:rgb(0,0,0);stroke-width:2');
+			.attr('y1', endPix)
+			.attr('y2', endPix)
+			.attr('style', 'stroke:rgb(0,0,0);stroke-width:4');
+			
+			//handle the cases where next/previous day will not want to draw sides because this day is drawing sides. (fill gap)
+			//only draw the left line if the previous day @ same time did not draw right...
+			//The first day in the heatmap will throw an error because that day - 1 will not exist on the heatmap, so getting time cell will return null.
+			try{
+				if(caller.getTimeCell(new Date(tc.date.getTime()-24*60*60*1000)).shouldDrawSides()
+				&& new Date(tc.date.getTime()-24*60*60*1000).getHours() != sched.end.getHours()){
+					g.append('line')
+					.attr('x1', 0-caller.heatmapConfig.cellPadding)
+					.attr('x2', 0-caller.heatmapConfig.cellPadding)
+					.attr('y1', endPix)
+					.attr('y2', tc.getY()+tc.getHeight())
+					.attr('style', 'stroke:rgb(0,0,0);stroke-width:8');
+				}
+			}
+			catch(err){
+				/*
+				This was causing an extended line on the first day of the calendar to end the day... not sure why it was put in?
+				g.append('line')
+				.attr('x1', 0-caller.heatmapConfig.cellPadding)
+				.attr('x2', 0-caller.heatmapConfig.cellPadding)
+				.attr('y1', endPix)
+				.attr('y2', tc.getY()+tc.getHeight())
+				.attr('style', 'stroke:rgb(0,0,0);stroke-width:8');
+				*/
+			}
+
+			try{
+				if(caller.getTimeCell(new Date(tc.date.getTime()+24*60*60*1000)).shouldDrawSides() 
+				&& new Date(tc.date.getTime()+24*60*60*1000).getHours() != sched.end.getHours()){
+					g.append('line')
+					.attr('x1', tc.getWidth()+caller.heatmapConfig.cellPadding)
+					.attr('x2', tc.getWidth()+caller.heatmapConfig.cellPadding)
+					.attr('y1', endPix)
+					.attr('y2', tc.getY()+tc.getHeight())
+					.attr('style', 'stroke:rgb(0,0,0);stroke-width:8');
+				}
+			}
+			catch(err){
+				g.append('line')
+				.attr('x1', tc.getWidth()+caller.heatmapConfig.cellPadding)
+				.attr('x2', tc.getWidth()+caller.heatmapConfig.cellPadding)
+				.attr('y1', endPix)
+				.attr('y2', tc.getY()+tc.getHeight())
+				.attr('style', 'stroke:rgb(0,0,0);stroke-width:8');
+			}			
 		}
-		
-		
+	
 		tc.setEvent = function(){
 			var g = d3.select(svg);
 			
@@ -593,10 +784,7 @@ angular.module('myApp.heatmap', ['ngRoute'])
 		var startDate = caller.heatmapConfig.start;
 		var loopDate = startDate;
 		var endDate = new Date(caller.calEnd()*1000);
-		
-		console.log(startDate);
-		console.log(endDate);
-		
+
 		while(loopDate.getTime() <= endDate.getTime()){
 			var day = loopDate.getDay()+'';
 			var sched = caller.schedules[day];
@@ -658,17 +846,17 @@ angular.module('myApp.heatmap', ['ngRoute'])
 	vm.schedules = { 
 		'0' : { },
 		'1' : { start : new Date(new Date(new Date().setHours(6)).setMinutes(30)), 
-			end : new Date(new Date(new Date().setHours(20)).setMinutes(30)) },
+			end : new Date(new Date(new Date().setHours(20)).setMinutes(15)) },
 		'2' : { start : new Date(new Date(new Date().setHours(6)).setMinutes(30)), 
-			end : new Date(new Date(new Date().setHours(20)).setMinutes(30)) },
+			end : new Date(new Date(new Date().setHours(20)).setMinutes(15)) },
 		'3' : { start : new Date(new Date(new Date().setHours(6)).setMinutes(30)), 
-			end : new Date(new Date(new Date().setHours(20)).setMinutes(30)) },
+			end : new Date(new Date(new Date().setHours(20)).setMinutes(15)) },
 		'4' : { start : new Date(new Date(new Date().setHours(6)).setMinutes(30)), 
-			end : new Date(new Date(new Date().setHours(20)).setMinutes(30)) },
+			end : new Date(new Date(new Date().setHours(20)).setMinutes(15)) },
 		'5' : { start : new Date(new Date(new Date().setHours(6)).setMinutes(30)), 
-			end : new Date(new Date(new Date().setHours(20)).setMinutes(30)) },
-		'6' : { start : new Date(new Date(new Date().setHours(12)).setMinutes(0)), 
-			end : new Date(new Date(new Date().setHours(16)).setMinutes(30)) }
+			end : new Date(new Date(new Date().setHours(20)).setMinutes(15)) },
+		'6' : { start : new Date(new Date(new Date().setHours(12)).setMinutes(15)), 
+			end : new Date(new Date(new Date().setHours(16)).setMinutes(15)) }
 		};
 	
 	vm.sources = [
