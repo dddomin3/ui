@@ -8,7 +8,6 @@ angular.module('myApp.timeSeries', ['ngRoute'])
 	$scope.timeSeries = 'timeSeries';
     d3.csv("expectedActual.csv", function(error, energyData) {
     	
-    var myXUnits;
     var daysBetween;  // stores the number of days between the min time and max time to determine the new scaling
     
     var getDomain = function(){
@@ -26,7 +25,10 @@ angular.module('myApp.timeSeries', ['ngRoute'])
         myDimension,
         actualGroup,
         expectedGroup,
-        savingsGroup
+        savingsGroup,
+        savingsSum,
+        myXUnits,
+        totalSum
     ;
     	
     $scope.log = function() {
@@ -44,27 +46,37 @@ angular.module('myApp.timeSeries', ['ngRoute'])
   		if(daysBetween <= 30){
   			myDimension = dayDimension;
   			myXUnits = d3.time.days;
+  		    displayDate= function(){d3.time.format("%m-%d-%y");} // function to change the format of a date object to mm-yyyy
   		}
   		else if(daysBetween <= (180)){
   			myDimension = weekDimension;
   			myXUnits = d3.time.weeks;
+  			displayDate= function(){d3.time.format("%m-%d-%y");} // function to change the format of a date object to mm-yyyy
   		}
   		else{
   			myDimension = monthDimension;
   			myXUnits = d3.time.months;
+  			displayDate= function(){d3.time.format("%m-%y");} // function to change the format of a date object to mm-yyyy
   		}
   		
   		actualGroup = myDimension.group().reduceSum(function(d) { return d.actualKWH;}) // groups a value for each entry in the dimension by summing all the 'actualKWH' values of all objects within that dimension
   	    expectedGroup = myDimension.group().reduceSum(function(e) { return +e.expectedKWH;}) // same as above with expectedKWH
   	    savingsGroup = myDimension.group().reduceSum(function(e) { return +e.savings;}) // same as above with savings
   			
+  	    
+  		savingsSum = myDimension.group().reduce( // groups a value for each entry in the dimension by finding the total aggregated savings
+  		  function(p,v) {totalSum = (+v.savings) + totalSum;  return totalSum;}, // sets the method for adding an entry into the total
+           function(p,v) {totalSum = totalSum-(+v.savings); return totalSum;}, // sets the method for removing an entry from the total
+           function() {totalSum = 0; return totalSum;}	 // sets the method for initializing the total
+  		);
+  	    
 	    if(compositeChart !== undefined){
 	      compositeChart();
 	    }
   	};
   	
     var parse = d3.time.format("%m/%d/%Y").parse; // parses out the date object from the string
-    var displayDate = d3.time.format("%m-%d-%y"); // function to change the format of a date object to mm-yyyy
+    var displayDate= function(){d3.time.format("%m-%d-%y");} // function to change the format of a date object to mm-yyyy;
     	
     var ndx = crossfilter(energyData)
 
@@ -73,14 +85,7 @@ angular.module('myApp.timeSeries', ['ngRoute'])
     var dayDimension = ndx.dimension(function(d) { return d3.time.day(parse(d.date));})
        
     $scope.setParams();
-
-    var totalSum = 0;
-    var savingsSum = myDimension.group().reduce( // groups a value for each entry in the dimension by finding the total aggregated savings
-      function(p,v) {totalSum = (+v.savings) + totalSum;  return totalSum;}, // sets the method for adding an entry into the total
-      function(p,v) {totalSum = totalSum-(+v.savings); return totalSum;}, // sets the method for removing an entry from the total
-      function() {totalSum = 0; return totalSum;}	 // sets the method for initializing the total
-    );
-                
+           
     var w = 900, // sets the width, height, margin, legend X and legend Y values
         h = 680,
     	m = [75,150],
@@ -105,7 +110,7 @@ angular.module('myApp.timeSeries', ['ngRoute'])
                   .dimension(myDimension) // use the date Dimension for the objects
                   .colors('cyan')
                   .group(savingsGroup, "Savings")// use the savings group for the grouped values
-                  .centerBar(true)
+                  .centerBar(false)
                   .xAxisPadding(10)
               ,
               dc.lineChart(composite)
@@ -131,7 +136,7 @@ angular.module('myApp.timeSeries', ['ngRoute'])
           composite.margins().right = m[1]; // sets the right margin for the composite chart
           
           composite.xAxis().tickFormat(function(v) {return displayDate(new Date(v));}); // sets the tick format to be the month/year only
-                    
+                 
           return composite;
       };
 
