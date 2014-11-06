@@ -8,19 +8,27 @@ angular.module('myApp.timeSeries', ['ngRoute'])
 	$scope.timeSeries = 'timeSeries';
     d3.csv("expectedActual.csv", function(error, energyData) {
     	
-    var myXUnits = d3.time.days;
+    var myXUnits;
+    var daysBetween;  // stores the number of days between the min time and max time to determine the new scaling
     
     var getDomain = function(){
-      var myMinDate = $scope.startDate ? $scope.startDate : new Date(myDimension.bottom(1)[0].date);
-  	  var myMaxDate = $scope.endDate ? $scope.endDate : new Date(myDimension.top(1)[0].date);
+      var myMinDate = $scope.startDate ? $scope.startDate : new Date(monthDimension.bottom(1)[0].date);
+  	  var myMaxDate = $scope.endDate ? $scope.endDate : new Date(monthDimension.top(1)[0].date);
   	  		 
+  	  daysBetween = (myMaxDate - myMinDate)/(1000*60*60*24) 
+  	  
   	  var tempDomain = d3.scale.linear().domain([myMinDate,myMaxDate]);
   	  
   	  return tempDomain;
     };
     
     var myDomain, 
-        myDimension;
+        myDimension,
+        actualGroup,
+        expectedGroup,
+        savingsGroup,
+        timeGroup
+    ;
     	
     $scope.log = function() {
   	  console.log($scope);
@@ -32,27 +40,40 @@ angular.module('myApp.timeSeries', ['ngRoute'])
   	};
   	  	
   	$scope.setParams = function(){
-  		myDimension = dayDimension;
   		myDomain = getDomain();
-  	  
-	  if(compositeChart !== undefined){
-	    myXUnits = d3.time.days;
+
+  		if(daysBetween <= 30){
+  			myDimension = dayDimension;
+  			myXUnits = d3.time.days;
+  			console.log(30);
+  		}
+  		else if(daysBetween <= (180)){
+  			myDimension = weekDimension;
+  			myXUnits = d3.time.weeks;
+  			console.log(180);
+  		}
+  		else{
+  			myDimension = monthDimension;
+  			myXUnits = d3.time.months;
+  			console.log(181);
+  		}
+  		
+  		actualGroup = myDimension.group().reduceSum(function(d) { return d.actualKWH;}) // groups a value for each entry in the dimension by summing all the 'actualKWH' values of all objects within that dimension
+  	    expectedGroup = myDimension.group().reduceSum(function(e) { return +e.expectedKWH;}) // same as above with expectedKWH
+  	    savingsGroup = myDimension.group().reduceSum(function(e) { return +e.savings;}) // same as above with savings
+  	    timeGroup = dayDimension.group().reduceSum(function(e) { return +e.savings;})
+  			
+	    if(compositeChart !== undefined){
+	      compositeChart();
+	    }
 	    
 	    
-	    compositeChart();
-	  }
-	  else{
-		  myDimension = weekDimension;
-	  }
   	};
-      
-  	console.log(dc);
   	
     var parse = d3.time.format("%m/%d/%Y").parse; // parses out the date object from the string
     var displayDate = d3.time.format("%m-%d-%y"); // function to change the format of a date object to mm-yyyy
     	
     var ndx = crossfilter(energyData)
-    console.log(energyData);
 
     var monthDimension = ndx.dimension(function(d) { return d3.time.month(parse(d.date));}) // creates the x-axis components using their date as a guide
     var weekDimension = ndx.dimension(function(d) { return d3.time.week(parse(d.date));})
@@ -60,10 +81,7 @@ angular.module('myApp.timeSeries', ['ngRoute'])
        
     $scope.setParams();
     
-    var actualGroup = myDimension.group().reduceSum(function(d) { return d.actualKWH;}) // groups a value for each entry in the dimension by summing all the 'actualKWH' values of all objects within that dimension
-    var expectedGroup = myDimension.group().reduceSum(function(e) { return +e.expectedKWH;}) // same as above with expectedKWH
-    var savingsGroup = myDimension.group().reduceSum(function(e) { return +e.savings;}) // same as above with savings
-    var timeGroup = dayDimension.group().reduceSum(function(e) { return +e.savings;})
+    
 
     var totalSum = 0;
     var savingsSum = myDimension.group().reduce( // groups a value for each entry in the dimension by finding the total aggregated savings
