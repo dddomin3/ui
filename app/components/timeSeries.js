@@ -44,17 +44,14 @@ angular.module('myApp.timeSeries', ['ngRoute'])
   		if(daysBetween <= 30){
   			myDimension = dayDimension;
   			myXUnits = d3.time.days;
-  			console.log(30);
   		}
   		else if(daysBetween <= (180)){
   			myDimension = weekDimension;
   			myXUnits = d3.time.weeks;
-  			console.log(180);
   		}
   		else{
   			myDimension = monthDimension;
   			myXUnits = d3.time.months;
-  			console.log(181);
   		}
   		
   		actualGroup = myDimension.group().reduceSum(function(d) { return d.actualKWH;}) // groups a value for each entry in the dimension by summing all the 'actualKWH' values of all objects within that dimension
@@ -64,8 +61,6 @@ angular.module('myApp.timeSeries', ['ngRoute'])
 	    if(compositeChart !== undefined){
 	      compositeChart();
 	    }
-	    
-	    
   	};
   	
     var parse = d3.time.format("%m/%d/%Y").parse; // parses out the date object from the string
@@ -78,8 +73,6 @@ angular.module('myApp.timeSeries', ['ngRoute'])
     var dayDimension = ndx.dimension(function(d) { return d3.time.day(parse(d.date));})
        
     $scope.setParams();
-    
-    
 
     var totalSum = 0;
     var savingsSum = myDimension.group().reduce( // groups a value for each entry in the dimension by finding the total aggregated savings
@@ -95,8 +88,6 @@ angular.module('myApp.timeSeries', ['ngRoute'])
     	lY = (h)-650
     ;
         
-    
-       
     var compositeChart = function(){
       var composite = dc.compositeChart("#test_composed") // creates the graph object
             .width(w) // sets width
