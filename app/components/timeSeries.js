@@ -27,6 +27,7 @@ angular.module('myApp.timeSeries', ['ngRoute'])
   	};
   	  		  	
   	$scope.redraw = function(){
+  	  $scope.setParams();
   	  dc.renderAll();
   	};
   	  	
@@ -86,7 +87,7 @@ angular.module('myApp.timeSeries', ['ngRoute'])
             .height(h) // sets height
             .x(myDomain) // sets X axis
             .elasticX(false) // allows X axis to be zoomed in/out
-            .elasticY(true)
+            .elasticY(false)
             .xUnits(myXUnits)
             .yAxisLabel("kW")
             .legend(dc.legend().x(lX).y(lY).itemHeight(13).gap(5)) // legend position and add'l info
