@@ -26,8 +26,7 @@ angular.module('myApp.timeSeries', ['ngRoute'])
         myDimension,
         actualGroup,
         expectedGroup,
-        savingsGroup,
-        timeGroup
+        savingsGroup
     ;
     	
     $scope.log = function() {
@@ -61,7 +60,6 @@ angular.module('myApp.timeSeries', ['ngRoute'])
   		actualGroup = myDimension.group().reduceSum(function(d) { return d.actualKWH;}) // groups a value for each entry in the dimension by summing all the 'actualKWH' values of all objects within that dimension
   	    expectedGroup = myDimension.group().reduceSum(function(e) { return +e.expectedKWH;}) // same as above with expectedKWH
   	    savingsGroup = myDimension.group().reduceSum(function(e) { return +e.savings;}) // same as above with savings
-  	    timeGroup = dayDimension.group().reduceSum(function(e) { return +e.savings;})
   			
 	    if(compositeChart !== undefined){
 	      compositeChart();
