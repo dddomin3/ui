@@ -530,9 +530,7 @@ angular.module('myApp.heatmap', ['ngRoute'])
 				startPix = startPix + tc.getHeight() * sched.start.getMinutes() / 60;
 			}
 			else if(tc.date.getHours() == sched.end.getHours() && tc.date.getMinutes() <= sched.end.getMinutes()){
-				console.log(endPix);
 				endPix = endPix - tc.getHeight() * (60-sched.end.getMinutes()) / 60;
-				console.log(endPix);
 			}		
 			
 			//only draw the left line if the previous day @ same time did not draw right...
@@ -629,6 +627,62 @@ angular.module('myApp.heatmap', ['ngRoute'])
 					
 				}
 			}catch(err){console.log('there really is an error here....');}
+			
+			try{
+				var nextTc = caller.getTimeCell(new Date(tc.date.getTime()-24*60*60*1000));
+				
+				if(nextTc.isEnd() && !tc.isEnd()){
+				
+					var nextDay = nextTc.date.getDay()+'';
+					var nextSched = caller.schedules[nextDay];
+					var nextStartPix = nextTc.getY();
+					var nextEndPix = nextTc.getY()+nextTc.getHeight();
+					
+					if(nextTc.date.getHours() == nextSched.start.getHours() && nextTc.date.getMinutes() <= nextSched.start.getMinutes()){
+						nextStartPix = nextStartPix + nextTc.getHeight() * nextSched.start.getMinutes() / 60;
+					}
+					else if(nextTc.date.getHours() == nextSched.end.getHours() && nextTc.date.getMinutes() <= nextSched.end.getMinutes()){
+						nextEndPix = nextEndPix - nextTc.getHeight() * (60-nextSched.end.getMinutes()) / 60;
+					}		
+				
+					g.append('line')
+					.attr('x1', 0-caller.heatmapConfig.cellPadding)
+					.attr('x2', 0-caller.heatmapConfig.cellPadding)
+					.attr('y1', nextEndPix)
+					.attr('y2', tc.getY()+tc.getHeight())
+					.attr('style', 'stroke:rgb(0,0,0);stroke-width:8');
+					
+				}
+			}catch(err){console.log('there really is an error here....');}
+			
+			try{
+				var nextTc = caller.getTimeCell(new Date(tc.date.getTime()-24*60*60*1000));
+				
+				if(nextTc.isStart() && !tc.isStart()){
+				
+					var nextDay = nextTc.date.getDay()+'';
+					var nextSched = caller.schedules[nextDay];
+					var nextStartPix = nextTc.getY();
+					var nextEndPix = nextTc.getY()+nextTc.getHeight();
+					
+					if(nextTc.date.getHours() == nextSched.start.getHours() && nextTc.date.getMinutes() <= nextSched.start.getMinutes()){
+						nextStartPix = nextStartPix + nextTc.getHeight() * nextSched.start.getMinutes() / 60;
+					}
+					else if(nextTc.date.getHours() == nextSched.end.getHours() && nextTc.date.getMinutes() <= nextSched.end.getMinutes()){
+						nextEndPix = nextEndPix - nextTc.getHeight() * (60-nextSched.end.getMinutes()) / 60;
+					}		
+				
+					g.append('line')
+					.attr('x1', 0-caller.heatmapConfig.cellPadding)
+					.attr('x2', 0-caller.heatmapConfig.cellPadding)
+					.attr('y1', tc.getY())
+					.attr('y2', nextStartPix)
+					.attr('style', 'stroke:rgb(0,0,0);stroke-width:8');
+					
+				}
+			}catch(err){console.log('there really is an error here....');}
+			
+			
 		}
 		
 		tc.drawOcc = function(){
@@ -659,6 +713,32 @@ angular.module('myApp.heatmap', ['ngRoute'])
 			.attr('y1', startPix)
 			.attr('y2', startPix)
 			.attr('style', 'stroke:rgb(0,0,0);stroke-width:4');		
+			
+			//connect line for tomorrow when time today is start of schedule and tomorrow is start of schedule
+			try{
+				var nextTc = caller.getTimeCell(new Date(tc.date.getTime()+24*60*60*1000));
+				var nextDay = nextTc.date.getDay()+'';
+				var nextSched = caller.schedules[nextDay];
+				var nextStartPix = nextTc.getY();
+				var nextEndPix = nextTc.getY()+nextTc.getHeight();
+				
+				if(nextTc.isStart()){
+					
+					if(nextTc.date.getHours() == nextSched.start.getHours() && nextTc.date.getMinutes() <= nextSched.start.getMinutes()){
+						nextStartPix = nextStartPix + nextTc.getHeight() * nextSched.start.getMinutes() / 60;
+					}
+					else if(nextTc.date.getHours() == nextSched.end.getHours() && nextTc.date.getMinutes() <= nextSched.end.getMinutes()){
+						nextEndPix = nextEndPix - nextTc.getHeight() * (60-nextSched.end.getMinutes()) / 60;
+					}		
+				
+					g.append('line')
+					.attr('x1', tc.getWidth()+caller.heatmapConfig.cellPadding)
+					.attr('x2', tc.getWidth()+caller.heatmapConfig.cellPadding)
+					.attr('y1', startPix)
+					.attr('y2', nextStartPix)
+					.attr('style', 'stroke:rgb(0,0,0);stroke-width:8');
+				}
+			}catch(err){console.log('there really is an error in drawOcc....');}
 		}
 		
 		
@@ -706,25 +786,32 @@ angular.module('myApp.heatmap', ['ngRoute'])
 				*/
 			}
 
+			//connect line for tomorrow when time today is start of schedule and tomorrow is start of schedule
 			try{
-				if(caller.getTimeCell(new Date(tc.date.getTime()+24*60*60*1000)).shouldDrawSides() 
-				&& new Date(tc.date.getTime()+24*60*60*1000).getHours() != sched.end.getHours()){
+				var nextTc = caller.getTimeCell(new Date(tc.date.getTime()+24*60*60*1000));
+				var nextDay = nextTc.date.getDay()+'';
+				var nextSched = caller.schedules[nextDay];
+				var nextStartPix = nextTc.getY();
+				var nextEndPix = nextTc.getY()+nextTc.getHeight();
+				
+				if(nextTc.isEnd()){
+					
+					if(nextTc.date.getHours() == nextSched.start.getHours() && nextTc.date.getMinutes() <= nextSched.start.getMinutes()){
+						nextStartPix = nextStartPix + nextTc.getHeight() * nextSched.start.getMinutes() / 60;
+					}
+					else if(nextTc.date.getHours() == nextSched.end.getHours() && nextTc.date.getMinutes() <= nextSched.end.getMinutes()){
+						nextEndPix = nextEndPix - nextTc.getHeight() * (60-nextSched.end.getMinutes()) / 60;
+					}		
+				
 					g.append('line')
 					.attr('x1', tc.getWidth()+caller.heatmapConfig.cellPadding)
 					.attr('x2', tc.getWidth()+caller.heatmapConfig.cellPadding)
 					.attr('y1', endPix)
-					.attr('y2', tc.getY()+tc.getHeight())
+					.attr('y2', nextEndPix)
 					.attr('style', 'stroke:rgb(0,0,0);stroke-width:8');
 				}
-			}
-			catch(err){
-				g.append('line')
-				.attr('x1', tc.getWidth()+caller.heatmapConfig.cellPadding)
-				.attr('x2', tc.getWidth()+caller.heatmapConfig.cellPadding)
-				.attr('y1', endPix)
-				.attr('y2', tc.getY()+tc.getHeight())
-				.attr('style', 'stroke:rgb(0,0,0);stroke-width:8');
-			}			
+			}catch(err){console.log('there really is an error in drawOcc....');}		
+	
 		}
 	
 		tc.setEvent = function(){
@@ -845,18 +932,18 @@ angular.module('myApp.heatmap', ['ngRoute'])
 	// 0 is Sunday
 	vm.schedules = { 
 		'0' : { },
-		'1' : { start : new Date(new Date(new Date().setHours(6)).setMinutes(30)), 
+		'1' : { start : new Date(new Date(new Date().setHours(6)).setMinutes(15)), 
 			end : new Date(new Date(new Date().setHours(20)).setMinutes(15)) },
-		'2' : { start : new Date(new Date(new Date().setHours(6)).setMinutes(30)), 
-			end : new Date(new Date(new Date().setHours(20)).setMinutes(15)) },
+		'2' : { start : new Date(new Date(new Date().setHours(8)).setMinutes(15)), 
+			end : new Date(new Date(new Date().setHours(10)).setMinutes(45)) },
 		'3' : { start : new Date(new Date(new Date().setHours(6)).setMinutes(30)), 
-			end : new Date(new Date(new Date().setHours(20)).setMinutes(15)) },
-		'4' : { start : new Date(new Date(new Date().setHours(6)).setMinutes(30)), 
-			end : new Date(new Date(new Date().setHours(20)).setMinutes(15)) },
-		'5' : { start : new Date(new Date(new Date().setHours(6)).setMinutes(30)), 
-			end : new Date(new Date(new Date().setHours(20)).setMinutes(15)) },
-		'6' : { start : new Date(new Date(new Date().setHours(12)).setMinutes(15)), 
-			end : new Date(new Date(new Date().setHours(16)).setMinutes(15)) }
+			end : new Date(new Date(new Date().setHours(22)).setMinutes(0)) },
+		'4' : { start : new Date(new Date(new Date().setHours(6)).setMinutes(15)), 
+			end : new Date(new Date(new Date().setHours(20)).setMinutes(0)) },
+		'5' : { start : new Date(new Date(new Date().setHours(6)).setMinutes(45)), 
+			end : new Date(new Date(new Date().setHours(20)).setMinutes(45)) },
+		'6' : { start : new Date(new Date(new Date().setHours(0)).setMinutes(0)), 
+			end : new Date(new Date(new Date().setHours(23)).setMinutes(59)) }
 		};
 	
 	vm.sources = [
