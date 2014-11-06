@@ -11,8 +11,8 @@ angular.module('myApp.timeSeries', ['ngRoute'])
     var myXUnits = d3.time.days;
     
     var getDomain = function(){
-      var myMinDate = $scope.startDate ? $scope.startDate : myDimension.bottom(1)[0].date;
-  	  var myMaxDate = $scope.endDate ? $scope.endDate : myDimension.top(1)[0].date; // sets the highest date value from the available data
+      var myMinDate = $scope.startDate ? $scope.startDate : new Date(myDimension.bottom(1)[0].date);
+  	  var myMaxDate = $scope.endDate ? $scope.endDate : new Date(myDimension.top(1)[0].date);
   	  		 
   	  var tempDomain = d3.scale.linear().domain([myMinDate,myMaxDate]);
   	  
