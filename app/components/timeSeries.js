@@ -116,22 +116,29 @@ angular.module('myApp.timeSeries', ['ngRoute'])
                   .colors('gray')
                   .group(savingsSum, "Total Savings/Waste") // use the savings group for the grouped values
                   .renderArea(true)
+                  .interpolate('cardinal')
+                  .tension(0.5)
               ,
               dc.barChart(composite) // creates the bar chart
                   .dimension(myDimension) // use the date Dimension for the objects
                   .colors('cyan')
                   .group(savingsGroup, "Savings")// use the savings group for the grouped values
-                  .centerBar(false)
+                  .centerBar(true)
+                  .barPadding(0.5)
               ,
               dc.lineChart(composite)
                   .dimension(myDimension) // use the date dimension for the objects
                   .colors('blue')
                   .group(actualGroup, "Actual KWH")// use the savings group for the grouped values
+                  .interpolate('cardinal')
+                  .tension(0.5)
                , 
                dc.lineChart(composite)
                   .dimension(myDimension) // use the date dimension for the objects
                   .colors('red')
                   .group(expectedGroup, "Expected KWH")  // use the savings group for the grouped values
+                  .interpolate('cardinal')
+                  .tension(0.5)
               ])
             .brushOn(false) // disables the fiddle/violin selection tool
           ;
