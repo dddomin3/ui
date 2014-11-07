@@ -2,8 +2,8 @@
  
 angular.module('myApp.timeSeries', ['ngRoute'])
 
-.controller('timeSeriesCtrl', ['$scope', '$location', '$route', 
-  function($scope, $location, $route) {
+.controller('timeSeriesCtrl', ['$scope', '$location', '$route','$window', 
+  function($scope, $location, $route, $window) {
 	
 	$scope.timeSeries = 'timeSeries';
     d3.csv("expectedActual.csv", function(error, energyData) {
@@ -34,15 +34,26 @@ angular.module('myApp.timeSeries', ['ngRoute'])
     var numberOfTicks;
     
     $scope.log = function() {
+      console.log($window);
   	  console.log($scope);
   	};
   	  		  	
   	$scope.redraw = function(){
   	  $scope.setParams();
-  	  dc.renderAll();
+  	  compositeChart();
+  	  //dc.renderAll();
   	};
   	  	
   	$scope.setParams = function(){
+  		w = $window.innerWidth - 50;
+  		h = w*.5;
+  		lX = (w-100);
+  		lY = (0);
+  		
+  		if(h > $window.innerHeight){
+  			h = $window.innerHeight - 250;
+  		}
+  			
   		myDomain = getDomain();
 
   		if(daysBetween <= 30){
@@ -89,14 +100,16 @@ angular.module('myApp.timeSeries', ['ngRoute'])
     var weekDimension = ndx.dimension(function(d) { return d3.time.week(parse(d.date));})
     var dayDimension = ndx.dimension(function(d) { return d3.time.day(parse(d.date));})
        
+    var w, // sets the width, height, margin, legend X and legend Y values
+        h,
+    	m = [75,150],
+    	lX,
+    	lY
+    ;
+    
     $scope.setParams();
            
-    var w = 900, // sets the width, height, margin, legend X and legend Y values
-        h = 680,
-    	m = [75,150],
-    	lX = (w-m[1]),
-    	lY = (h)-650
-    ;
+    
         
     var compositeChart = function(){
       var composite = dc.compositeChart("#test_composed") // creates the graph object
@@ -147,12 +160,13 @@ angular.module('myApp.timeSeries', ['ngRoute'])
           composite.margins().right = m[1]; // sets the right margin for the composite chart
           
           composite.xAxis().tickFormat(function(v) {return displayDate(new Date(v));}); // sets the tick format to be the month/year only
+          composite.render();
           return composite;
       };
 
       compositeChart();
   
-      $scope.redraw();
+      //$scope.redraw();
       $scope.$apply() // no idea
     });
 }]);
