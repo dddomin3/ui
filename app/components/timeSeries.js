@@ -11,8 +11,8 @@ angular.module('myApp.timeSeries', ['ngRoute'])
     var daysBetween;  // stores the number of days between the min time and max time to determine the new scaling
     
     var getDomain = function(){
-      $scope.startDate = $scope.startDate ? $scope.startDate : new Date(monthDimension.bottom(1)[0].date);
-  	  $scope.endDate = $scope.endDate ? $scope.endDate : new Date(monthDimension.top(1)[0].date);
+      $scope.startDate = $scope.startDate ? $scope.startDate : new Date(myDimension.bottom(1)[0].date);
+  	  $scope.endDate = $scope.endDate ? $scope.endDate : new Date(myDimension.top(1)[0].date);
   	  		 
   	  daysBetween = ($scope.endDate - $scope.startDate)/(1000*60*60*24) 
   	  
@@ -21,8 +21,13 @@ angular.module('myApp.timeSeries', ['ngRoute'])
   	  return tempDomain;
     };
     
+    var parse = d3.time.format("%m/%d/%Y").parse; // parses out the date object from the string
+    var displayDate; // function to change the format of a date object to mm-yyyy;
+    	
+    var ndx = crossfilter(energyData)
+    
     var myDomain, 
-        myDimension,
+        myDimension = ndx.dimension(function(d) { return d3.time.day(parse(d.date));}),
         actualGroup,
         expectedGroup,
         savingsGroup,
@@ -31,7 +36,6 @@ angular.module('myApp.timeSeries', ['ngRoute'])
         totalSum
     ;
     	
-    var numberOfTicks;
     var windowSize = $window.innerWidth;
     
     $scope.window = $window.innerWidth;
@@ -72,33 +76,29 @@ angular.module('myApp.timeSeries', ['ngRoute'])
   		myDomain = getDomain();
 
   		if(daysBetween <= 30){
-  			myDimension = dayDimension;
+  			myDimension = ndx.dimension(function(d) { return d3.time.day(parse(d.date));})
   			myXUnits = d3.time.days;
   		    displayDate= d3.time.format("%m-%d-%y"); // function to change the format of a date object to mm-yyyy
-  		    numberOfTicks = daysBetween;
   		}
   		else if(daysBetween <= (180)){
-  			myDimension = weekDimension;
+  			myDimension = ndx.dimension(function(d) { return d3.time.week(parse(d.date));})
   			myXUnits = d3.time.weeks;
   			displayDate= d3.time.format("%m-%d-%y"); // function to change the format of a date object to mm-yyyy
-  			numberOfTicks = daysBetween/7;
   		}
   		else{
-  			myDimension = monthDimension;
+  			myDimension = ndx.dimension(function(d) { return d3.time.month(parse(d.date));})
   			myXUnits = d3.time.months;
   			displayDate = d3.time.format("%m-%y"); // function to change the format of a date object to mm-yyyy
-  			numberOfTicks = daysBetween/30;
   		}
   		
-  		actualGroup = myDimension.group().reduceSum(function(d) { return d.actualKWH;}) // groups a value for each entry in the dimension by summing all the 'actualKWH' values of all objects within that dimension
-  	    expectedGroup = myDimension.group().reduceSum(function(e) { return +e.expectedKWH;}) // same as above with expectedKWH
-  	    savingsGroup = myDimension.group().reduceSum(function(e) { return +e.savings;}) // same as above with savings
+  		actualGroup = myDimension.group().reduceSum(function(d) { if(new Date(parse(d.date)) >= $scope.startDate && new Date(parse(d.date)) <= $scope.endDate){return d.actualKWH;}})
+  	    expectedGroup = myDimension.group().reduceSum(function(e) { if(new Date(parse(e.date)) >= $scope.startDate && new Date(parse(e.date)) <= $scope.endDate){return +e.expectedKWH;}}) // same as above with expectedKWH
+  	    savingsGroup = myDimension.group().reduceSum(function(e) { if(new Date(parse(e.date)) >= $scope.startDate && new Date(parse(e.date)) <= $scope.endDate){return +e.savings;}}) // same as above with savings
   			
-  	    
   		savingsSum = myDimension.group().reduce( // groups a value for each entry in the dimension by finding the total aggregated savings
-  		  function(p,v) {totalSum = (+v.savings) + totalSum;  return totalSum;}, // sets the method for adding an entry into the total
-           function(p,v) {totalSum = totalSum-(+v.savings); return totalSum;}, // sets the method for removing an entry from the total
-           function() {totalSum = 0; return totalSum;}	 // sets the method for initializing the total
+  		  function(p,v) {if(new Date(parse(v.date)) >= $scope.startDate && new Date(parse(v.date)) <= $scope.endDate){totalSum = (+v.savings) + totalSum;return totalSum;}}, // sets the method for adding an entry into the total
+           function(p,v) {if(new Date(parse(v.date)) >= $scope.startDate && new Date(parse(v.date)) <= $scope.endDate){totalSum = totalSum-(+v.savings);return totalSum;}}, // sets the method for removing an entry from the total
+           function() {totalSum = 0; console.log("initialized");return totalSum;}	 // sets the method for initializing the total
   		);
   	    
 	    if(compositeChart !== undefined){
@@ -106,14 +106,9 @@ angular.module('myApp.timeSeries', ['ngRoute'])
 	    }
   	};
   	
-    var parse = d3.time.format("%m/%d/%Y").parse; // parses out the date object from the string
-    var displayDate; // function to change the format of a date object to mm-yyyy;
-    	
-    var ndx = crossfilter(energyData)
+    
 
-    var monthDimension = ndx.dimension(function(d) { return d3.time.month(parse(d.date));}) // creates the x-axis components using their date as a guide
-    var weekDimension = ndx.dimension(function(d) { return d3.time.week(parse(d.date));})
-    var dayDimension = ndx.dimension(function(d) { return d3.time.day(parse(d.date));})
+    
        
     var w, // sets the width, height, margin, legend X and legend Y values
         h,
