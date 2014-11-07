@@ -29,9 +29,5 @@ config(['$routeProvider', function($routeProvider) {
 		templateUrl: 'views/energyProfile.html',
 		controller: 'energyProfileCtrl'
 	}).
-	when('/calendar',{
-		templateUrl: 'views/calendar.html',
-		controller: 'DatepickerDemoCtrl'
-	}).
 	otherwise({redirectTo: '/heatmap'});
 }]);
