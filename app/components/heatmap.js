@@ -289,11 +289,12 @@ angular.module('myApp.heatmap', ['ngRoute'])
 		domain: 'day',
 		domainMargin : 0,
 		subDomain: 'hour',
-		range: 84,	//number of domains (days in current implementation)
+		range: 365,	//number of domains (days in current implementation)
+		//range: 20
 		cellSize: 20, //px size of cells
 		cellPadding: 0,	//px between cells
 		cellRadius: 2,	//px of cell radius
-		considerMissingDataAsZero: true,
+		considerMissingDataAsZero: false,
 		domainGutter: 0, //px padding between dates
 		colLimit: 1, //number of colums per domain
 		legend: [1,2,3,4,5,6,7,8,9,10,11,12,13],	//legend. Remember its like actually the count
@@ -302,7 +303,7 @@ angular.module('myApp.heatmap', ['ngRoute'])
 		legendHorizontalPosition: "right",
 		legendOrientation: "vertical",
 		legendMargin: [10, 10, 10, 10],
-		legendColors: {min:'#33CC33', max:'#FF0000'},	//colors of legend gradient
+		legendColors: {min:'#33CC33', max:'#FF0000', empty:'#ADADAD'},	//colors of legend gradient
 		itemName: ["kWh", "kWh"],
 		subDomainDateFormat: '%c',
 		subDomainTextFormat: function(date, value) {
@@ -312,7 +313,8 @@ angular.module('myApp.heatmap', ['ngRoute'])
 			else */
 			return '';
 		},
-		start : new Date(1412136000000-61*24*60*60*1000),
+		start : new Date(new Date(1388675960000-6*24*3600*1000).setHours(0)),
+		//start : new Date(1412136000000-12*24*60*60*1000),
 		domainLabelFormat: function(date) {//format of each domain label. "x axis" labels
 			var month = 
 				["Jan", "Feb", "Mar", "Apr",
@@ -390,10 +392,24 @@ angular.module('myApp.heatmap', ['ngRoute'])
 		
 		//heatmaps week starts on a mondays (it is the +1).This function is added to ALL date objects
 		Date.prototype.getWeekNumber = function(){
+			//capture original date
+			var orig = new Date(+this);
+			
 			var d = new Date(+this);
 			d.setHours(0,0,0);
 			d.setDate(d.getDate()+1-(d.getDay()||7));
-			return Math.ceil((((d-new Date(d.getFullYear(),0,1))/8.64e7)+1)/7);
+			
+			var myWeek = Math.ceil((((d-new Date(d.getFullYear(),0,1))/8.64e7)+1)/7);
+			
+			//sync formatting with cal-heatmap
+			if(myWeek < 10){
+				myWeek = '0'+myWeek;
+			}
+			else if(myWeek >= 52 && orig.getDate() < 20){
+				myWeek = '00';
+			}
+			
+			return myWeek;
 		};
 		
 		var query = "graph-domain d_"+date.getDate()
@@ -401,13 +417,14 @@ angular.module('myApp.heatmap', ['ngRoute'])
 			+" w_"+(date.getWeekNumber())
 			+" m_"+(date.getMonth()+1)
 			+" y_"+date.getFullYear();
-				
+		
 		var list = document.getElementsByClassName(query);
 		
 		//currently only works for hours because it iterates through the array of <g> objects by assuming 1 hour = 1 item in a sorted time based aray....
 		for(var p = 0; p < list.length; p++){
 			//If the current HTML5 element being examined does not reference back to THIS controller, continue iterating through elements
 			if(!(angular.element(list[p]).controller() === caller)){
+				
 				continue;
 			}
 			
@@ -415,6 +432,7 @@ angular.module('myApp.heatmap', ['ngRoute'])
 			var length = cells.length;
 
 			var inputHour = date.getHours();
+							
 			return new timeCell(cells[inputHour]);
 		}
 	};
@@ -862,7 +880,7 @@ angular.module('myApp.heatmap', ['ngRoute'])
 		while(loopDate.getTime() <= endDate.getTime()){
 			var day = loopDate.getDay()+'';
 			var sched = caller.schedules[day];
-			
+
 			try{
 				var startTime = new Date(loopDate.getTime());
 				startTime.setHours(sched.start.getHours());
@@ -871,6 +889,7 @@ angular.module('myApp.heatmap', ['ngRoute'])
 				var endTime = new Date(loopDate.getTime());
 				endTime.setHours(sched.end.getHours());
 				endTime.setMinutes(sched.end.getMinutes());
+
 				
 				caller.getTimeCell(startTime).drawOcc();
 				caller.getTimeCell(endTime).drawUnocc();
@@ -1057,15 +1076,29 @@ angular.module('myApp.heatmap', ['ngRoute'])
 		}, 1000);
 	}
 	
+	//draw or  remove schedule lines.
+	vm.scheduleSelect = function(){
+		if(vm.showLines){
+			vm.drawOcc();
+		}
+		else{
+			var heatmaps = document.getElementsByTagName('cal-heatmap');
+			
+			for(var i = 0; i < heatmaps.length; i++){
+				
+				//if the heatmap belongs to this controller				
+				if(angular.element(heatmaps[i]).controller() === vm){
+					angular.element(heatmaps[i].getElementsByTagName('line')).remove();
+				}
+			}
+		}
+	}
+	
 	//this happens when the heatmaps load... not only when the select is chosen.
 	$scope.$watch('heat.dataSource', function(){
 		vm.getData().then(function (dataddd){
 			vm.heatmapConfig.data = vm.dataObj;
 			vm.change();
-			
-			window.setTimeout(function(){
-				vm.drawOcc();
-				$scope.$apply();
 				
 				/* HOW TO access .css style sheets, and use d3 interpolation functions for color interpolation
 				var stylez = document.styleSheets;
@@ -1109,7 +1142,6 @@ angular.module('myApp.heatmap', ['ngRoute'])
 				
 				console.log(stylez);
 				*/
-			}, 1000);
 		});
 	});
 	
