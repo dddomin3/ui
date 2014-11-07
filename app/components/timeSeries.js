@@ -48,7 +48,7 @@ angular.module('myApp.timeSeries', ['ngRoute'])
   		w = $window.innerWidth - 50;
   		h = w*.5;
   		lX = (w-100);
-  		lY = (0);
+  		lY = (25);
   		
   		if(h > $window.innerHeight){
   			h = $window.innerHeight - 250;
