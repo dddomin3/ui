@@ -32,22 +32,37 @@ angular.module('myApp.timeSeries', ['ngRoute'])
     ;
     	
     var numberOfTicks;
+    var windowSize = $window.innerWidth;
+    
+    $scope.window = $window.innerWidth;
     
     $scope.log = function() {
       console.log($window);
+      console.log($window.innerWidth);
   	  console.log($scope);
+  	  console.log($scope.window);
   	};
-  	  		  	
+  	  		  
+  	
   	$scope.redraw = function(){
   	  $scope.setParams();
   	  compositeChart();
-  	  //dc.renderAll();
   	};
   	  	
+  	$scope.$watch(
+      function(){return $window.innerWidth;},
+      function(value){
+    	  if(value*1.1 <= windowSize || value*0.9 >= windowSize){
+    		  windowSize = value;
+    		  $scope.redraw();  
+    	  };
+      }
+  	);
+  	
   	$scope.setParams = function(){
-  		w = $window.innerWidth - 50;
+  		w = $window.innerWidth*0.9 - 50;
   		h = w*.5;
-  		lX = (w-100);
+  		lX = (w-150);
   		lY = (25);
   		
   		if(h > $window.innerHeight){
@@ -109,8 +124,6 @@ angular.module('myApp.timeSeries', ['ngRoute'])
     
     $scope.setParams();
            
-    
-        
     var compositeChart = function(){
       var composite = dc.compositeChart("#test_composed") // creates the graph object
             .width(w) // sets width
@@ -166,7 +179,34 @@ angular.module('myApp.timeSeries', ['ngRoute'])
 
       compositeChart();
   
-      //$scope.redraw();
+      dc.renderAll();;
       $scope.$apply() // no idea
-    });
-}]);
+    })
+}])
+.directive('resize', function ($window) {
+	return function (scope, element, attr) {
+	    var w = angular.element($window);
+	    scope.$watch(function () {
+	        return {
+	            'h': window.innerHeight, 
+	            'w': window.innerWidth
+	        };
+	    }, function (newValue, oldValue) {
+	        scope.windowHeight = newValue.h;
+	        scope.windowWidth = newValue.w;
+	
+	        scope.resizeWithOffset = function (offsetH) {
+	            scope.$eval(attr.notifier);
+	            return { 
+	                'height': (newValue.h - offsetH) + 'px'                    
+	            };
+	        };
+	    }, 
+	    true);
+	    
+	    w.bind('resize', function () {
+	        scope.$apply();
+	    });
+	}
+})
+;
