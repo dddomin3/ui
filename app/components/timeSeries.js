@@ -107,7 +107,7 @@ angular.module('myApp.timeSeries', ['ngRoute'])
   		savingsSum = myDimension.group().reduce( // groups a value for each entry in the dimension by finding the total aggregated savings
   		  function(p,v) {if(withinDate(v)){totalSum = (+v.savings) + totalSum;return totalSum;}}, // sets the method for adding an entry into the total
            function(p,v) {if(withinDate(v)){totalSum = totalSum-(+v.savings);return totalSum;}}, // sets the method for removing an entry from the total
-           function() {totalSum = 0; console.log("initialized");return totalSum;}	 // sets the method for initializing the total
+           function() {totalSum = 0; return totalSum;}	 // sets the method for initializing the total
   		);
   	    
 	    if(compositeChart !== undefined){
