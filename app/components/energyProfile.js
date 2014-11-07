@@ -48,7 +48,7 @@ angular.module('myApp.energyProfile', ['ngRoute'])
 		return _url;
 	};
 	
-	var _getOrganization = function () {	
+	var _getData = function () {	
 		return $http.post('http://10.239.3.132:9763/MongoServlet-0.0.1-SNAPSHOT/send',
 				'{'
 					+'"organization": "'+_userParameters.organization+'",'
@@ -61,35 +61,17 @@ angular.module('myApp.energyProfile', ['ngRoute'])
 				        +'}'
 				    +'}'
 				+'}')
-		.success(_successOrganization)
+		.success(_successData)
 		.error(function () { alert('fail to query data'); });
 	};
-	var _successOrganization = function (data) {
+	var _successData = function (data) {
 		ndx = crossfilter();
 		console.log(data);
 		for(var i = 0, len = data.result.length; i < len; i++) {
 			ndx.add(data.result[i].his);
 		}
+		_createDimensions();
 		
-		dimensions.dateDimension = ndx.dimension(function(d) {
-			var ts = _tfIso(d.timestamp);
-			var tDate = ts.getDate();
-			var tMonth = ts.getMonth();
-			return tDate;
-		});
-		
-		
-		var totalSum = 0;
-		groups.savingsGroups = [];
-		
-		groups.actualGroup = dimensions.dateDimension.group().reduceSum(function(d) { return d.value*.85;});
-		groups.expectedGroup = dimensions.dateDimension.group().reduceSum(function(d) { return d.value;});
-		groups.savingsGroups[0] = dimensions.dateDimension.group().reduceSum(function(d) { return d.value*.15;});
-		groups.cumulativeSavingsGroup = dimensions.dateDimension.group().reduce( // groups a value for each entry in the dimension by finding the total aggregated savings
-        		function(p,v) {totalSum = (v.value*.15) + totalSum;  return totalSum;}, // sets the method for adding an entry into the total
-        		function(p,v) {totalSum = totalSum-(v.value*.15); return totalSum;}, // sets the method for removing an entry from the total
-        		function() {totalSum = 0; return totalSum;}	 // sets the method for initializing the total
-		);
 		//TODO:below code is not checked at all
 		//TODO:This may not be correct... 
 		var lowest = new Date(dimensions.dateDimension.bottom(1)[0].timestamp);
@@ -109,59 +91,6 @@ angular.module('myApp.energyProfile', ['ngRoute'])
         
 		console.log('success????');
 		//TODO: this is the extent of below, lol.
-	};
-	
-	var _getData = function(){ 
-		return $http.get('http://10.239.3.132:8080/dailyhistory/544876bf2e905908b6e5f595')
-		.success(successHandler)
-		.error(errorHandler);
-	};
-	
-	var successHandler = function(data) {
-		_dataArr = data.his;
-		console.log(data.his);
-		
-		var ddate = new Date(data.his[0].timestamp);
-		
-		ndx = crossfilter(_dataArr);
-		//dimensions.dateDimension = ndx.dimension(function(d) { return parse(d.date).getMonth()+1;});
-		dimensions.dateDimension = ndx.dimension(function(d) { 
-			return d3.time.hour((new Date(d.timestamp)));			
-		});
-		
-		//how it should be
-		//groups.actualGroup = dimensions.dateDimension.group().reduceSum(function(d) { return +d.actualKWH;});
-		//groups.expectedGroup = dimensions.dateDimension.group().reduceSum(function(d) { return +d.expectedKWH;});
-		//groups.savingsGroup = dimensions.dateDimension.group().reduceSum(function(d) { return +d.savings;});
-		var totalSum = 0;
-		groups.savingsGroups = [];
-		
-		groups.actualGroup = dimensions.dateDimension.group().reduceSum(function(d) { return d.value*.85;});
-		groups.expectedGroup = dimensions.dateDimension.group().reduceSum(function(d) { return d.value;});
-		groups.savingsGroups[0] = dimensions.dateDimension.group().reduceSum(function(d) { return d.value*.15;});
-		groups.cumulativeSavingsGroup = dimensions.dateDimension.group().reduce( // groups a value for each entry in the dimension by finding the total aggregated savings
-        		function(p,v) {totalSum = (v.value*.15) + totalSum;  return totalSum;}, // sets the method for adding an entry into the total
-        		function(p,v) {totalSum = totalSum-(v.value*.15); return totalSum;}, // sets the method for removing an entry from the total
-        		function() {totalSum = 0; return totalSum;}	 // sets the method for initializing the total
-		);
-        
-		//TODO:This may not be correct... 
-		chartParameters.minDate = (new Date(dimensions.dateDimension.bottom(1)[0].timestamp)).getHours(); // sets the lowest date value from the available data
-        chartParameters.maxDate = (new Date(dimensions.dateDimension.top(1)[0].timestamp)).getHours(); // sets the highest date value from the available data
-        
-        console.log([chartParameters.minDate, chartParameters.maxDate]);
-        
-        chartParameters.domainX = d3.scale.linear().domain([chartParameters.minDate, chartParameters.maxDate]);
-		
-        chartParameters.xUnits = d3.time.hours;
-        chartParameters.tickFormat = function(v) {return tfHour(new Date(v));};
-        
-		console.log('success????');
-	};
-	
-	var errorHandler = function(data){
-		console.log('error???');
-		throw('there was problem getting data');
 	};
 	
 	var _csvInit = function (energyData, doubleize) {
@@ -202,6 +131,26 @@ angular.module('myApp.energyProfile', ['ngRoute'])
 			console.log("Dummy Data!");
 	};
 	
+	var _createDimensions = function () {
+		//dimensions.dateDimension = ndx.dimension(function(d) { return parse(d.date).getMonth()+1;});
+	    var monthDimension = ndx.dimension(function(d) { if(typeof d.timestamp == 'undefined') { d.timestamp = d.date; } return d3.time.month(_tfIso(d.timestamp));}); // creates the x-axis components using their date as a guide
+	    var weekDimension = ndx.dimension(function(d) { if(typeof d.timestamp == 'undefined') { d.timestamp = d.date; } return d3.time.week(_tfIso(d.timestamp));});
+	    var dayDimension = ndx.dimension(function(d) { if(typeof d.timestamp == 'undefined') { d.timestamp = d.date; } return d3.time.day(_tfIso(d.timestamp));});
+	    
+	    dimensions.dateDimension = dayDimension; //TODO:something should change this
+		
+		var totalSum = 0;
+		groups.savingsGroups = [];
+		
+		groups.actualGroup = dimensions.dateDimension.group().reduceSum(function(d) { return d.value*.85;});
+		groups.expectedGroup = dimensions.dateDimension.group().reduceSum(function(d) { return d.value;});
+		groups.savingsGroups[0] = dimensions.dateDimension.group().reduceSum(function(d) { return d.value*.15;});
+		groups.cumulativeSavingsGroup = dimensions.dateDimension.group().reduce( // groups a value for each entry in the dimension by finding the total aggregated savings
+        		function(p,v) {totalSum = (v.value*.15) + totalSum;  return totalSum;}, // sets the method for adding an entry into the total
+        		function(p,v) {totalSum = totalSum-(v.value*.15); return totalSum;}, // sets the method for removing an entry from the total
+        		function() {totalSum = 0; return totalSum;}	 // sets the method for initializing the total
+		);
+	};
 	//TODO: make this work
 	var _initCompositeChart = function (domString) {
 		_composite = dc.compositeChart("#"+domString);
@@ -284,7 +233,6 @@ angular.module('myApp.energyProfile', ['ngRoute'])
 		getUrl : _getUrl,
 		setUrl: _setUrl,
 		getData : _getData,
-		getOrganization : _getOrganization,
 		dataArr : function () { return _dataArr; },
 		
 		getDateDimension : _getDateDimension,
@@ -492,30 +440,4 @@ angular.module('myApp.energyProfile', ['ngRoute'])
 	$scope.logScope = function () {
 		console.log($scope);
 	};
-	$scope.getOrganization = function () {
-		$scope.chartInit = true;
-		dataService.getOrganization().then(http, csv);
-	};
-		/*$http.post('http://10.239.3.132:9763/MongoServlet-0.0.1-SNAPSHOT/send',
-				'{'
-					+'"organization": "'+$scope.organization+'",'
-					+'"date": {'
-				        +'"$gt": {'
-				            +'"$date": "'+$scope.lowDate.toISOString()+'",'
-				        +'},'
-				        +'"$lt": {'
-				            +'"$date": "'+$scope.highDate.toISOString()+'"'
-				        +'}'
-				    +'}'
-				+'}'
-				
-				)
-		.success(showOrganizationDetails)
-		.error(function () { alert('fail to query data'); });
-	};
-	var showOrganizationDetails = function (data) {
-		console.log('fuckyou');
-		console.log(data);
-		console.log(Date());
-	};*/
 }]);

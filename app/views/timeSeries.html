@@ -1,36 +1,22 @@
-<div>Hello, {{timeSeries}}</div>
+<div class="row">
+  <div class = "col-md-3 col-sm-4 col-xs-6 col-lg-2" id="test_composed"></div>
+</div>
 
-<!-- 
-<div></div><div dc-chart="pieChart" dc-chart-group="1"
-     dc-width="500" dc-height="480" dc-inner-radius="100"
-     dc-slices-cap="12"
-     dc-dimension="dateDimension" dc-group="actualGroup"
-     dc-legend="dc.legend()"></div></div>
-  
-<div><div dc-chart="barChart" dc-chart-group="1"
-     dc-width="500" dc-height="480"
-     dc-dimension="dateDimension" dc-group="savingsGroup" 
-     dc-x="domainX()"
-     ></div></div>
+<br>
 
-<div><div dc-chart="lineChart" dc-chart-group="1"
-     dc-width="500" dc-height="480"
-     dc-dimension="dateDimension" dc-group="actualGroup"
-     dc-x="domainX()"
-     ></div></div>
+<div class="row">
+  <div class = "col-md-3 col-sm-4 col-xs-6 col-lg-2">From: <my-calendar name="startDate"></my-calendar></div>
+</div>
 
-<div><div dc-chart="lineChart" dc-chart-group="1" dc-render-area="true"
-     dc-width="500" dc-height="480"
-     dc-dimension="dateDimension" dc-group="expectedGroup"
-     dc-x="domainX()"
-     ></div></div>
- -->
+<br>
      
-     <div id="test_composed"></div>
-     <my-calendar name="startDate"></my-calendar>
-     <my-calendar name="endDate"></my-calendar>
-     
-	 <span class="input-group-btn">
-        <button type="button" class="btn btn-default" ng-click="log()">console.log($scope)</button>
-        <button type="button" class="btn btn-default" ng-click="redraw()">Redraw</button>
-     </span>
+<div class="row">
+  <div class = "col-md-3 col-sm-4 col-xs-6 col-lg-2">To: <my-calendar name="endDate"></my-calendar></div>
+</div>
+
+<br>
+
+<div class="row input-group-btn">
+  <!-- <button type="button" class="btn btn-default" ng-click="log()">console.log($scope)</button> -->
+  <button type="button" class="btn btn-default" ng-click="redraw()">Redraw</button>
+</div>
