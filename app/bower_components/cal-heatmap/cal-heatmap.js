@@ -3265,6 +3265,7 @@ Legend.prototype.buildColors = function() {
 
 	var _legend = options.legend.slice(0);
 
+	
 	if (_legend[0] > 0) {
 		_legend.unshift(0);
 	} else if (_legend[0] < 0) {
@@ -3272,6 +3273,7 @@ Legend.prototype.buildColors = function() {
 		_legend.unshift(_legend[0] - (_legend[_legend.length-1] - _legend[0])/_legend.length);
 	}
 	
+	/*
 	//If the first entry in the array is 0, it will cause color interpolation to go from 0 -> legend max.
 	//we prefer interpolation form legend min -> legend max
 	if(_legend[0] == 0){
@@ -3279,7 +3281,8 @@ Legend.prototype.buildColors = function() {
 		_legend.shift();
 		_legend.push(_legend[_legend.length-1]);
 	}
-		
+	*/
+	
 	var colorScale = d3.scale.linear()
 		.range(_colorRange)
 		.interpolate(d3.interpolateHcl)

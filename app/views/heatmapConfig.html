@@ -1,7 +1,6 @@
 <div>
-
-<div>
 	<select class ="form-control action" ng-model="heat.dataSource" ng-options="obj.source as obj.text for obj in heat.sources"></select><br>
+	
    <!--
 	  
 	  <div class="panel-heading" ng-show=geofenceEditShow><h3 class="panel-title">Edit Heatmap</h3></div>
@@ -22,8 +21,6 @@
        <strong ng-show=geofenceInitShow>Click Save to push to database!</strong>
    </div>
    !-->
-</div>
-<div>
-<select class ="form-control action" ng-model="heat.eventSource" ng-options="obj.source as obj.text for obj in heat.events"></select>
-</div>
+	<select class ="form-control action" ng-model="heat.eventSource" ng-options="obj.source as obj.text for obj in heat.events"></select>
+	<div>Show Schedules on Heatmap: <input type ="checkbox" ng-model="heat.showLines" ng-change="heat.scheduleSelect()"> <br/></div>
 </div>
