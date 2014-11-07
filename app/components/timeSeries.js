@@ -143,6 +143,7 @@ angular.module('myApp.timeSeries', ['ngRoute'])
                   .renderArea(true)
                   .interpolate('cardinal')
                   .tension(0.5)
+                  .renderDataPoints({radius:2, fillOpacity: 1, strokeOpacity: 1})
               ,
               dc.barChart(composite) // creates the bar chart
                   .dimension(myDimension) // use the date Dimension for the objects
@@ -157,6 +158,7 @@ angular.module('myApp.timeSeries', ['ngRoute'])
                   .group(actualGroup, "Actual KWH")// use the savings group for the grouped values
                   .interpolate('cardinal')
                   .tension(0.5)
+                  .renderDataPoints({radius:2, fillOpacity: 1, strokeOpacity: 1})
                , 
                dc.lineChart(composite)
                   .dimension(myDimension) // use the date dimension for the objects
@@ -164,6 +166,7 @@ angular.module('myApp.timeSeries', ['ngRoute'])
                   .group(expectedGroup, "Expected KWH")  // use the savings group for the grouped values
                   .interpolate('cardinal')
                   .tension(0.5)
+                  .renderDataPoints({radius:2, fillOpacity: 1, strokeOpacity: 1})
               ])
             .brushOn(false) // disables the fiddle/violin selection tool
           ;
