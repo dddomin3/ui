@@ -63,6 +63,15 @@ angular.module('myApp.timeSeries', ['ngRoute'])
       }
   	);
   	
+  	var withinDate = function(d){
+  		if(new Date(parse(d.date)) >= $scope.startDate && new Date(parse(d.date)) <= $scope.endDate){
+  			return true;
+  		}
+  		else{
+  			return false;
+  		}
+  	}
+  	
   	$scope.setParams = function(){
   		w = $window.innerWidth*0.9 - 50;
   		h = w*.5;
@@ -91,13 +100,13 @@ angular.module('myApp.timeSeries', ['ngRoute'])
   			displayDate = d3.time.format("%m-%y"); // function to change the format of a date object to mm-yyyy
   		}
   		
-  		actualGroup = myDimension.group().reduceSum(function(d) { if(new Date(parse(d.date)) >= $scope.startDate && new Date(parse(d.date)) <= $scope.endDate){return d.actualKWH;}})
-  	    expectedGroup = myDimension.group().reduceSum(function(e) { if(new Date(parse(e.date)) >= $scope.startDate && new Date(parse(e.date)) <= $scope.endDate){return +e.expectedKWH;}}) // same as above with expectedKWH
-  	    savingsGroup = myDimension.group().reduceSum(function(e) { if(new Date(parse(e.date)) >= $scope.startDate && new Date(parse(e.date)) <= $scope.endDate){return +e.savings;}}) // same as above with savings
+  		actualGroup = myDimension.group().reduceSum(function(d) { if(withinDate(d)){return d.actualKWH;}})
+  	    expectedGroup = myDimension.group().reduceSum(function(e) { if(withinDate(e)){return +e.expectedKWH;}}) // same as above with expectedKWH
+  	    savingsGroup = myDimension.group().reduceSum(function(e) { if(withinDate(e)){return +e.savings;}}) // same as above with savings
   			
   		savingsSum = myDimension.group().reduce( // groups a value for each entry in the dimension by finding the total aggregated savings
-  		  function(p,v) {if(new Date(parse(v.date)) >= $scope.startDate && new Date(parse(v.date)) <= $scope.endDate){totalSum = (+v.savings) + totalSum;return totalSum;}}, // sets the method for adding an entry into the total
-           function(p,v) {if(new Date(parse(v.date)) >= $scope.startDate && new Date(parse(v.date)) <= $scope.endDate){totalSum = totalSum-(+v.savings);return totalSum;}}, // sets the method for removing an entry from the total
+  		  function(p,v) {if(withinDate(v)){totalSum = (+v.savings) + totalSum;return totalSum;}}, // sets the method for adding an entry into the total
+           function(p,v) {if(withinDate(v)){totalSum = totalSum-(+v.savings);return totalSum;}}, // sets the method for removing an entry from the total
            function() {totalSum = 0; console.log("initialized");return totalSum;}	 // sets the method for initializing the total
   		);
   	    
