@@ -47,7 +47,6 @@ angular.module('myApp.timeSeries', ['ngRoute'])
   	  console.log($scope.window);
   	};
   	  		  
-  	
   	$scope.redraw = function(){
   	  $scope.setParams();
   	  compositeChart();
@@ -115,10 +114,6 @@ angular.module('myApp.timeSeries', ['ngRoute'])
 	    }
   	};
   	
-    
-
-    
-       
     var w, // sets the width, height, margin, legend X and legend Y values
         h,
     	m = [75,150],
