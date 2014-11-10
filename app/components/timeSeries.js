@@ -189,53 +189,39 @@ angular.module('myApp.timeSeries', ['ngRoute'])
           composite.xAxis().tickFormat(function(v) {return displayDate(new Date(v));}); // sets the tick format to be the month/year only
 
           composite.renderlet(function(_chart){ // this provides the functionality for an on click check for the composite chart focusing on the bar graphs (or any drawn rectangles)
-        	  _chart.selectAll("rect.bar")
-        	    .on("click",function(_bar){
-        	    	console.log("click", _bar);
-        	    	       	    	
-        	    	var allEntries = _chart.selectAll("rect.bar")[0];
-        	    	        	    	
-        	    	for(var i=0; i< allEntries.length; i++){
-        	    		var entry = allEntries[i];
+        	  _chart.selectAll("rect.bar").on("click",function(_bar){
+       	    	var allEntries = _chart.selectAll("rect.bar")[0];
+        	    	        	    	        	    	
+        	    for(var i=0; i< allEntries.length; i++){
+        	      var entry = allEntries[i];
 
-        	    		var barDate = new Date(_bar.x),
-        	    		    arrayItemDate = new Date(entry.textContent)
+        	      var barDate = new Date(_bar.x),
+        	    	  arrayItemDate = new Date(entry.__data__.x)
+        	      ;
         	    		
-        	    		if( +barDate === +arrayItemDate){
-
-        	    			if(allEntries[i-1] !== undefined){
-        	    			  var date = new Date(allEntries[i-1].textContent);
-        	    				
-        		  			  $scope.startDate = date;
-        		  			  console.log("start: i - 1 " + date);
-        	  				}
-        	    			else{
-        	    			  var date = new Date(allEntries[i].textContent);
-        	    				
-          		  			  $scope.startDate = date;
-          		  			  console.log("start: i " + date);
-        	    			}
+        	      if( +barDate === +arrayItemDate){
+        	      if(allEntries[i-1] !== undefined){
+        	   		var date = new Date(allEntries[i-1].textContent);
+        	  		$scope.startDate = date;
+          		  }
+            	  else{
+       	    		var date = new Date(allEntries[i].textContent);
+       		  		$scope.startDate = date;
+       	    	  }
         	    			
-        	    			if(allEntries[i+1] !== undefined){
-        	    			  var date = new Date(allEntries[i+1].textContent);
-        	    				
-          		  			  $scope.endDate = date;
-          		  			  console.log("start: i + 1 " + date);
-        	    			}
-        	    			else{
-        	    			  var date = new Date(allEntries[i].textContent);
-        	    				
-          		  			  $scope.endDate = date;
-          		  			  console.log("end: i " + date);
-        	    			}
-        	    			
-        	    			$scope.redraw();
-        	    		}
-        	    		else{
-        	    			console.log((+barDate) + " ("+barDate.toDateString() + ") " + " === "+ (+arrayItemDate) + " ("+arrayItemDate.toDateString()+")");
-        	    		}
-        	    	}
-        	    })
+       	    	  if(allEntries[i+1] !== undefined){
+       	    		var date = new Date(allEntries[i+1].textContent);
+       		  		$scope.endDate = date;
+       	    	  }
+       	          else{
+       	    		var date = new Date(allEntries[i].textContent);
+       		  		$scope.endDate = date;
+       	          }
+       	    			
+       	    	  $scope.redraw();
+       	    	}
+       	      }
+       	    })
           });
           
           composite.render();
