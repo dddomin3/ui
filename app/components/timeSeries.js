@@ -124,6 +124,48 @@ angular.module('myApp.timeSeries', ['ngRoute'])
     $scope.setParams();
            
     var compositeChart = function(){
+    	
+      var areaChart = dc.lineChart(composite)
+          .dimension(myDimension) // use the date dimension for the objects
+          .colors('gray')
+          .group(savingsSum, "Total Savings/Waste") // use the savings group for the grouped values
+          .renderArea(true)
+          .interpolate('cardinal')
+          .tension(0.5)
+          .renderDataPoints({radius:2, fillOpacity: 1, strokeOpacity: 1})
+      ;
+      
+      var barChart = dc.barChart(composite) // creates the bar chart
+          .dimension(myDimension) // use the date Dimension for the objects
+          .colors('cyan')
+          .group(savingsGroup, "Savings")// use the savings group for the grouped values
+          .centerBar(true)
+          .barPadding(0.5)
+      ;
+      
+      barChart.renderlet(function(_bar){
+    	  console.log(_bar);
+    	  _bar.selectAll("rect.bar").on("click", console.log("clicked bar"));
+      });
+      
+      var actualChart = dc.lineChart(composite)
+          .dimension(myDimension) // use the date dimension for the objects
+          .colors('blue')
+          .group(actualGroup, "Actual KWH")// use the savings group for the grouped values
+          .interpolate('cardinal')
+          .tension(0.5)
+          .renderDataPoints({radius:2, fillOpacity: 1, strokeOpacity: 1})
+      ;
+      
+      var expectedChart = dc.lineChart(composite)
+          .dimension(myDimension) // use the date dimension for the objects
+          .colors('red')
+          .group(expectedGroup, "Expected KWH")  // use the savings group for the grouped values
+          .interpolate('cardinal')
+          .tension(0.5)
+          .renderDataPoints({radius:2, fillOpacity: 1, strokeOpacity: 1})
+      ;
+    	
       var composite = dc.compositeChart("#test_composed") // creates the graph object
             .width(w) // sets width
             .height(h) // sets height
@@ -136,37 +178,10 @@ angular.module('myApp.timeSeries', ['ngRoute'])
             .renderHorizontalGridLines(true)
             .mouseZoomable(false)
             .compose([
-              dc.lineChart(composite)
-                  .dimension(myDimension) // use the date dimension for the objects
-                  .colors('gray')
-                  .group(savingsSum, "Total Savings/Waste") // use the savings group for the grouped values
-                  .renderArea(true)
-                  .interpolate('cardinal')
-                  .tension(0.5)
-                  .renderDataPoints({radius:2, fillOpacity: 1, strokeOpacity: 1})
-              ,
-              dc.barChart(composite) // creates the bar chart
-                  .dimension(myDimension) // use the date Dimension for the objects
-                  .colors('cyan')
-                  .group(savingsGroup, "Savings")// use the savings group for the grouped values
-                  .centerBar(true)
-                  .barPadding(0.5)
-              ,
-              dc.lineChart(composite)
-                  .dimension(myDimension) // use the date dimension for the objects
-                  .colors('blue')
-                  .group(actualGroup, "Actual KWH")// use the savings group for the grouped values
-                  .interpolate('cardinal')
-                  .tension(0.5)
-                  .renderDataPoints({radius:2, fillOpacity: 1, strokeOpacity: 1})
-               , 
-               dc.lineChart(composite)
-                  .dimension(myDimension) // use the date dimension for the objects
-                  .colors('red')
-                  .group(expectedGroup, "Expected KWH")  // use the savings group for the grouped values
-                  .interpolate('cardinal')
-                  .tension(0.5)
-                  .renderDataPoints({radius:2, fillOpacity: 1, strokeOpacity: 1})
+              areaChart,
+              barChart,
+              actualChart, 
+              expectedChart
               ])
             .brushOn(false) // disables the fiddle/violin selection tool
           ;
@@ -175,13 +190,23 @@ angular.module('myApp.timeSeries', ['ngRoute'])
           composite.margins().right = m[1]; // sets the right margin for the composite chart
           
           composite.xAxis().tickFormat(function(v) {return displayDate(new Date(v));}); // sets the tick format to be the month/year only
+
+          composite.renderlet(function(_chart){ // this provides the functionality for an on click check for the composite chart focusing on the bar graphs (or any drawn rectangles)
+        	  _chart.selectAll("rect.bar")
+        	    .on("click",function(_bar){
+        	    	console.log("click", _bar);
+        	    })
+          });
+          
           composite.render();
+          
+          
           return composite;
       };
 
       compositeChart();
   
-      dc.renderAll();;
+      //dc.renderAll();;
       $scope.$apply() // no idea
     })
 }])
