@@ -41,10 +41,7 @@ angular.module('myApp.timeSeries', ['ngRoute'])
     $scope.window = $window.innerWidth;
     
     $scope.log = function() {
-      console.log($window);
-      console.log($window.innerWidth);
   	  console.log($scope);
-  	  console.log($scope.window);
   	};
   	  		  
   	$scope.redraw = function(){
@@ -105,8 +102,8 @@ angular.module('myApp.timeSeries', ['ngRoute'])
   			
   		savingsSum = myDimension.group().reduce( // groups a value for each entry in the dimension by finding the total aggregated savings
   		  function(p,v) {if(withinDate(v)){totalSum = (+v.savings) + totalSum;return totalSum;}}, // sets the method for adding an entry into the total
-           function(p,v) {if(withinDate(v)){totalSum = totalSum-(+v.savings);return totalSum;}}, // sets the method for removing an entry from the total
-           function() {totalSum = 0; return totalSum;}	 // sets the method for initializing the total
+          function(p,v) {if(withinDate(v)){totalSum = totalSum-(+v.savings);return totalSum;}}, // sets the method for removing an entry from the total
+          function() {totalSum = 0; return totalSum;}	 // sets the method for initializing the total
   		);
   	    
 	    if(compositeChart !== undefined){
@@ -192,16 +189,42 @@ angular.module('myApp.timeSeries', ['ngRoute'])
           composite.xAxis().tickFormat(function(v) {return displayDate(new Date(v));}); // sets the tick format to be the month/year only
 
           composite.renderlet(function(_chart){ // this provides the functionality for an on click check for the composite chart focusing on the bar graphs (or any drawn rectangles)
-        	  _chart.selectAll("rect.bar")
-        	    .on("click",function(_bar){
-        	    	console.log("click", _bar);
-        	    })
+        	  _chart.selectAll("rect.bar").on("click",function(_bar){
+       	    	var allEntries = _chart.selectAll("rect.bar")[0];
+        	    	        	    	        	    	
+        	    for(var i=0; i< allEntries.length; i++){
+        	      var entry = allEntries[i];
+
+        	      var barDate = new Date(_bar.x),
+        	    	  arrayItemDate = new Date(entry.__data__.x)
+        	      ;
+        	    		
+        	      if( +barDate === +arrayItemDate){
+        	      if(allEntries[i-1] !== undefined){
+        	   		var date = new Date(allEntries[i-1].textContent);
+        	  		$scope.startDate = date;
+          		  }
+            	  else{
+       	    		var date = new Date(allEntries[i].textContent);
+       		  		$scope.startDate = date;
+       	    	  }
+        	    			
+       	    	  if(allEntries[i+1] !== undefined){
+       	    		var date = new Date(allEntries[i+1].textContent);
+       		  		$scope.endDate = date;
+       	    	  }
+       	          else{
+       	    		var date = new Date(allEntries[i].textContent);
+       		  		$scope.endDate = date;
+       	          }
+       	    			
+       	    	  $scope.redraw();
+       	    	}
+       	      }
+       	    })
           });
           
           composite.render();
-          
-          
-          return composite;
       };
 
       compositeChart();
