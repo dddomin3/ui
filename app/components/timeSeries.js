@@ -41,10 +41,7 @@ angular.module('myApp.timeSeries', ['ngRoute'])
     $scope.window = $window.innerWidth;
     
     $scope.log = function() {
-      console.log($window);
-      console.log($window.innerWidth);
   	  console.log($scope);
-  	  console.log($scope.window);
   	};
   	  		  
   	$scope.redraw = function(){
@@ -105,8 +102,8 @@ angular.module('myApp.timeSeries', ['ngRoute'])
   			
   		savingsSum = myDimension.group().reduce( // groups a value for each entry in the dimension by finding the total aggregated savings
   		  function(p,v) {if(withinDate(v)){totalSum = (+v.savings) + totalSum;return totalSum;}}, // sets the method for adding an entry into the total
-           function(p,v) {if(withinDate(v)){totalSum = totalSum-(+v.savings);return totalSum;}}, // sets the method for removing an entry from the total
-           function() {totalSum = 0; return totalSum;}	 // sets the method for initializing the total
+          function(p,v) {if(withinDate(v)){totalSum = totalSum-(+v.savings);return totalSum;}}, // sets the method for removing an entry from the total
+          function() {totalSum = 0; return totalSum;}	 // sets the method for initializing the total
   		);
   	    
 	    if(compositeChart !== undefined){
@@ -195,13 +192,53 @@ angular.module('myApp.timeSeries', ['ngRoute'])
         	  _chart.selectAll("rect.bar")
         	    .on("click",function(_bar){
         	    	console.log("click", _bar);
+        	    	       	    	
+        	    	var allEntries = _chart.selectAll("rect.bar")[0];
+        	    	        	    	
+        	    	for(var i=0; i< allEntries.length; i++){
+        	    		var entry = allEntries[i];
+
+        	    		var barDate = new Date(_bar.x),
+        	    		    arrayItemDate = new Date(entry.textContent)
+        	    		
+        	    		if( +barDate === +arrayItemDate){
+
+        	    			if(allEntries[i-1] !== undefined){
+        	    			  var date = new Date(allEntries[i-1].textContent);
+        	    				
+        		  			  $scope.startDate = date;
+        		  			  console.log("start: i - 1 " + date);
+        	  				}
+        	    			else{
+        	    			  var date = new Date(allEntries[i].textContent);
+        	    				
+          		  			  $scope.startDate = date;
+          		  			  console.log("start: i " + date);
+        	    			}
+        	    			
+        	    			if(allEntries[i+1] !== undefined){
+        	    			  var date = new Date(allEntries[i+1].textContent);
+        	    				
+          		  			  $scope.endDate = date;
+          		  			  console.log("start: i + 1 " + date);
+        	    			}
+        	    			else{
+        	    			  var date = new Date(allEntries[i].textContent);
+        	    				
+          		  			  $scope.endDate = date;
+          		  			  console.log("end: i " + date);
+        	    			}
+        	    			
+        	    			$scope.redraw();
+        	    		}
+        	    		else{
+        	    			console.log((+barDate) + " ("+barDate.toDateString() + ") " + " === "+ (+arrayItemDate) + " ("+arrayItemDate.toDateString()+")");
+        	    		}
+        	    	}
         	    })
           });
           
           composite.render();
-          
-          
-          return composite;
       };
 
       compositeChart();
