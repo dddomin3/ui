@@ -1,26 +1,17 @@
 <div>
-	<select class ="form-control action" ng-model="heat.dataSource" ng-options="obj.source as obj.text for obj in heat.sources"></select><br>
-	
-   <!--
-	  
-	  <div class="panel-heading" ng-show=geofenceEditShow><h3 class="panel-title">Edit Heatmap</h3></div>
-
-   <div class=panel-body>
-   
-       <strong>Geo-Fence Name:</strong> <input ng-model="geofenceName"><br>
-       <strong>Geo-Fence Organization:</strong> <input ng-model="geofenceOrganization"><br>
-       <strong>Geo-Fence Details:</strong> <input ng-model="geofenceDetails"><br>
-       <strong>Geo-Fence Type:</strong> <input ng-model="geofenceType" disabled><br>
-       <strong>Geo-Fence Uuid:</strong> <input ng-model="geofenceUuid" disabled><br>
-       <strong>Geo-Fence Zone:</strong> <input ng-model="geofenceParentZone"><br><br>
-       
-       <button ng-show=geofenceEditShow ng-click="geofenceSaveEdit()" class="btn btn-success">Save Edits</button>
-       
-       <button ng-show=geofenceInitShow ng-click="geofenceSaveInit()" class="btn btn-success">Save Edits</button>
-       <button ng-show=geofenceInitShow ng-click="geofenceDeleteInit()" class="btn btn-danger">Delete</button><br>
-       <strong ng-show=geofenceInitShow>Click Save to push to database!</strong>
-   </div>
-   !-->
-	<select class ="form-control action" ng-model="heat.eventSource" ng-options="obj.source as obj.text for obj in heat.events"></select>
 	<div>Show Schedules on Heatmap: <input type ="checkbox" ng-model="heat.showLines" ng-change="heat.scheduleSelect()"> <br/></div>
+	
+	<br>
+	<div>Select data source:</div>
+	<select class ="form-control action" ng-model="heat.dataSource" ng-options="obj.source as obj.text for obj in heat.sources"></select><br>
+
+	<br>
+	<div>Select event source:</div>
+	<select class ="form-control action" ng-model="heat.eventSource" ng-options="obj.source as obj.text for obj in heat.events"></select>
+
+	
+	<div class="modal-footer">
+		<button class="btn btn-primary" ng-click="ok()">OK</button>
+		<button class="btn btn-warning" ng-click="cancel()">Cancel</button>
+	</div>
 </div>

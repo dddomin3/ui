@@ -10,19 +10,6 @@ angular.module('myApp.heatmap', ['ngRoute'])
 
 .factory('heatmapDataService', ['$http', function($http){
 	var _servObj = {};	
-	var dataDict = {
-		kWh1 : '/app/data2.json',
-		kWh2 : '/app/data3.json',
-		kWh3 : '/app/data4.json',
-		kWh4 : '/app/data5.json'
-	};
-	
-	var schedDict = {
-		kWh1 : '/app/sched2.json',
-		kWh2 : '/app/sched3.json',
-		kWh3 : '/app/sched4.json',
-		kWh4 : '/app/sched5.json'
-	}
 
 	var _setUrl = function(Url){
 		this.url = Url;
@@ -289,8 +276,8 @@ angular.module('myApp.heatmap', ['ngRoute'])
 		domain: 'day',
 		domainMargin : 0,
 		subDomain: 'hour',
-		range: 365,	//number of domains (days in current implementation)
-		//range: 20
+		//range: 365,	//number of domains (days in current implementation)
+		range: 20,
 		cellSize: 20, //px size of cells
 		cellPadding: 0,	//px between cells
 		cellRadius: 2,	//px of cell radius
@@ -313,8 +300,8 @@ angular.module('myApp.heatmap', ['ngRoute'])
 			else */
 			return '';
 		},
-		start : new Date(new Date(1388675960000-6*24*3600*1000).setHours(0)),
-		//start : new Date(1412136000000-12*24*60*60*1000),
+		//start : new Date(new Date(1388675960000-6*24*3600*1000).setHours(0)),
+		start : new Date(1412136000000-12*24*60*60*1000),
 		domainLabelFormat: function(date) {//format of each domain label. "x axis" labels
 			var month = 
 				["Jan", "Feb", "Mar", "Apr",
