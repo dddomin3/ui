@@ -3,15 +3,28 @@
 	
 	<br>
 	<div>Select data source:</div>
-	<select class ="form-control action" ng-model="heat.dataSource" ng-options="obj.source as obj.text for obj in heat.sources"></select><br>
+	<select class ="form-control action" ng-model="heat.dataSource" ng-options="obj.source as obj.text for obj in sources"></select><br>
 
-	<br>
 	<div>Select event source:</div>
-	<select class ="form-control action" ng-model="heat.eventSource" ng-options="obj.source as obj.text for obj in heat.events"></select>
-
+	<select class ="form-control action" ng-model="heat.eventSource" ng-options="obj.source as obj.text for obj in events"></select>
+	<br>
 	
+	<div>Select domain:</div>
+	<select class ="form-control action" ng-model="heat.heatmapConfig.domain" ng-options="obj.domain as obj.domain for obj in domainOpts"></select>
+	<br>
+	
+	<div>Select sub-domain:</div>
+	<select class ="form-control action" ng-model="heat.heatmapConfig.subDomain" ng-options="obj.domain as obj.domain for obj in subDomainOpts"></select>
+	<br>
+	
+	<div>Select Start Date:</div>
+	<my-calendar name="heat.heatmapConfig.start"></my-calendar>
+	<br>
+	<div>Select Start Date:</div>
+	<my-calendar name="heat.endDate"></my-calendar>
+	
+		
 	<div class="modal-footer">
 		<button class="btn btn-primary" ng-click="ok()">OK</button>
-		<button class="btn btn-warning" ng-click="cancel()">Cancel</button>
 	</div>
 </div>

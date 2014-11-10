@@ -271,38 +271,46 @@ angular.module('myApp.heatmap', ['ngRoute'])
 .factory('heatmapConfigService', [ function(){
 	var _servObj = {};
 
-	var _defaultConfig = {
+	var _defaultConfig = function(){
+		var dfault = this;
 		
-		domain: 'day',
-		domainMargin : 0,
-		subDomain: 'hour',
-		//range: 365,	//number of domains (days in current implementation)
-		range: 20,
-		cellSize: 20, //px size of cells
-		cellPadding: 0,	//px between cells
-		cellRadius: 2,	//px of cell radius
-		considerMissingDataAsZero: false,
-		domainGutter: 0, //px padding between dates
-		colLimit: 1, //number of colums per domain
-		legend: [1,2,3,4,5,6,7,8,9,10,11,12,13],	//legend. Remember its like actually the count
+		//calc for day range...
+		dfault.rangeCalc = function(){
+			return Math.ceil((dfault.end.getTime() - dfault.start.getTime()) / 1000 / 60 / 60 / 24);
+		}
+		
+		dfault.domain= 'day';
+		dfault.domainMargin = 0;
+		dfault.subDomain= 'hour';
+		//dfault.range= 365;	//number of domains (days in current implementation)
+		dfault.cellSize= 20; //px size of cells
+		dfault.cellPadding= 0;	//px between cells
+		dfault.cellRadius= 2;	//px of cell radius
+		dfault.considerMissingDataAsZero= false;
+		dfault.domainGutter= 0; //px padding between dates
+		dfault.colLimit= 1; //number of colums per domain
+		dfault.legend= [1,2,3,4,5,6,7,8,9,10,11,12,13];	//legend. Remember its like actually the count
 												//TODO: make vm change dependant on dataset
-		legendVerticalPosition: "center",
-		legendHorizontalPosition: "right",
-		legendOrientation: "vertical",
-		legendMargin: [10, 10, 10, 10],
-		legendColors: {min:'#33CC33', max:'#FF0000', empty:'#ADADAD'},	//colors of legend gradient
-		itemName: ["kWh", "kWh"],
-		subDomainDateFormat: '%c',
-		subDomainTextFormat: function(date, value) {
+		dfault.legendVerticalPosition= "center";
+		dfault.legendHorizontalPosition= "right";
+		dfault.legendOrientation= "vertical";
+		dfault.legendMargin= [10, 10, 10, 10];
+		dfault.legendColors= {min:'#33CC33', max:'#FF0000', empty:'#ADADAD'};	//colors of legend gradient
+		dfault.itemName= ["kWh", "kWh"];
+		dfault.subDomainDateFormat= '%c';
+		dfault.subDomainTextFormat= function(date, value) {
 			/*if (date.getHours() == 8) {
 				return 'X';
 			}
 			else */
 			return '';
-		},
-		//start : new Date(new Date(1388675960000-6*24*3600*1000).setHours(0)),
-		start : new Date(1412136000000-12*24*60*60*1000),
-		domainLabelFormat: function(date) {//format of each domain label. "x axis" labels
+		};
+		//start = new Date(new Date(1388675960000-6*24*3600*1000).setHours(0));
+		dfault.start = new Date(new Date(new Date().setHours(0,0,0,0)).getTime()-31*24*60*60*1000);
+		dfault.end = new Date();
+		dfault.range= dfault.rangeCalc();
+
+		dfault.domainLabelFormat= function(date) {//format of each domain label. "x axis" labels
 			var month = 
 				["Jan", "Feb", "Mar", "Apr",
 				 "May", "Jun", "Jul", "Aug",
@@ -313,18 +321,19 @@ angular.module('myApp.heatmap', ['ngRoute'])
 			else {
 				return month[date.getMonth()];
 			}
-		},	
-		label: {
+		};	
+		dfault.label= {
 			width: 30,
 			position: 'bottom'
 			//rotate: 'left' doesn't work if position is bottom!
-		}
+		};
+	
 	};
 
 	
 	var _getDefaultConfig = function(){
 		
-		return _defaultConfig;
+		return new _defaultConfig();
 	}
 	
 	/*  Not necessary - gets data on page load regardless? Because of our $watch on data source?
@@ -938,78 +947,13 @@ angular.module('myApp.heatmap', ['ngRoute'])
 			end : new Date(new Date(new Date().setHours(23)).setMinutes(59)) }
 		};
 	
-	vm.sources = [
-		{ 'text':'kWh1', 'source':'/app/data2.json' }
-		,{'text':'kWh2', 'source':'/app/data3.json' }
-		,{'text':'kWh3', 'source':'/app/data4.json' }
-		,{'text':'kWh4', 'source':'/app/data5.json' }
-		,{'text':'all', 'source':[
-			'/app/data2.json',
-			'/app/data3.json',
-			'/app/data4.json',
-			'/app/data5.json']}
-	];
-	
-	//dummy data for events
-	vm.events = [
-		{ 'text':'eventSet1', 'source': 
-			[{'type': 'OutOfOccupancy', 'time': 1401957900000+60*24*60*60*1000, 'description': 'The unit was running out of occupancy at '
-				+new Date(1401957900000+60*24*60*60*1000)+'!'},
-			{'type': 'OutOfOccupancy', 'time': 1404468000000+60*24*60*60*1000, 'description': 'The unit was running out of occupancy at '
-				+new Date(1404468000000+60*24*60*60*1000)+'!'},
-			{'type': 'OutOfOccupancy', 'time': 1407351600000+60*24*60*60*1000, 'description': 'The unit was running out of occupancy at '
-				+new Date(1407351600000+60*24*60*60*1000)+'!'},
-			{'type': 'OutOfOccupancy', 'time': 1407513600000+60*24*60*60*1000, 'description': 'The unit was running out of occupancy at '
-				+new Date(1407513600000+60*24*60*60*1000)+'!'},
-			{'type': 'OutOfOccupancy', 'time': 1407617100000+60*24*60*60*1000, 'description': 'The unit was running out of occupancy at '
-				+new Date(1407617100000+60*24*60*60*1000)+'!'},
-			{'type': 'OutOfOccupancy', 'time': 1407718800000+60*24*60*60*1000, 'description': 'The unit was running out of occupancy at '
-				+new Date(1407718800000+60*24*60*60*1000)+'!'},
-			{'type': 'OutOfOccupancy', 'time': 1407718800000+60*24*60*60*1000, 'description': 'The unit was running out of occupancy at '
-				+new Date(1407718800000+60*24*60*60*1000)+'!'}
-			]
-		},
-		{ 'text':'eventSet2', 'source': 
-			[{'type': 'DatDeviation', 'time': 1401957900000+60*24*60*60*1000, 'description': 'The unit was greater than setpoint at '
-				+new Date(1401957900000+60*24*60*60*1000)+'!'},
-			{'type': 'DatDeviation', 'time': 1404468000000+60*24*60*60*1000, 'description': 'The unit was greater than setpoint at  '
-				+new Date(1404468000000+60*24*60*60*1000)+'!'},
-			{'type': 'DatDeviation', 'time': 1407351600000+60*24*60*60*1000, 'description': 'The unit was greater than setpoint at  '
-				+new Date(1407351600000+60*24*60*60*1000)+'!'},
-			{'type': 'DatDeviation', 'time': 1407513600000+60*24*60*60*1000, 'description': 'The unit was greater than setpoint at  '
-				+new Date(1407513600000+60*24*60*60*1000)+'!'},
-			{'type': 'DatDeviation', 'time': 1407617100000+60*24*60*60*1000, 'description': 'The unit was greater than setpoint at  '
-				+new Date(1407617100000+60*24*60*60*1000)+'!'},
-			{'type': 'DatDeviation', 'time': 1407718800000+60*24*60*60*1000, 'description': 'The unit was greater than setpoint at  '
-				+new Date(1407718800000+60*24*60*60*1000)+'!'},
-			{'type': 'DatDeviation', 'time': 1407718800000+60*24*60*60*1000, 'description': 'The unit was greater than setpoint at  '
-				+new Date(1407718800000+60*24*60*60*1000)+'!'}
-			]
-		},
-		{ 'text':'eventSet3', 'source': 
-			[{'type': 'OutOfOccupancy', 'time': 1402057900000+60*24*60*60*1000, 'description': 'The unit was running out of occupancy at '
-				+new Date(1402057900000+60*24*60*60*1000)+'!'},
-			{'type': 'DatDeviation', 'time': 1404568000000+60*24*60*60*1000, 'description': 'The unit was greater than setpoint at '
-				+new Date(1404568000000+60*24*60*60*1000)+'!'},
-			{'type': 'DatDeviation', 'time': 1407351600000+60*24*60*60*1000, 'description': 'The unit was greater than setpoint at '
-				+new Date(1480351600000)+'!'},
-			{'type': 'OutOfOccupancy', 'time': 1408013600000+60*24*60*60*1000, 'description': 'The unit was running out of occupancy at '
-				+new Date(1407513600000+60*24*60*60*1000)+'!'},
-			{'type': 'OutOfOccupancy', 'time': 1407617100000+60*24*60*60*1000, 'description': 'The unit was running out of occupancy at '
-				+new Date(1407617100000)+'!'},
-			{'type': 'DatDeviation', 'time': 1407617100000+60*24*60*60*1000, 'description': 'The unit was greater than setpoint at '
-				+new Date(1407718800+60*24*60*60*1000)+'!'},
-			{'type': 'DatDeviation', 'time': 1407718800000+60*24*60*60*1000, 'description': 'The unit was running out of occupancy at '
-				+new Date(1407718800000+60*24*60*60*1000)+'!'}
-			]
-		}
-	
-	];
-	
 	vm.dataObj = {};
 	vm.assets = "";
 	
+	vm.endDate = new Date();
+	
 	vm.heatmapConfig = vm.getDefaultConfig();
+	
 	vm.heatmapConfig.onClick =  function(date, value){	
 		vm.setTimestamp(date);
 		
@@ -1084,7 +1028,8 @@ angular.module('myApp.heatmap', ['ngRoute'])
 	//this happens when the heatmaps load... not only when the select is chosen.
 	$scope.$watch('heat.dataSource', function(){
 		vm.getData().then(function (dataddd){
-			vm.heatmapConfig.data = vm.dataObj;
+			vm.heatmapConfig.data = vm.dataObj;	
+			
 			vm.change();
 				
 				/* HOW TO access .css style sheets, and use d3 interpolation functions for color interpolation
@@ -1137,8 +1082,18 @@ angular.module('myApp.heatmap', ['ngRoute'])
 		vm.addEvents();
 	}, true);
 	
-	//vm.init();
-
+	$scope.$watch('heat.heatmapConfig', function(){
+		/*
+		var delta = vm.endDate.getTime() - vm.heatmapConfig.start.getTime() / 1000 / 60 / 60 / 24;
+		var days = Math.ceil(delta);
+		
+		vm.heatmapConfig.range = days;
+		*/
+		vm.heatmapConfig.range = vm.heatmapConfig.rangeCalc();
+		
+		vm.change();		
+	}, true);
+	
 }])
 
 //.directive('galHeatmap', [ function() {
