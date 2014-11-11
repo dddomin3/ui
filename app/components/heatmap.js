@@ -950,8 +950,6 @@ angular.module('myApp.heatmap', ['ngRoute'])
 	vm.dataObj = {};
 	vm.assets = "";
 	
-	vm.endDate = new Date();
-	
 	vm.heatmapConfig = vm.getDefaultConfig();
 	
 	vm.heatmapConfig.onClick =  function(date, value){	
@@ -1083,12 +1081,6 @@ angular.module('myApp.heatmap', ['ngRoute'])
 	}, true);
 	
 	$scope.$watch('heat.heatmapConfig', function(){
-		/*
-		var delta = vm.endDate.getTime() - vm.heatmapConfig.start.getTime() / 1000 / 60 / 60 / 24;
-		var days = Math.ceil(delta);
-		
-		vm.heatmapConfig.range = days;
-		*/
 		vm.heatmapConfig.range = vm.heatmapConfig.rangeCalc();
 		
 		vm.change();		
