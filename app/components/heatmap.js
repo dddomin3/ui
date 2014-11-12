@@ -1001,6 +1001,8 @@ angular.module('myApp.heatmap', ['ngRoute'])
 		//In one second, reload the heatmap component with the changed configuration.
 		window.setTimeout(function(){
 			vm.rendered = true;
+			//redraw schedules if necessary.
+			vm.scheduleSelect();
 			$scope.$apply();
 		}, 1000);
 	}
