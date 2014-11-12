@@ -1,7 +1,12 @@
 <div class="row">
   <div class = "col-md-6 col-sm-8 col-xs-12 col-lg-4" id="test_composed" resize></div>
 </div>
-
+<div class="row input-group-btn">
+  <h4>Render: </h4>
+  <button type="button" class="btn btn-default" ng-click="renderDaily(); redraw()">Daily</button>
+  <button type="button" class="btn btn-default" ng-click="renderWeekly(); redraw()">Weekly</button>
+  <button type="button" class="btn btn-default" ng-click="renderMonthly(); redraw()">Monthly</button>
+</div>
 <br>
 
 <div class="row">
@@ -13,6 +18,8 @@
 <div class="row">
   <div class = "col-md-3 col-sm-4 col-xs-6 col-lg-2">To: <my-calendar name="endDate"></my-calendar></div>
 </div>
+
+
 
 <br>
 

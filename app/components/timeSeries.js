@@ -10,11 +10,17 @@ angular.module('myApp.timeSeries', ['ngRoute'])
     	
     var daysBetween;  // stores the number of days between the min time and max time to determine the new scaling
     
+    var getDaysBetween = function(){
+    	var _daysBetween = ($scope.endDate - $scope.startDate)/(1000*60*60*24)
+    	
+    	return _daysBetween;
+    }
+    
     var getDomain = function(){
       $scope.startDate = $scope.startDate ? $scope.startDate : new Date(myDimension.bottom(1)[0].date);
   	  $scope.endDate = $scope.endDate ? $scope.endDate : new Date(myDimension.top(1)[0].date);
   	  		 
-  	  daysBetween = ($scope.endDate - $scope.startDate)/(1000*60*60*24) 
+  	  daysBetween = getDaysBetween();
   	  
   	  var tempDomain = d3.scale.linear().domain([$scope.startDate,$scope.endDate]);
   	  
@@ -59,6 +65,24 @@ angular.module('myApp.timeSeries', ['ngRoute'])
       }
   	);
   	
+  	$scope.renderDaily = function(){
+  		myDimension = ndx.dimension(function(d) { return d3.time.day(parse(d.date));})
+		myXUnits = d3.time.days;
+		displayDate= d3.time.format("%m-%d-%y"); // function to change the format of a date object to mm-yyyy
+  	};
+  	
+  	$scope.renderWeekly = function(){
+  		myDimension = ndx.dimension(function(d) { return d3.time.week(parse(d.date));})
+		myXUnits = d3.time.weeks;
+		displayDate= d3.time.format("%m-%d-%y"); // function to change the format of a date object to mm-yyyy
+  	};
+  	
+  	$scope.renderMonthly = function(){
+  		myDimension = ndx.dimension(function(d) { return d3.time.month(parse(d.date));})
+		myXUnits = d3.time.months;
+		displayDate = d3.time.format("%m-%y"); // function to change the format of a date object to mm-yyyy
+  	}
+  	
   	var withinDate = function(d){
   		if(new Date(parse(d.date)) >= $scope.startDate && new Date(parse(d.date)) <= $scope.endDate){
   			return true;
@@ -80,22 +104,19 @@ angular.module('myApp.timeSeries', ['ngRoute'])
   			
   		myDomain = getDomain();
 
-  		if(daysBetween <= 30){
-  			myDimension = ndx.dimension(function(d) { return d3.time.day(parse(d.date));})
-  			myXUnits = d3.time.days;
-  		    displayDate= d3.time.format("%m-%d-%y"); // function to change the format of a date object to mm-yyyy
-  		}
-  		else if(daysBetween <= (180)){
-  			myDimension = ndx.dimension(function(d) { return d3.time.week(parse(d.date));})
-  			myXUnits = d3.time.weeks;
-  			displayDate= d3.time.format("%m-%d-%y"); // function to change the format of a date object to mm-yyyy
-  		}
-  		else{
-  			myDimension = ndx.dimension(function(d) { return d3.time.month(parse(d.date));})
-  			myXUnits = d3.time.months;
-  			displayDate = d3.time.format("%m-%y"); // function to change the format of a date object to mm-yyyy
-  		}
   		
+  		if(myXUnits === undefined){
+  			if(daysBetween <= 30){
+  	  			$scope.renderDaily();
+  	  		}
+  	  		else if(daysBetween <= (180)){
+  	  			$scope.renderWeekly();
+  	  		}
+  	  		else{
+  	  			$scope.renderMonthly();
+  	  		}
+  		}
+  			
   		actualGroup = myDimension.group().reduceSum(function(d) { if(withinDate(d)){return d.actualKWH;}})
   	    expectedGroup = myDimension.group().reduceSum(function(e) { if(withinDate(e)){return +e.expectedKWH;}}) // same as above with expectedKWH
   	    savingsGroup = myDimension.group().reduceSum(function(e) { if(withinDate(e)){return +e.savings;}}) // same as above with savings
@@ -130,6 +151,7 @@ angular.module('myApp.timeSeries', ['ngRoute'])
           .interpolate('cardinal')
           .tension(0.5)
           .renderDataPoints({radius:2, fillOpacity: 1, strokeOpacity: 1})
+          .hidableStacks(true)
       ;
       
       var barChart = dc.barChart(composite) // creates the bar chart
@@ -138,10 +160,10 @@ angular.module('myApp.timeSeries', ['ngRoute'])
           .group(savingsGroup, "Savings")// use the savings group for the grouped values
           .centerBar(true)
           .barPadding(0.5)
+          .hidableStacks(true)
       ;
       
       barChart.renderlet(function(_bar){
-    	  console.log(_bar);
     	  _bar.selectAll("rect.bar").on("click", console.log("clicked bar"));
       });
       
@@ -152,6 +174,7 @@ angular.module('myApp.timeSeries', ['ngRoute'])
           .interpolate('cardinal')
           .tension(0.5)
           .renderDataPoints({radius:2, fillOpacity: 1, strokeOpacity: 1})
+          .hidableStacks(true)
       ;
       
       var expectedChart = dc.lineChart(composite)
@@ -161,6 +184,7 @@ angular.module('myApp.timeSeries', ['ngRoute'])
           .interpolate('cardinal')
           .tension(0.5)
           .renderDataPoints({radius:2, fillOpacity: 1, strokeOpacity: 1})
+          .hidableStacks(true)
       ;
     	
       var composite = dc.compositeChart("#test_composed") // creates the graph object
@@ -187,41 +211,74 @@ angular.module('myApp.timeSeries', ['ngRoute'])
           composite.margins().right = m[1]; // sets the right margin for the composite chart
           
           composite.xAxis().tickFormat(function(v) {return displayDate(new Date(v));}); // sets the tick format to be the month/year only
+          
+          /*composite.legend
+        	  .renderlet(function(_legend){
+            	  console.log(_legend.selectAll());
+            	  
+            	 _legend.selectAll("rect").on("click", function(_item){
+            		 
+            		 
+            		 
+            	 }) 
+              });*/
+          
+          composite
+            .renderlet(function(_chart){ // this provides the functionality for an on click check for the composite chart focusing on the bar graphs (or any drawn rectangles)      	  
+        	  _chart.selectAll("rect").on("click", function(_item){
+        		  console.log(_item);
+        		  console.log(composite);
+        		  if(_item.x !== undefined){ // if the x property appears, its a graphical 'rect', otherwise it's legend
+        			  var allEntries = _chart.selectAll("rect.bar")[0];
+	        	    	
+              	    for(var i=0; i< allEntries.length; i++){
+              	      var entry = allEntries[i];
 
-          composite.renderlet(function(_chart){ // this provides the functionality for an on click check for the composite chart focusing on the bar graphs (or any drawn rectangles)
-        	  _chart.selectAll("rect.bar").on("click",function(_bar){
-       	    	var allEntries = _chart.selectAll("rect.bar")[0];
-        	    	        	    	        	    	
-        	    for(var i=0; i< allEntries.length; i++){
-        	      var entry = allEntries[i];
+              	      var barDate = new Date(_item.x),
+              	    	  arrayItemDate = new Date(entry.__data__.x)
+              	      ;
+              	    		
+              	      if( +barDate === +arrayItemDate){
+              	      if(allEntries[i-1] !== undefined){
+              	   		var date = new Date(allEntries[i-1].textContent);
+              	  		$scope.startDate = date;        	  			
+                		  }
+                  	  else{
+             	    		var date = new Date(allEntries[i].textContent);
+             		  		$scope.startDate = date;
+             	    	  }
+              	    			
+             	    	  if(allEntries[i+1] !== undefined){
+             	    		var date = new Date(allEntries[i+1].textContent);
+             		  		$scope.endDate = date;
+             	    	  }
+             	          else{
+             	    		var date = new Date(allEntries[i].textContent);
+             		  		$scope.endDate = date;
+             	          }
+             	    			
+             	    	  var totalDays = getDaysBetween();
+             	    	  
+             	    	  if(totalDays > 180){
+             	    		//TODO add some math to make months work...  
+             	    	  }
+             	    	  else if(totalDays > 30){
+             	    		  if(totalDays % 7 !== 0){       	    			  
+             	    			  var minusMod = 7-(totalDays%7);
+             	    			  var date = $scope.endDate;
+             	    			  
+             	    			  $scope.endDate = new Date(+date + (minusMod*1000*60*60*24));
+             	    		  }
+             	    	  }
 
-        	      var barDate = new Date(_bar.x),
-        	    	  arrayItemDate = new Date(entry.__data__.x)
-        	      ;
-        	    		
-        	      if( +barDate === +arrayItemDate){
-        	      if(allEntries[i-1] !== undefined){
-        	   		var date = new Date(allEntries[i-1].textContent);
-        	  		$scope.startDate = date;
-          		  }
-            	  else{
-       	    		var date = new Date(allEntries[i].textContent);
-       		  		$scope.startDate = date;
-       	    	  }
-        	    			
-       	    	  if(allEntries[i+1] !== undefined){
-       	    		var date = new Date(allEntries[i+1].textContent);
-       		  		$scope.endDate = date;
-       	    	  }
-       	          else{
-       	    		var date = new Date(allEntries[i].textContent);
-       		  		$scope.endDate = date;
-       	          }
-       	    			
-       	    	  $scope.redraw();
-       	    	}
-       	      }
-       	    })
+             	    	  $scope.redraw();
+             	    	}
+             	      } 
+        		  }
+        		  else{ // it's a legend item
+        			  console.log("legend: " + _item.name);
+        		  }
+        	  })
           });
           
           composite.render();
