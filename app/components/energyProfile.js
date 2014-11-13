@@ -168,18 +168,19 @@ angular.module('myApp.energyProfile', ['ngRoute'])
 					"meterQuery" : {}
 				},
 			};
-			
-			for(var organization in organizations) {
-				var poo = organization.slice(0); 
-				var reduceSum = function(d) {
-					if(poo === "ANDO") {
+			var reduceSumGenerator = function (organization) {
+				return function(d) {
+					if(organization === "ANDO") {
 						return 2*d.savings;
 					}
 					else {
 						return 1.5*d.savings;
 					}
-				};
-				var group = _dimensions.masterDimension.group().reduceSum(reduceSum);
+				}
+			}
+			for(var organization in organizations) {
+				var group = _dimensions.masterDimension.group().reduceSum(reduceSumGenerator(organization));
+				
 				group.meterName = organization;
 				_groups.savingsGroups.push(group);
 			}
@@ -294,47 +295,68 @@ angular.module('myApp.energyProfile', ['ngRoute'])
         _groups.expectedGroups = [];
         _groups.actualGroups = [];
         _groups.cumulativeSavingsGroups = [];
-        
-        for (var organization in _activeOrganizations) {	//separates each organization into its own group
-        	//if (_meterIsntConsumption(meterName)) { continue; }//if the dataset doesn't represent kWh data, do not make a group
-        	console.log(["start", organization]);
-			var actualGroup = _dimensions.masterDimension.group().reduceSum(function(d) {
-				if(organization !== d.organization) {return 0;}
-				return (d.meterName === _activeOrganizations[organization].actual ? +d.value : 0);
-				
-			});
-			actualGroup.meterName = organization;	//saving metername on group
-        	_groups.actualGroups.push(actualGroup);
-        	
-        	var expectedGroup = _dimensions.masterDimension.group().reduceSum(function(d) {
-        		if(organization !== d.organization) {return 0;}
-        		return (d.meterName === _activeOrganizations[organization].expected ? +d.value : 0);
-			});
-			expectedGroup.meterName = organization;
-        	_groups.expectedGroups.push(expectedGroup);
-        	var poo = organization.slice(0);
-        	var add = function (p,v) {
-    			if (v.organization === poo) {
-    				console.log(poo);
+			var reduceSumGenerator = function (organization) {
+				return function(d) {
+					if(organization === "ANDO") {
+						return 2*d.savings;
+					}
+					else {
+						return 1.5*d.savings;
+					}
+				}
+			}
+		var savingsReduceAddGenerator = function (organization) {
+			return function (p,v) {
+    			if (v.organization === organization) {
     				return p + (v.type === 'expected' ? +v.value : -v.value);
     			}
     			else { return p; }
     		};
-    		var remove = function (p,v) {
-    			if (v.organization === poo) {
-    				return p - (v.type === 'expected' ? +v.value : -v.value);
-    			}
-    			else { return p; }
-    		};
-    		var initial = function () {
-    			return 0;
-    		};
+		};
+		var savingsReduceRemoveGenerator = function (organization) {
+			return function (p,v) {
+				if (v.organization === organization) {
+					return p - (v.type === 'expected' ? +v.value : -v.value);
+				}
+				else { return p; }
+			};
+		};
+		var savingsReduceInitialGenerator = function (organization) {
+			return function () {
+				return 0;
+			};
+		};
+		var expectedReduceSumGenerator = function (organization) {
+			return function(d) {
+        		if(organization !== d.organization) {return 0;}
+        		return (d.meterName === _activeOrganizations[organization].expected ? +d.value : 0);
+			};
+		};
+		var actualReduceSumGenerator = function (organization) {
+			return function(d) {
+				if(organization !== d.organization) {return 0;}
+				return (d.meterName === _activeOrganizations[organization].actual ? +d.value : 0);
+				
+			};
+		};
+		
+        for (var organization in _activeOrganizations) {	//separates each organization into its own group
+        	//if (_meterIsntConsumption(meterName)) { continue; }//if the dataset doesn't represent kWh data, do not make a group
+        	console.log(["start", organization]);
+			var actualGroup = _dimensions.masterDimension.group().reduceSum(actualReduceSumGenerator(organization));
+			actualGroup.meterName = organization;	//saving metername on group
+        	_groups.actualGroups.push(actualGroup);
+        	
+        	var expectedGroup = _dimensions.masterDimension.group().reduceSum(expectedReduceSumGenerator(organization));
+			expectedGroup.meterName = organization;
+        	_groups.expectedGroups.push(expectedGroup);
+        	
         	var savingsGroup =_dimensions.masterDimension.group().reduce(
-        			//groups a value for each entry in the dimension by finding the total aggregated savings
-            		add,	// sets the method for adding an entry into the total
-            		remove,	// sets the method for removing an entry from the total
-            		initial	// sets the method for initializing the total
-        		);
+				//groups a value for each entry in the dimension by finding the total aggregated savings
+				savingsReduceAddGenerator(organization),	// sets the method for adding an entry into the total
+				savingsReduceRemoveGenerator(organization),	// sets the method for removing an entry from the total
+				savingsReduceInitialGenerator(organization)	// sets the method for initializing the total
+			);
         	
         	savingsGroup.meterName = organization;
 			_groups.savingsGroups.push(savingsGroup);
@@ -723,4 +745,6 @@ angular.module('myApp.energyProfile', ['ngRoute'])
 	$scope.debug = function () {
 		console.log($scope.activeOrganizations);
 	};
+
+	$scope.queryOrganizations();
 }]);
