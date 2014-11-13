@@ -485,7 +485,6 @@ angular.module('myApp.energyProfile', ['ngRoute'])
 		
 		csvInit : _csvInit,
 		initCompositeChart : _initCompositeChart,
-		generateCharts : _generateCharts,
 		getCharts : _getCharts,
 		
 		getRawData : _getRawData,
