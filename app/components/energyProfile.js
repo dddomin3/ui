@@ -27,9 +27,7 @@ angular.module('myApp.energyProfile', ['ngRoute'])
 			marginTop: 25,
 			marginBottom: 25,
 			lowDate: new Date((new Date()) - (28*24*60*60*1000)),
-			highDate: new Date(),
-			organization: 'ANDO',
-			meterName: "Site_kWh1"
+			highDate: new Date()
 	};
 	var _chartParameters = {};
 	var _tfMonthYear = d3.time.format("%m-%Y"); //format for x-axis labels USED BY CSV INIT
@@ -295,16 +293,6 @@ angular.module('myApp.energyProfile', ['ngRoute'])
         _groups.expectedGroups = [];
         _groups.actualGroups = [];
         _groups.cumulativeSavingsGroups = [];
-			var reduceSumGenerator = function (organization) {
-				return function(d) {
-					if(organization === "ANDO") {
-						return 2*d.savings;
-					}
-					else {
-						return 1.5*d.savings;
-					}
-				}
-			}
 		var savingsReduceAddGenerator = function (organization) {
 			return function (p,v) {
     			if (v.organization === organization) {
@@ -342,7 +330,6 @@ angular.module('myApp.energyProfile', ['ngRoute'])
 		
         for (var organization in _activeOrganizations) {	//separates each organization into its own group
         	//if (_meterIsntConsumption(meterName)) { continue; }//if the dataset doesn't represent kWh data, do not make a group
-        	console.log(["start", organization]);
 			var actualGroup = _dimensions.masterDimension.group().reduceSum(actualReduceSumGenerator(organization));
 			actualGroup.meterName = organization;	//saving metername on group
         	_groups.actualGroups.push(actualGroup);
@@ -389,49 +376,11 @@ angular.module('myApp.energyProfile', ['ngRoute'])
 		_chartParameters.minDate = lowest; // sets the lowest date value from the available data
         _chartParameters.maxDate = highest;// sets the highest date value from the available data
         
-        console.log([_chartParameters.minDate, _chartParameters.maxDate]);
-        
         _chartParameters.domainX = d3.scale.linear().domain([_chartParameters.minDate, _chartParameters.maxDate]);
 	};
 	var _initCompositeChart = function (domString) {
 		_composite = dc.compositeChart("#"+domString);
 		return _composite;
-	};
-	//TODO: make this work
-	var _generateCharts = function () {
-		_charts.cumulativeArea = dc.lineChart(_composite)
-		    .dimension(_dimensions.masterDimension)
-		    .interpolate("cardinal")
-		    .colors(_userParameters.cumulativeColor)
-		    .group(_groups.savingsSum, "Total Savings/Waste")
-		    .renderArea(true);
-		_charts.actualLine = dc.lineChart(_composite)
-	        .dimension(_dimensions.masterDimension)
-	        .interpolate("cardinal")
-	        .colors(_userParameters.actualColor)
-	        .group(_groups.actualGroups[0], "Actual KWH");
-		_charts.expectedLine = dc.lineChart(_composite)
-	        .dimension(_dimensions.masterDimension)
-	        .interpolate("cardinal")
-	        .colors(_userParameters.expectedColor)
-	        .group(_groups.expectedGroups[0], "Expected KWH");
-		_charts.savingsBar = dc.barChart(_composite)
-	        .dimension(_dimensions.masterDimension)
-	        .group(_groups.savingsGroups[0], "Savings")
-	        .ordinalColors(_userParameters.savingsColor)
-	        .centerBar(true);
-		
-		//TODO: take care, since this defaults and writes the ranger to the ranger DOM id
-		_charts.ranger = dc.barChart("#ranger")
-	        .dimension(_dimensions.masterDimension)
-	        .group(_groups.savingsGroups[0], "Savings")
-	        .ordinalColors(_userParameters.savingsColor)
-	        .x(_chartParameters.domainX);
-		
-		for (var i = 1, len = _groups.savingsGroups.length; i < len; i++) {
-			_charts.savingsBar = _charts.savingsBar.stack(_groups.savingsGroups[i], "Savings"+i); //TODO:these should hav emore meaningful names
-		}
-		return _charts;
 	};
 	
 	var _meterIsntConsumption = function (meterName) {
@@ -451,13 +400,13 @@ angular.module('myApp.energyProfile', ['ngRoute'])
 		return _dimensions.masterDimension;
 	};
 	
-	var _getTotalActualGroup = function () { //TODO: dafuq is this supposed to be
+	var _getTotalActualGroup = function () {
 		return _groups.totalActualGroup;
 	};
-	var _getTotalExpectedGroup = function () { //TODO: dafuq is this supposed to be
+	var _getTotalExpectedGroup = function () {
 		return _groups.totalExpectedGroup;
 	};
-	var _getTotalCumulativeSavingsGroup = function() { //TODO: dafuq is this supposed to be
+	var _getTotalCumulativeSavingsGroup = function() {
 		return _groups.totalCumulativeSavingsGroup;
 	};
 	
@@ -547,8 +496,7 @@ angular.module('myApp.energyProfile', ['ngRoute'])
 	};
 	
 	return _servObj;
-	
-}])	//TODO:controller shouldn't have http...
+}])
 .controller('energyProfileCtrl', ['$scope', '$location', '$route', 'energyProfileDataService', 
                     function($scope, $location, $route, dataService) {
 	$scope.timeSeries = 'energyProfile';
@@ -701,7 +649,6 @@ angular.module('myApp.energyProfile', ['ngRoute'])
 		csv();
 	};
 	$scope.redrawChart = function () {
-		console.log(dataService.getUserParameters());
 		composite = drawChart();
 	};
 	$scope.queryOrganizations = function () {
@@ -731,11 +678,9 @@ angular.module('myApp.energyProfile', ['ngRoute'])
 		return !$scope.isColor(paramName)&&!$scope.isDate(paramName)&&!$scope.isArray(param);
 	};
 	$scope.addColor = function (param) {
-		console.log($scope);
 		param.push('cyan');
 	};
 	$scope.removeColor = function (param) {
-		console.log($scope);
 		param.pop();
 	};
 	
