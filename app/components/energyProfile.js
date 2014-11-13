@@ -140,7 +140,7 @@ angular.module('myApp.energyProfile', ['ngRoute'])
 		//TODO: this is the extent of below, lol.
 	};
 	
-	var _csvInit = function (energyData, doubleize) {
+	var _csvInit = function (energyData) {
 	        var totalSum = 0;
 	        _groups.savingsGroups = [];
 	        _groups.expectedGroups = [];
@@ -151,10 +151,10 @@ angular.module('myApp.energyProfile', ['ngRoute'])
 			
 			_dimensions.masterDimension = _ndx.dimension(function(d) { return d3.time.month(_tfIso(d.date)); });
 			
-			_groups.totalActualGroup= _dimensions.masterDimension.group().reduceSum(function(d) { return d.actualKWH; });
+			_groups.totalActualGroup= _dimensions.masterDimension.group().reduceSum(function(d) { return +d.actualKWH; });
 			_groups.totalActualGroup.meterName = "Fake";
 			
-			_groups.totalExpectedGroup = _dimensions.masterDimension.group().reduceSum(function(d) { return d.expectedKWH; });
+			_groups.totalExpectedGroup = _dimensions.masterDimension.group().reduceSum(function(d) { return +d.expectedKWH; });
 			_groups.totalExpectedGroup.meterName = "Fake";
 			var organizations = {
 				"ANDO": {
@@ -176,7 +176,7 @@ angular.module('myApp.energyProfile', ['ngRoute'])
 						return 2*d.savings;
 					}
 					else {
-						return d.savings;
+						return 1.5*d.savings;
 					}
 				};
 				var group = _dimensions.masterDimension.group().reduceSum(reduceSum);
@@ -196,9 +196,9 @@ angular.module('myApp.energyProfile', ['ngRoute'])
 	        console.log([_chartParameters.minDate, _chartParameters.maxDate]);
 	        
 			_groups.totalCumulativeSavingsGroup = _dimensions.masterDimension.group().reduce( // groups a value for each entry in the dimension by finding the total aggregated savings
-	        		function(p,v) {totalSum = (v.savings) + totalSum;  return totalSum;}, // sets the method for adding an entry into the total
-	        		function(p,v) {totalSum = totalSum-(v.savings); return totalSum;}, // sets the method for removing an entry from the total
-	        		function() {totalSum = 0; return totalSum;}	 // sets the method for initializing the total
+	        		function(p,v) {totalSum = (v.savings) + totalSum;  return +totalSum;}, // sets the method for adding an entry into the total
+	        		function(p,v) {totalSum = totalSum-(v.savings); return +totalSum;}, // sets the method for removing an entry from the total
+	        		function() {totalSum = 0; return +totalSum;}	 // sets the method for initializing the total
 	        );
 			_groups.totalCumulativeSavingsGroup.meterName = "Fake";
 			
@@ -654,10 +654,10 @@ angular.module('myApp.energyProfile', ['ngRoute'])
         $scope.showButtons = true;
     };
     
-	var csv = function (doubleize) {	//doubleize is a variable which delivers the view that has multi (2) facilities!
+	var csv = function () {
 		d3.csv("expectedActual.csv", function(error, energyData) {
 			$scope.showButtons = false;
-	    	dataService.csvInit(energyData, doubleize);
+	    	dataService.csvInit(energyData);
 	    	
 	    	populateScope();
 	        
@@ -676,7 +676,7 @@ angular.module('myApp.energyProfile', ['ngRoute'])
 	};
 	$scope.drawMultiChart = function () {
 		$scope.chartInit = true;
-		csv("doubleize");
+		csv();
 	};
 	$scope.redrawChart = function () {
 		console.log(dataService.getUserParameters());
