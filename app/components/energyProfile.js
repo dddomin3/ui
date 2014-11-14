@@ -202,11 +202,21 @@ angular.module('myApp.energyProfile', ['ngRoute'])
 
 	        console.log([_chartParameters.minDate, _chartParameters.maxDate]);
 	        
-			_groups.totalCumulativeSavingsGroup = _dimensions.masterDimension.group().reduce( // groups a value for each entry in the dimension by finding the total aggregated savings
-	        		function(p,v) {totalSum = (v.savings) + totalSum;  return +totalSum;}, // sets the method for adding an entry into the total
-	        		function(p,v) {totalSum = totalSum-(v.savings); return +totalSum;}, // sets the method for removing an entry from the total
-	        		function() {totalSum = 0; return +totalSum;}	 // sets the method for initializing the total
-	        );
+			var totalCumulativeSum = 0;
+			_groups.totalCumulativeSavingsGroup = _dimensions.masterDimension.group().reduce(
+				//groups a value for each entry in the dimension by finding the total aggregated savings
+				function (p,v) {
+					totalCumulativeSum = (+v.savings*3.5) + totalCumulativeSum;	//positive if expected, negative if actual
+					return totalCumulativeSum;
+				},	// sets the method for adding an entry into the total
+				function (p,v) {
+					totalCumulativeSum = totalCumulativeSum-v.savings*3.5;
+					return totalCumulativeSum;
+				},	// sets the method for removing an entry from the total
+				function () {
+					return totalCumulativeSum;
+				}	// sets the method for initializing the total
+			);
 			_groups.totalCumulativeSavingsGroup.organization = "Fake";
 			
 	        _chartParameters.xUnits = d3.time.months;
@@ -370,7 +380,6 @@ angular.module('myApp.energyProfile', ['ngRoute'])
 	        			return totalSum;
 	        		},	// sets the method for removing an entry from the total
 	        		function() {
-	        			totalSum = 0;
 	        			return totalSum;
 	        		}	// sets the method for initializing the total
 				);
@@ -644,12 +653,12 @@ angular.module('myApp.energyProfile', ['ngRoute'])
 		d3.csv("expectedActual.csv", function(error, energyData) {
 			$scope.showButtons = false;
 	    	dataService.csvInit(energyData);
-	    	$scope.$apply();
 	    	
 	    	populateScope();
 	        
 	        composite = drawChart();
 	        $scope.showButtons = true;
+			$scope.$apply();
 	    });
 	};
 	
@@ -658,10 +667,6 @@ angular.module('myApp.energyProfile', ['ngRoute'])
 		dataService.getData().then( http, csv );
 	};
 	$scope.drawCsvChart = function () {
-		$scope.chartInit = true;
-		csv();
-	};
-	$scope.drawMultiChart = function () {
 		$scope.chartInit = true;
 		csv();
 	};

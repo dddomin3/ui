@@ -1,6 +1,6 @@
 <div>Hello, {{timeSeries}}</div>
 
-<div class="panel panel-default col-md-2">
+<div class="panel panel-default col-md-3 col-sm-4 col-xs-6 col-lg-2">
 	<div class="panel-heading">
 		<h3 class="panel-title">User Configuration Zone</h3>
 	</div>
@@ -32,20 +32,19 @@
 	</div>
 
 	<div class="panel-footer">
-		<button class="btn btn-success" ng-if="showButtons" ng-click="drawHttpChart()">HttpDate&Org</button></br>
-		<button class="btn btn-info" ng-if="showButtons" ng-click="drawCsvChart()">Csv</button>
-		<button class="btn btn-info" ng-if="showButtons" ng-click="drawMultiChart()">MultiCsv</button></br>
-		<button class="btn btn-danger" ng-click="logScope()">console.log($scope)</button>
+		<button class="btn btn-success" ng-if="showButtons" ng-click="drawHttpChart()">HttpDate&Org</button>
+		<button class="btn btn-info" ng-if="showButtons" ng-click="drawCsvChart()">Csv</button></br>
 		<button class="btn btn-primary" ng-if="chartInit" ng-click="redrawChart()">Redraw</button>
+		<button class="btn btn-danger" ng-click="logScope()">console.log($scope)</button>
 	</div>
 </div>
 <!-- chart -->
 <div class="col-md-6">
-	<div class="row"><div id="test_composed"></div></div>
+	<div class="row"><div class = "col-md-6 col-sm-8 col-xs-12 col-lg-4" id="test_composed" resize></div></div>
 	<div class="row"><div id="ranger"></div></div>
 </div>
 <!-- dropdowns -->
-<div class="col-md-4">
+<div class="col-md-3">
 	<!-- org -->
 	<div class="btn-group" dropdown>
 		<button type="button" ng-click="queryOrganizations()" class="btn btn-primary dropdown-toggle">
