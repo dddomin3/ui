@@ -16,10 +16,9 @@ angular.module('myApp.energyProfile', ['ngRoute'])
 	var _groups = {};
 	var _charts = {};
 	var _userParameters = {
-			savingsColor : ['cyan', 'orange'],
-			actualColor : 'blue',
-			expectedColor : 'red',
-			cumulativeColor : 'gray',
+			actualColor : 'rgba(0,0,255,0.9)',
+			expectedColor : 'rgba(255,0,0,0.9)',
+			cumulativeColor : 'rgba(0,0,0,0.5)',
 			width: 750,
 			height: 680,
 			marginLeft: 75,
@@ -111,7 +110,8 @@ angular.module('myApp.energyProfile', ['ngRoute'])
 	};
 	var _successData = function (data) {
 		_rawData = data;
-		_ndx = crossfilter();
+		var dataArray = [];
+		//_ndx = crossfilter();
 		console.log(data);
 		for(var i = 0, ilen = data.result.length; i < ilen; i++) {
 			for(var j = 0, jlen = data.result[i].his.length; j < jlen; j++) {
@@ -127,8 +127,15 @@ angular.module('myApp.energyProfile', ['ngRoute'])
 				_activeMeters[data.result[i].name] = '';	//keeps track of all meters that the chart currently has data for
 				//TODO:Remove_activeMeters? 
 			}
-			_ndx.add(data.result[i].his);
+			Array.prototype.push.apply(dataArray, data.result[i].his); //adds an array to an array. like a super push
+			//_ndx.add(data.result[i].his);
 		}
+		var sorter = crossfilter.quicksort.by( function (d) {
+			return new Date(d.timestamp); 
+		});
+		sorter(dataArray, 0, dataArray.length);
+		console.log(dataArray);
+		_ndx = crossfilter(dataArray);
 
 		_chartParameters.daysBetween = (_userParameters.highDate - _userParameters.lowDate)/(1000*60*60*24);
 		
@@ -150,22 +157,23 @@ angular.module('myApp.energyProfile', ['ngRoute'])
 			_dimensions.masterDimension = _ndx.dimension(function(d) { return d3.time.month(_tfIso(d.date)); });
 			
 			_groups.totalActualGroup= _dimensions.masterDimension.group().reduceSum(function(d) { return +d.actualKWH; });
-			_groups.totalActualGroup.meterName = "Fake";
+			_groups.totalActualGroup.organization = "Fake";
 			
 			_groups.totalExpectedGroup = _dimensions.masterDimension.group().reduceSum(function(d) { return +d.expectedKWH; });
-			_groups.totalExpectedGroup.meterName = "Fake";
-			var organizations = {
-				"ANDO": {
-						"actual" : "",
-						"expected" : "",
-						"meterQuery" : {}
-				},
-				"GLOB": {
-					"actual" : "",
-					"expected" : "",
-					"meterQuery" : {}
-				},
+			_groups.totalExpectedGroup.organization = "Fake";
+			_activeOrganizations.ANDO = {
+				'actual' : '',
+				'expected' : '',
+				'meterQuery' : {},
+				'color': 'rgba(64,128,128,0.5)'
 			};
+			_activeOrganizations.GLOB = {
+				'actual' : '',
+				'expected' : '',
+				'meterQuery' : {},
+				'color' : 'rgba(0,255,255,0.5)'
+			};
+			
 			var reduceSumGenerator = function (organization) {
 				return function(d) {
 					if(organization === "ANDO") {
@@ -176,10 +184,10 @@ angular.module('myApp.energyProfile', ['ngRoute'])
 					}
 				}
 			}
-			for(var organization in organizations) {
+			for(var organization in _activeOrganizations) {
 				var group = _dimensions.masterDimension.group().reduceSum(reduceSumGenerator(organization));
 				
-				group.meterName = organization;
+				group.organization = organization;
 				_groups.savingsGroups.push(group);
 			}
 			
@@ -199,7 +207,7 @@ angular.module('myApp.energyProfile', ['ngRoute'])
 	        		function(p,v) {totalSum = totalSum-(v.savings); return +totalSum;}, // sets the method for removing an entry from the total
 	        		function() {totalSum = 0; return +totalSum;}	 // sets the method for initializing the total
 	        );
-			_groups.totalCumulativeSavingsGroup.meterName = "Fake";
+			_groups.totalCumulativeSavingsGroup.organization = "Fake";
 			
 	        _chartParameters.xUnits = d3.time.months;
 	        _chartParameters.tickFormat = function(v) {return _tfMonthYear(new Date(v));};
@@ -258,34 +266,34 @@ angular.module('myApp.energyProfile', ['ngRoute'])
 	    _groups.totalActualGroup = _dimensions.masterDimension.group().reduceSum(function(d) {
 			return (d.type === 'actual' ? +d.value : 0);
 		});
-	    _groups.totalActualGroup.meterName = "Total";
+	    _groups.totalActualGroup.organization = "Total";
 	    
 	    _groups.totalExpectedGroup = _dimensions.masterDimension.group().reduceSum(function(d) {
 	    	return (d.type === 'expected' ? +d.value : 0);
 		});
-	    _groups.totalExpectedGroup.meterName = "Total";
+	    _groups.totalExpectedGroup.organization = "Total";
 	    
 	    var totalCumulativeSum = 0;
 	    _groups.totalCumulativeSavingsGroup = _dimensions.masterDimension.group().reduce(
 			//groups a value for each entry in the dimension by finding the total aggregated savings
     		function (p,v) {
-    			//totalCumulativeSum = (v.type === 'expected' ? +v.value : -v.value) + totalCumulativeSum;	//positive if expected, negative if actual
-    			//return totalCumulativeSum;
+    			totalCumulativeSum = (v.type === 'expected' ? +v.value : -v.value) + totalCumulativeSum;	//positive if expected, negative if actual
+    			return totalCumulativeSum;
     			//console.log([v.timestamp, p, v]);
-    			return p + (v.type === 'expected' ? +v.value : -v.value);
+    			//return p + (v.type === 'expected' ? +v.value : -v.value);
     		},	// sets the method for adding an entry into the total
     		function (p,v) {
-    			//totalCumulativeSum = totalCumulativeSum - (v.type === 'expected' ? +v.value : -v.value);
-    			//return totalCumulativeSum;
+    			totalCumulativeSum = totalCumulativeSum - (v.type === 'expected' ? +v.value : -v.value);
+    			return totalCumulativeSum;
     			//console.log(['rem', v.timestamp, p, v]);
-    			return p - (v.type === 'expected' ? +v.value : -v.value);
+    			//return p - (v.type === 'expected' ? +v.value : -v.value);
     		},	// sets the method for removing an entry from the total
     		function () {
-    			//return totalCumulativeSum;
-    			return 0;
+    			return totalCumulativeSum;
+    			//return 0;
     		}	// sets the method for initializing the total
 		);
-	    _groups.totalCumulativeSavingsGroup.meterName = "Total";
+	    _groups.totalCumulativeSavingsGroup.organization = "Total";
 	    //end: create total groups
 	    
 	    //start: create individual groups
@@ -331,11 +339,11 @@ angular.module('myApp.energyProfile', ['ngRoute'])
         for (var organization in _activeOrganizations) {	//separates each organization into its own group
         	//if (_meterIsntConsumption(meterName)) { continue; }//if the dataset doesn't represent kWh data, do not make a group
 			var actualGroup = _dimensions.masterDimension.group().reduceSum(actualReduceSumGenerator(organization));
-			actualGroup.meterName = organization;	//saving metername on group
+			actualGroup.organization = organization;	//saving metername on group
         	_groups.actualGroups.push(actualGroup);
         	
         	var expectedGroup = _dimensions.masterDimension.group().reduceSum(expectedReduceSumGenerator(organization));
-			expectedGroup.meterName = organization;
+			expectedGroup.organization = organization;
         	_groups.expectedGroups.push(expectedGroup);
         	
         	var savingsGroup =_dimensions.masterDimension.group().reduce(
@@ -345,18 +353,20 @@ angular.module('myApp.energyProfile', ['ngRoute'])
 				savingsReduceInitialGenerator(organization)	// sets the method for initializing the total
 			);
         	
-        	savingsGroup.meterName = organization;
+        	savingsGroup.organization = organization;
 			_groups.savingsGroups.push(savingsGroup);
 			
 			var totalSum = 0;
+			//TODO: Broken. Don't make functions in a loop.
+			//create generator function outside loop, and use that inside the loop
 			var cumulativeSavingsGroup = _dimensions.masterDimension.group().reduce(
 					//groups a value for each entry in the dimension by finding the total aggregated savings
 	        		function(p,v) {
-	        			totalSum = (v.meterName === organization ? v.value*.15 : 0) + totalSum;
+	        			totalSum = (v.organization === organization ? v.value*.15 : 0) + totalSum;
 	        			return totalSum;
 	        		},	// sets the method for adding an entry into the total
 	        		function(p,v) {
-	        			totalSum = totalSum - (v.meterName === organization ? v.value*.15 : 0 );
+	        			totalSum = totalSum - (v.organization === organization ? v.value*.15 : 0 );
 	        			return totalSum;
 	        		},	// sets the method for removing an entry from the total
 	        		function() {
@@ -364,7 +374,7 @@ angular.module('myApp.energyProfile', ['ngRoute'])
 	        			return totalSum;
 	        		}	// sets the method for initializing the total
 				);
-			cumulativeSavingsGroup.meterName = organization;
+			cumulativeSavingsGroup.organization = organization;
 			_groups.cumulativeSavingsGroups.push(cumulativeSavingsGroup);
         }
 	};
@@ -456,7 +466,8 @@ angular.module('myApp.energyProfile', ['ngRoute'])
 		_activeOrganizations[organization] = {
 				"actual" : "",
 				"expected" : "",
-				"meterQuery" : {}
+				"meterQuery" : {},
+				'color' : 'rgba(0,255,255,0.5)'
 		};
 		_getMeters(organization);
 	};
@@ -519,37 +530,43 @@ angular.module('myApp.energyProfile', ['ngRoute'])
 		var expectedLineCharts = [];
 		var savingsBarCharts = []; //needed?
 		var chartArray = [];
-		
+		var barColors = [];
+	
+		for (var i = 0, len = $scope.savingsGroups.length; i < len; i++) {
+			var currOrg = $scope.savingsGroups[i].organization;
+			barColors.push($scope.activeOrganizations[currOrg].color);
+		}
+			
 		var cumulativeArea = dc.lineChart(composite)
 		    .dimension($scope.masterDimension)
 		    .interpolate("cardinal")
 		    .colors($scope.userParameters.cumulativeColor)
-		    .group($scope.totalCumulativeSavingsGroup, $scope.totalCumulativeSavingsGroup.meterName + " Total Savings/Waste")
+		    .group($scope.totalCumulativeSavingsGroup, $scope.totalCumulativeSavingsGroup.organization + " Total Savings/Waste")
 		    .renderArea(true);
 		var actualLine = dc.lineChart(composite)
 	        .dimension($scope.masterDimension)
 	        .interpolate("cardinal")
 	        .colors($scope.userParameters.actualColor)
-	        .group($scope.totalActualGroup, $scope.totalActualGroup.meterName + " Actual KWH");
+	        .group($scope.totalActualGroup, $scope.totalActualGroup.organization + " Actual KWH");
 		var expectedLine = dc.lineChart(composite)
 	        .dimension($scope.masterDimension)
 	        .interpolate("cardinal")
 	        .colors($scope.userParameters.expectedColor)
-	        .group($scope.totalExpectedGroup, $scope.totalExpectedGroup.meterName + " Expected KWH");
+	        .group($scope.totalExpectedGroup, $scope.totalExpectedGroup.organization + " Expected KWH");
 		var savingsBar = dc.barChart(composite)
 	        .dimension($scope.masterDimension)
-	        .group($scope.savingsGroups[0], $scope.savingsGroups[0].meterName + " Savings")
-	        .ordinalColors($scope.userParameters.savingsColor)
+	        .group($scope.savingsGroups[0], $scope.savingsGroups[0].organization + " Savings")
+	        .ordinalColors(barColors)
 	        .centerBar(true);
 		
 		var ranger = dc.barChart("#ranger")
 	        .dimension($scope.masterDimension)
-	        .group($scope.savingsGroups[0], $scope.savingsGroups[0].meterName + " Savings")
-	        .ordinalColors($scope.userParameters.savingsColor)
+	        .group($scope.savingsGroups[0], $scope.savingsGroups[0].organization + " Savings")
+	        .ordinalColors(barColors)
 	        .x($scope.chartParameters.domainX);
 		
 		for (var i = 1, len = $scope.savingsGroups.length; i < len; i++) {
-			savingsBar = savingsBar.stack($scope.savingsGroups[i], $scope.savingsGroups[i].meterName + " Savings");
+			savingsBar = savingsBar.stack($scope.savingsGroups[i], $scope.savingsGroups[i].organization + " Savings");
 		}
 		
 		chartArray.push(cumulativeArea);
@@ -627,6 +644,7 @@ angular.module('myApp.energyProfile', ['ngRoute'])
 		d3.csv("expectedActual.csv", function(error, energyData) {
 			$scope.showButtons = false;
 	    	dataService.csvInit(energyData);
+	    	$scope.$apply();
 	    	
 	    	populateScope();
 	        

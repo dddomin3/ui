@@ -58,6 +58,7 @@
 		</ul>
 	</div>
 	<!-- meters -->
+	<hr>
 	<ul>
 		<li ng-repeat="(organization, meters) in activeOrganizations | orderBy:'paramName'">
 			<strong>{{organization}}</strong>
@@ -82,9 +83,13 @@
 						<button class="btn btn-default" ng-click="activeOrganizations[organization].actual = paramName">{{paramName}}</button>
 					</li>
 				</ul>
-				
+				<button class="btn btn-default" style="background-color:{{activeOrganizations[organization].color}}" 
+						colorpicker-position="right" colorpicker="rgba" type="text" ng-model="activeOrganizations[organization].color">
+						Color</button>
+						{{activeOrganizations[organization].color}}
 				<button class="btn btn-danger" ng-click="deleteOrganization(organization)">Delete!</button>
 			</div>
+			<hr>
 		</li>
 	</ul>
 </div>
