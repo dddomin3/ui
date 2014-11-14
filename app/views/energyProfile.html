@@ -41,7 +41,6 @@
 <!-- chart -->
 <div class="col-md-6">
 	<div class="row"><div class = "col-md-6 col-sm-8 col-xs-12 col-lg-4" id="test_composed" resize></div></div>
-	<div class="row"><div id="ranger"></div></div>
 </div>
 <!-- dropdowns -->
 <div class="col-md-3">
@@ -56,7 +55,9 @@
 			</li>
 		</ul>
 	</div>
-	<!-- meters -->
+	<!-- organization and meter management -->
+	<hr>
+	<strong>Shown Organizations</strong>
 	<hr>
 	<ul>
 		<li ng-repeat="(organization, meters) in activeOrganizations | orderBy:'paramName'">
@@ -85,8 +86,45 @@
 				<button class="btn btn-default" style="background-color:{{activeOrganizations[organization].color}}" 
 						colorpicker-position="right" colorpicker="rgba" type="text" ng-model="activeOrganizations[organization].color">
 						Color</button>
-						{{activeOrganizations[organization].color}}
 				<button class="btn btn-danger" ng-click="deleteOrganization(organization)">Delete!</button>
+				<button class="btn btn-warning" ng-show="countActiveOrganizations() > 1" ng-click="hideOrganization(organization)">Hide!</button>
+			</div>
+			<hr>
+		</li>
+	</ul>
+	<hr>
+	
+	<strong>Hidden Organizations</strong>
+	<hr>
+	<ul>
+		<li ng-repeat="(organization, meters) in inactiveOrganizations | orderBy:'paramName'">
+			<strong>{{organization}}</strong>
+			<div class="btn-group" dropdown>
+				<!--  Potential dropdown -->
+				<button type="button" ng-click='debug()' class="btn btn-primary dropdown-toggle">
+					Expected: {{inactiveOrganizations[organization].expected}}<span class="caret"></span>
+				</button>
+				<ul class="dropdown-menu" role="menu">
+					<li ng-repeat="(paramName, param) in inactiveOrganizations[organization].meterQuery | orderBy:'paramName'">
+						<button class="btn btn-default" ng-click="inactiveOrganizations[organization].expected = paramName">{{paramName}}</button>
+					</li>
+				</ul>
+			</div>
+			<div class="btn-group" dropdown>
+				<!-- Actual dropdown -->
+				<button class="btn btn-primary dropdown-toggle" ng-click='debug()'>
+					Actual: {{inactiveOrganizations[organization].actual}}<span class="caret"></span>
+				</button>
+				<ul class="dropdown-menu" role="menu">
+					<li ng-repeat="(paramName, param) in inactiveOrganizations[organization].meterQuery | orderBy:'paramName'">
+						<button class="btn btn-default" ng-click="inactiveOrganizations[organization].actual = paramName">{{paramName}}</button>
+					</li>
+				</ul>
+				<button class="btn btn-default" style="background-color:{{inactiveOrganizations[organization].color}}" 
+						colorpicker-position="right" colorpicker="rgba" type="text" ng-model="inactiveOrganizations[organization].color">
+						Color</button>
+				<button class="btn btn-danger" ng-click="deleteOrganization(organization)">Delete!</button>
+				<button class="btn btn-info" ng-click="showOrganization(organization)">Show!</button>
 			</div>
 			<hr>
 		</li>

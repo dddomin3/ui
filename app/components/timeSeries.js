@@ -2,7 +2,7 @@
  
 angular.module('myApp.timeSeries', ['ngRoute'])
 
-.controller('timeSeriesCtrl', ['$scope', '$location', '$route','$window', 
+.controller('timeSeriesCtrl', ['$scope', '$location', '$route', '$window', 
   function($scope, $location, $route, $window) {
 	
 	$scope.timeSeries = 'timeSeries';
