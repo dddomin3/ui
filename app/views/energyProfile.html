@@ -87,14 +87,17 @@
 						colorpicker-position="right" colorpicker="rgba" type="text" ng-model="activeOrganizations[organization].color">
 						Color</button>
 				<button class="btn btn-danger" ng-click="deleteOrganization(organization)">Delete!</button>
-				<button class="btn btn-warning" ng-show="countActiveOrganizations() > 1" ng-click="hideOrganization(organization)">Hide!</button>
+				<button class="btn btn-warning" ng-click="soloOrganization(organization)">Solo!</button>
 			</div>
 			<hr>
 		</li>
 	</ul>
 	<hr>
-	
 	<strong>Hidden Organizations</strong>
+	<button class="btn btn-warning" 
+		ng-click="unhideAllOrganizations(organization)"
+		ng-show="countInactiveOrganizations() > 0">Unhide All!
+	</button>
 	<hr>
 	<ul>
 		<li ng-repeat="(organization, meters) in inactiveOrganizations | orderBy:'paramName'">
@@ -124,7 +127,6 @@
 						colorpicker-position="right" colorpicker="rgba" type="text" ng-model="inactiveOrganizations[organization].color">
 						Color</button>
 				<button class="btn btn-danger" ng-click="deleteOrganization(organization)">Delete!</button>
-				<button class="btn btn-info" ng-click="showOrganization(organization)">Show!</button>
 			</div>
 			<hr>
 		</li>
