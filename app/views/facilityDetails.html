@@ -6,38 +6,26 @@
 		</button>
 		<ul class="dropdown-menu" role="menu">
 			<li ng-repeat="(organization, param) in organizationQuery | orderBy:'organization'">
-				<button class="btn btn-default" ng-click='initOrganization(organization)'>{{organization}}</button>
+				<button class="btn btn-default" ng-click='initSingleOrganization(organization)'>{{organization}}</button>
 			</li>
 		</ul>
+		
 	</div>
-	<!-- meters -->
-	<ul>
-		<li ng-repeat="(organization, meters) in activeOrganizations | orderBy:'paramName'">
-			<strong>{{organization}}</strong>
-			<div class="btn-group" dropdown>
-				<!--  Potential dropdown -->
-				<button type="button" ng-click='debug()' class="btn btn-primary dropdown-toggle">
-					Expected: {{activeOrganizations[organization].expected}}<span class="caret"></span>
-				</button>
-				<ul class="dropdown-menu" role="menu">
-					<li ng-repeat="(paramName, param) in activeOrganizations[organization].meterQuery | orderBy:'paramName'">
-						<button class="btn btn-default" ng-click="activeOrganizations[organization].expected = paramName">{{paramName}}</button>
-					</li>
-				</ul>
+	
+	<nl>
+		<div ng-repeat="thisEntry in displayThis">
+			<div ng-if="!isLink(thisEntry)">
+			{{thisEntry}}
+			D:
 			</div>
-			<div class="btn-group" dropdown>
-				<!-- Actual dropdown -->
-				<button class="btn btn-primary dropdown-toggle" ng-click='debug()'>
-					Actual: {{activeOrganizations[organization].actual}}<span class="caret"></span>
-				</button>
-				<ul class="dropdown-menu" role="menu">
-					<li ng-repeat="(paramName, param) in activeOrganizations[organization].meterQuery | orderBy:'paramName'">
-						<button class="btn btn-default" ng-click="activeOrganizations[organization].actual = paramName">{{paramName}}</button>
-					</li>
-				</ul>
-				
-				<button class="btn btn-danger" ng-click="deleteOrganization(organization)">Delete!</button>
+			<div ng-if="isLink(thisEntry)">
+			<img ng-src= {{thisEntry}}></img>
+			:D
 			</div>
-		</li>
-	</ul>
+		</div>
+	</nl>
 </div>
+
+			
+
+<button class="btn btn-danger" ng-click="debug()">debug!</button>
