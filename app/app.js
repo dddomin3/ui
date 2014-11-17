@@ -10,6 +10,7 @@ angular.module('myApp', [
   'myApp.energyProfile',
   'myApp.timeSeries',
   'myApp.facilityDetails',
+  'myApp.workOrderSummary',
   'calHeatmap',
   'angularDc',
   'colorpicker.module',
@@ -33,6 +34,10 @@ config(['$routeProvider', function($routeProvider) {
 	when('/facilityDetails', {
 		templateUrl: 'views/facilityDetails.html',
 		controller: 'facilityDetailsCtrl'
+	}).
+	when('/workOrderSummary', {
+		templateUrl: 'views/workOrderSummary.html',
+		controller: 'workOrderSummaryCtrl'
 	}).
 	otherwise({redirectTo: '/heatmap'});
 }]);
