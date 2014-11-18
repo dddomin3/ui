@@ -996,6 +996,7 @@ angular.module('myApp.heatmap', ['ngRoute'])
 		}
 		
 		vm.rendered = false;
+		$scope.$emit('dashReload');
 		
 		//In one second, reload the heatmap component with the changed configuration.
 		window.setTimeout(function(){
@@ -1087,6 +1088,28 @@ angular.module('myApp.heatmap', ['ngRoute'])
 		vm.change();		
 	}, true);
 	
+}])
+
+.controller('dashCtrl', ['$scope', function($scope) {
+	var vm = this;
+	
+	vm.dashReload = true;
+	
+	vm.reloadDashboard = function(){
+		console.log('someone wants a dashboard reload!');
+		
+		vm.dashReload = false;
+		
+		window.setTimeout(function(){
+			console.log('shouldnt be false anymore....');
+			vm.dashReload = true;
+			$scope.$apply();
+		}, 1000);
+	};
+	
+	$scope.$on('dashReload', function(event){
+		vm.reloadDashboard();
+	});
 }])
 
 //.directive('galHeatmap', [ function() {
