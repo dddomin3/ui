@@ -25,8 +25,8 @@ angular.module('myApp.energyProfile', ['ngRoute'])
 			marginRight: 150,
 			marginTop: 25,
 			marginBottom: 40,
-			lowDate: new Date((new Date()) - (28*24*60*60*1000)),
-			highDate: new Date()
+			lowDate: new Date((new Date((new Date()) - (28*24*60*60*1000))).toDateString()),
+			highDate: new Date( (new Date()).toDateString() )
 	};
 	var _chartParameters = {};
 	var _tfMonthYear = d3.time.format("%m-%Y"); //format for x-axis labels USED BY CSV INIT
