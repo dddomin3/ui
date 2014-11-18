@@ -1,7 +1,7 @@
 'use strict';
-angular.module('myApp.energyProfile', ['ngRoute'])
+angular.module('myApp.intervalDemand', ['ngRoute'])
 
-.factory('energyProfileDataService', ['$http', function($http){
+.factory('intervalDemandDataService', ['$http', function($http){
 	var print_filter = function (filter){
 		var f=eval(filter);
 		if (typeof(f.length) != "undefined") {}else{}
@@ -616,9 +616,9 @@ angular.module('myApp.energyProfile', ['ngRoute'])
 	
 	return _servObj;
 }])
-.controller('energyProfileCtrl', ['$scope', '$location', '$route', 'energyProfileDataService', 
+.controller('intervalDemandCtrl', ['$scope', '$location', '$route', 'intervalDemandDataService', 
                     function($scope, $location, $route, dataService) {
-	$scope.timeSeries = 'energyProfile';
+	$scope.timeSeries = 'intervalDemand';
 	$scope.showButtons = true;
 	$scope.chartInit = false;
 	$scope.userParameters = dataService.getUserParameters();

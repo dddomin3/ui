@@ -8,6 +8,7 @@ angular.module('myApp', [
   'myApp.persistView',
   'myApp.bar',
   'myApp.energyProfile',
+  'myApp.intervalDemand',
   'myApp.timeSeries',
   'myApp.facilityDetails',
   'myApp.workOrderSummary',
@@ -30,6 +31,10 @@ config(['$routeProvider', function($routeProvider) {
 	when('/energyProfile', {
 		templateUrl: 'views/energyProfile.html',
 		controller: 'energyProfileCtrl'
+	}).
+	when('/intervalDemand', {
+		templateUrl: 'views/intervalDemand.html',
+		controller: 'intervalDemandCtrl'
 	}).
 	when('/facilityDetails', {
 		templateUrl: 'views/facilityDetails.html',
