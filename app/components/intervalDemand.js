@@ -246,7 +246,10 @@ angular.module('myApp.intervalDemand', ['ngRoute'])
 	    console.log(daysBetween);
 	    while(daysBetween){
 	    	console.log("hi"+daysBetween);
-	    	console.log(  new Date( _userParameters.highDate - (1000*60*60*24)*daysBetween )  );
+	    	var day = new Date( _userParameters.highDate - (1000*60*60*24)*daysBetween );
+	    	var dayOfWeek = day.getDay();
+	    	var dayString = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
+	    	console.log( [dayString[dayOfWeek], day] );
 	    	daysBetween--;
 	    }
 	    //Per Day Groups
