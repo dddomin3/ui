@@ -303,7 +303,7 @@ angular.module('myApp.energyProfile', ['ngRoute'])
 	
 	var _createDimensions = function () {
 		//_dimensions.masterDimension = _ndx.dimension(function(d) { return parse(d.date).getMonth()+1;});
-	    var monthDimension = _ndx.dimension(function(d) {
+	    _dimensions.monthDimension = _ndx.dimension(function(d) {
 	    	if(d.timestamp === undefined) { d.timestamp = d.date; }
 	    	var ret = d3.time.month(_tfIso(d.timestamp));
 	    	ret.meterName = d.meterName;	//retains meter name on value. Since its a Date object, the toString function
@@ -311,13 +311,13 @@ angular.module('myApp.energyProfile', ['ngRoute'])
 	    	//have different 'name' keys
 	    	return ret;
 	    }); // creates the x-axis components using their date as a guide
-	    var weekDimension = _ndx.dimension(function(d) {
+	    _dimensions.weekDimension = _ndx.dimension(function(d) {
 	    	if(d.timestamp === undefined) { d.timestamp = d.date; } 
 	    	var ret = d3.time.week(_tfIso(d.timestamp));
 	    	ret.meterName = d.meterName;
 	    	return ret;
 	    });
-	    var dayDimension = _ndx.dimension(function(d) {
+	    _dimensions.dayDimension = _ndx.dimension(function(d) {
 	    	if(d.timestamp === undefined) { d.timestamp = d.date; }
 	    	var ret = d3.time.day(_tfIso(d.timestamp));
 	    	ret.meterName = d.meterName;
@@ -325,21 +325,21 @@ angular.module('myApp.energyProfile', ['ngRoute'])
 	    });
 	    
 	    if(_chartParameters.daysBetween <= 30) {
-	    	_dimensions.masterDimension = dayDimension;
+	    	_dimensions.masterDimension = _dimensions.dayDimension;
   			_chartParameters.xUnits = d3.time.days;
   		    var displayDate = d3.time.format("%m-%d-%y"); // function to change the format of a date object to mm-yyyy
   		    _chartParameters.tickFormat = function(v) {return displayDate(new Date(v));}; 
   		    //numberOfTicks = _chartParameters.daysBetween;
   		}
   		else if(_chartParameters.daysBetween <= (180)) {
-  			_dimensions.masterDimension = weekDimension;
+  			_dimensions.masterDimension = _dimensions.weekDimension;
   			_chartParameters.xUnits = d3.time.weeks;
   			var displayDate = d3.time.format("%m-%d-%y"); // function to change the format of a date object to mm-yyyy
   			_chartParameters.tickFormat = function(v) {return displayDate(new Date(v));};
   			//numberOfTicks = _chartParameters.daysBetween/7;
   		}
   		else {
-  			_dimensions.masterDimension = monthDimension;
+  			_dimensions.masterDimension = _dimensions.monthDimension;
   			_chartParameters.xUnits = d3.time.months;
   			var displayDate = d3.time.format("%m-%y"); // function to change the format of a date object to mm-yyyy
   			_chartParameters.tickFormat = function(v) {return displayDate(new Date(v));};
@@ -846,7 +846,13 @@ angular.module('myApp.energyProfile', ['ngRoute'])
 		});
 	};
 	$scope.deleteOrganization = function (organization) {
-		dataService.deleteActiveOrganization(organization);
+		if(organization in $scope.activeOrganizations) {
+			dataService.deleteActiveOrganization(organization);
+		}
+		else if(organization in $scope.inactiveOrganizations) {
+			delete $scope.inactiveOrganizations[organization];
+		}
+		$scope.redrawChart();
 	};
 	$scope.initOrganization = function (organization) {
 		dataService.initActiveOrganization(organization);
