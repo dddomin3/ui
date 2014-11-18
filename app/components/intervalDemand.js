@@ -145,186 +145,32 @@ angular.module('myApp.intervalDemand', ['ngRoute'])
 		//TODO: this is the extent of below, lol.
 	};
 	
-	var _csvInit = function (energyData) {
-	        var totalSum = 0;
-	        _activeOrganizations.ANDO = {
-				'actual' : '',
-				'expected' : '',
-				'meterQuery' : {},
-				'color': 'rgba(64,128,128,0.5)',
-				'groups' : {
-					'actual' : {},
-					'expected' : {},
-					'savings' : {},
-					'cumulativeSavings': {}
-				}
-			};
-			_activeOrganizations.GLOB = {
-				'actual' : '',
-				'expected' : '',
-				'meterQuery' : {},
-				'color' : 'rgba(0,255,255,0.5)',
-				'groups' : {
-					'actual' : {},
-					'expected' : {},
-					'savings' : {},
-					'cumulativeSavings': {}
-				}
-			};
-				
-	        _groups.savingsGroups = [];
-	        _groups.expectedGroups = [];
-	        _groups.actualGroups = [];
-	        _groups.cumulativeSavingsGroups = [];
-	        
-			_ndx = crossfilter(energyData);
-			
-			_dimensions.masterDimension = _ndx.dimension(function(d) { return d3.time.month(_tfIso(d.date)); });
-			
-			_groups.totalActualGroup= _dimensions.masterDimension.group().reduceSum(function(d) { return +d.actualKWH; });
-			_groups.totalActualGroup.organization = "Fake";
-			
-			_groups.totalExpectedGroup = _dimensions.masterDimension.group().reduceSum(function(d) { return +d.expectedKWH; });
-			_groups.totalExpectedGroup.organization = "Fake";
-			
-			
-			var savingsReduceSumGenerator = function (organization) {
-				return function(d) {
-					if(organization === "ANDO") {
-						return .66*d.savings;
-					}
-					else {
-						return .33*d.savings;
-					}
-				}
-			};
-			var expectedReduceSumGenerator = function (organization) {
-				return function(d) {
-	        		if(organization === 'ANDO') {return +d.expectedKWH*0.66;}
-	        		else if(organization === 'GLOB') {return +d.expectedKWH*0.33;}
-	        		else {return 0;}
-				};
-			};
-			var actualReduceSumGenerator = function (organization) {
-				return function(d) {
-					if(organization === 'ANDO') {return +d.actualKWH*0.66;}
-	        		else if(organization === 'GLOB') {return +d.actualKWH*0.33;}
-	        		else {return 0;}
-				};
-			};
-			var cumulativeReduceAddGenerator = function (organization, totalSum) {
-				return function (p,v) {
-					if(organization === "ANDO") {
-						totalSum = .66*v.savings + totalSum;
-	        			return totalSum;
-					}
-					else if(organization === 'GLOB'){
-						totalSum = .33*v.savings + totalSum;	
-						return totalSum;
-					}
-					else {return totalSum;}
-				}
-			};
-			var cumulativeReduceRemoveGenerator = function (organization, totalSum) {
-				return function (p,v) {
-					if(organization === "ANDO") {
-						totalSum = .66*v.savings - totalSum;
-	        			return totalSum;
-					}
-					else if(organization === 'GLOB') {
-						totalSum = .33*v.savings - totalSum;	
-						return totalSum;
-					}
-					else {return totalSum;}
-				};
-			};
-			var cumulativeReduceInitialGenerator = function (totalSum) {
-				return function () {
-					return totalSum;
-				};
-			};
-			for(var organization in _activeOrganizations) {//generating individual groups
-				var savingsGroup = _dimensions.masterDimension.group().reduceSum(savingsReduceSumGenerator(organization));
-				savingsGroup.organization = organization;
-				_groups.savingsGroups.push(savingsGroup);
-				_activeOrganizations[organization].groups.savings = savingsGroup;
-				
-				var actualGroup = _dimensions.masterDimension.group().reduceSum(actualReduceSumGenerator(organization));
-				actualGroup.organization = organization;	//saving organization on group
-	        	_groups.actualGroups.push(actualGroup);
-	        	_activeOrganizations[organization].groups.actual = actualGroup;
-	        	
-	        	var expectedGroup = _dimensions.masterDimension.group().reduceSum(expectedReduceSumGenerator(organization));
-				expectedGroup.organization = organization;
-	        	_groups.expectedGroups.push(expectedGroup);
-	        	_activeOrganizations[organization].groups.expected = expectedGroup;
-				
-				var totalSum = 0;
-				var cumulativeSavingsGroup = _dimensions.masterDimension.group().reduce(
-						//groups a value for each entry in the dimension by finding the total aggregated savings
-						cumulativeReduceAddGenerator(organization, totalSum),	// sets the method for adding an entry into the total
-						cumulativeReduceRemoveGenerator(organization, totalSum),	// sets the method for removing an entry from the total
-						cumulativeReduceInitialGenerator(totalSum)	// sets the method for initializing the total
-					);
-				cumulativeSavingsGroup.organization = organization;
-				_groups.cumulativeSavingsGroups.push(cumulativeSavingsGroup);
-				_activeOrganizations[organization].groups.cumulativeSavings = cumulativeSavingsGroup;
-			}
-			
-			_chartParameters.minDate = _dimensions.masterDimension.bottom(1)[0]; // sets the lowest date value from the available data
-	        _chartParameters.maxDate = _dimensions.masterDimension.top(1)[0]; // sets the highest date value from the available data
-	        
-	        _chartParameters.domainX = d3.scale.linear().domain([_chartParameters.minDate, _chartParameters.maxDate]);
-
-	        console.log([_chartParameters.minDate, _chartParameters.maxDate]);
-	        
-			var totalCumulativeSum = 0;
-			_groups.totalCumulativeSavingsGroup = _dimensions.masterDimension.group().reduce(
-				//groups a value for each entry in the dimension by finding the total aggregated savings
-				function (p,v) {
-					totalCumulativeSum = (+v.savings) + totalCumulativeSum;	//positive if expected, negative if actual
-					return totalCumulativeSum;
-				},	// sets the method for adding an entry into the total
-				function (p,v) {
-					totalCumulativeSum = totalCumulativeSum-v.savings;
-					return totalCumulativeSum;
-				},	// sets the method for removing an entry from the total
-				function () {
-					return totalCumulativeSum;
-				}	// sets the method for initializing the total
-			);
-			_groups.totalCumulativeSavingsGroup.organization = "Fake";
-			
-	        _chartParameters.xUnits = d3.time.months;
-	        _chartParameters.tickFormat = function(v) {return _tfMonthYear(new Date(v));};
-	        
-			console.log("Dummy Data!");
-	};
-	
 	var _createDimensions = function () {
 		//_dimensions.masterDimension = _ndx.dimension(function(d) { return parse(d.date).getMonth()+1;});
-	    _dimensions.monthDimension = _ndx.dimension(function(d) {
+	    _dimensions.hourDimension = _ndx.dimension(function(d) {
 	    	if(d.timestamp === undefined) { d.timestamp = d.date; }
-	    	var ret = d3.time.month(_tfIso(d.timestamp));
+	    	var ret = d3.time.hour(_tfIso(d.timestamp));
 	    	ret.meterName = d.meterName;	//retains meter name on value. Since its a Date object, the toString function
 	    	//(or whatever dc decides is the important/common return) will be the same even if the datapoints
 	    	//have different 'name' keys
-	    	return ret;
+	    	var displayDate = d3.time.format("%H");
+	    	var hour = displayDate(new Date(ret));
+	    	return +hour;
 	    }); // creates the x-axis components using their date as a guide
-	    _dimensions.weekDimension = _ndx.dimension(function(d) {
+	    _dimensions.quarterDimension = _ndx.dimension(function(d) {
 	    	if(d.timestamp === undefined) { d.timestamp = d.date; } 
-	    	var ret = d3.time.week(_tfIso(d.timestamp));
+	    	var ret = d3.time.minute(_tfIso(d.timestamp));
 	    	ret.meterName = d.meterName;
 	    	return ret;
 	    });
-	    _dimensions.dayDimension = _ndx.dimension(function(d) {
+	    _dimensions.minuteDimension = _ndx.dimension(function(d) {
 	    	if(d.timestamp === undefined) { d.timestamp = d.date; }
-	    	var ret = d3.time.day(_tfIso(d.timestamp));
+	    	var ret = d3.time.minute(_tfIso(d.timestamp));
 	    	ret.meterName = d.meterName;
 	    	return ret;
 	    });
 	    
-	    if(_chartParameters.daysBetween <= 30) {
+	    /*if(_chartParameters.daysBetween <= 30) {
 	    	_dimensions.masterDimension = _dimensions.dayDimension;
   			_chartParameters.xUnits = d3.time.days;
   		    var displayDate = d3.time.format("%m-%d-%y"); // function to change the format of a date object to mm-yyyy
@@ -338,162 +184,65 @@ angular.module('myApp.intervalDemand', ['ngRoute'])
   			_chartParameters.tickFormat = function(v) {return displayDate(new Date(v));};
   			//numberOfTicks = _chartParameters.daysBetween/7;
   		}
-  		else {
-  			_dimensions.masterDimension = _dimensions.monthDimension;
-  			_chartParameters.xUnits = d3.time.months;
-  			var displayDate = d3.time.format("%m-%y"); // function to change the format of a date object to mm-yyyy
-  			_chartParameters.tickFormat = function(v) {return displayDate(new Date(v));};
+  		else {*/
+  			_dimensions.masterDimension = _dimensions.hourDimension;
+  			
   			//numberOfTicks = _chartParameters.daysBetween/30;
-  		}
+  	//	}
 		
 	    _createDomain();
         
 	    //Start: create total groups
-	    _groups.totalActualGroup = _dimensions.masterDimension.group().reduceSum(function(d) {
-			return (d.type === 'actual' ? +d.value : 0);
-		});
-	    _groups.totalActualGroup.organization = "Total";
-	    
-	    _groups.totalExpectedGroup = _dimensions.masterDimension.group().reduceSum(function(d) {
-	    	return (d.type === 'expected' ? +d.value : 0);
-		});
-	    _groups.totalExpectedGroup.organization = "Total";
-	    
-	    var totalCumulativeSum = 0;
-	    _groups.totalCumulativeSavingsGroup = _dimensions.masterDimension.group().reduce(
-			//groups a value for each entry in the dimension by finding the total aggregated savings
-    		function (p,v) {
-    			totalCumulativeSum = (v.type === 'expected' ? +v.value : -v.value) + totalCumulativeSum;	//positive if expected, negative if actual
-    			return totalCumulativeSum;
-    			//console.log([v.timestamp, p, v]);
-    			//return p + (v.type === 'expected' ? +v.value : -v.value);
-    		},	// sets the method for adding an entry into the total
-    		function (p,v) {
-    			totalCumulativeSum = totalCumulativeSum - (v.type === 'expected' ? +v.value : -v.value);
-    			return totalCumulativeSum;
-    			//console.log(['rem', v.timestamp, p, v]);
-    			//return p - (v.type === 'expected' ? +v.value : -v.value);
-    		},	// sets the method for removing an entry from the total
-    		function () {
-    			return totalCumulativeSum;
-    			//return 0;
-    		}	// sets the method for initializing the total
-		);
-	    _groups.totalCumulativeSavingsGroup.organization = "Total";
-	    //end: create total groups
-	    
-	    //start: create individual groups
-        _groups.savingsGroups = [];
-        _groups.expectedGroups = [];
-        _groups.actualGroups = [];
-        _groups.cumulativeSavingsGroups = [];
-		var savingsReduceAddGenerator = function (organization) {
-			return function (p,v) {
-    			if (v.organization === organization) {
-    				return p + (v.type === 'expected' ? +v.value : -v.value);
-    			}
-    			else { return p; }
-    		};
-		};
-		var savingsReduceRemoveGenerator = function (organization) {
-			return function (p,v) {
-				if (v.organization === organization) {
-					return p - (v.type === 'expected' ? +v.value : -v.value);
-				}
-				else { return p; }
-			};
-		};
-		var savingsReduceInitialGenerator = function (organization) {
-			return function () {
-				return 0;
-			};
-		};
-		var expectedReduceSumGenerator = function (organization) {
-			return function(d) {
-        		if(organization !== d.organization) {return 0;}
-        		return (d.meterName === _activeOrganizations[organization].expected ? +d.value : 0);
-			};
-		};
-		var actualReduceSumGenerator = function (organization) {
-			return function(d) {
-				if(organization !== d.organization) {return 0;}
-				return (d.meterName === _activeOrganizations[organization].actual ? +d.value : 0);
-				
-			};
-		};
-		var cumulativeReduceAddGenerator = function (organization, totalSum) {
-			return function (p,v) {
-    			if (v.organization === organization) {
-    				totalSum = (v.type === 'expected' ? +v.value : -v.value) + totalSum;	//positive if expected, negative if actual
-        			return totalSum;
-    			}
-    			else { return totalSum; }
-    		};
-		};
-		var cumulativeReduceRemoveGenerator = function (organization, totalSum) {
-			return function (p,v) {
-				if (v.organization === organization) {
-					totalSum = totalSum - (v.type === 'expected' ? +v.value : -v.value);
-	    			return totalSum;
-				}
-				else { return totalSum; }
-			};
-		};
-		var cumulativeReduceInitialGenerator = function (totalSum) {
-			return function () {
-				return totalSum;
-			};
-		};
-        for (var organization in _activeOrganizations) {	//separates each organization into its own group
-        	//if (_meterIsntConsumption(meterName)) { continue; }//if the dataset doesn't represent kWh data, do not make a group
-			var actualGroup = _dimensions.masterDimension.group().reduceSum(actualReduceSumGenerator(organization));
-			actualGroup.organization = organization;	//saving metername on group
-        	_groups.actualGroups.push(actualGroup);
-        	_activeOrganizations[organization].groups.actual = actualGroup;
-        	
-        	var expectedGroup = _dimensions.masterDimension.group().reduceSum(expectedReduceSumGenerator(organization));
-			expectedGroup.organization = organization;
-        	_groups.expectedGroups.push(expectedGroup);
-        	_activeOrganizations[organization].groups.expected = expectedGroup;
-        	
-        	var savingsGroup =_dimensions.masterDimension.group().reduce(
+	    _groups.maxGroup = _dimensions.masterDimension.group(function(v) {
+			var displayDate = d3.time.format("%H"); // function to change the format of a date object to mm-yyyy
+			return displayDate(new Date(v));
+			})
+			.reduce(
 				//groups a value for each entry in the dimension by finding the total aggregated savings
-				savingsReduceAddGenerator(organization),	// sets the method for adding an entry into the total
-				savingsReduceRemoveGenerator(organization),	// sets the method for removing an entry from the total
-				savingsReduceInitialGenerator(organization)	// sets the method for initializing the total
+	    		function (p,v) {
+	    			return v.value > p ? v.value : p;	//returns the higher of the two values
+	    		},	
+	    		function (p,v) {
+	    			return p;
+	    			//how can we do this?
+	    			//make array, sort array, max is 0th index
+	    		},
+	    		function () {
+	    			return 0;
+	    		}	
 			);
-        	_activeOrganizations[organization].groups.savings = savingsGroup;
-        	
-        	savingsGroup.organization = organization;
-			_groups.savingsGroups.push(savingsGroup);
-			
-			var totalSum = 0;
-			//TODO: Broken. Don't make functions in a loop.
-			//create generator function outside loop, and use that inside the loop
-			var cumulativeSavingsGroup = _dimensions.masterDimension.group().reduce(
-					//groups a value for each entry in the dimension by finding the total aggregated savings
-					cumulativeReduceAddGenerator(organization, totalSum),	// sets the method for adding an entry into the total
-					cumulativeReduceRemoveGenerator(organization, totalSum),	// sets the method for removing an entry from the total
-					cumulativeReduceInitialGenerator(totalSum)	// sets the method for initializing the total
-				);
-			cumulativeSavingsGroup.organization = organization;
-			_groups.cumulativeSavingsGroups.push(cumulativeSavingsGroup);
-			_activeOrganizations[organization].groups.cumulativeSavings = cumulativeSavingsGroup;
-        }
+	    //_groups.maxGroup.organization = "Total";
+	    
+	    _groups.averageGroup = _dimensions.masterDimension.group(function(v) {
+				return v;
+			})
+	    	.reduce(
+				//groups a value for each entry in the dimension by finding the total aggregated savings
+	    		function (p,v) {
+	    			p.cnt++;
+	    			p.total += +v.value;
+	    			return p;	
+	    		},	
+	    		function (p,v) {
+	    			p.cnt--;
+	    			p.total -= +v.value;
+	    			return p;
+	    		},
+	    		function () {
+	    			var init = {}
+	    			init.total = 0;
+	    			init.cnt = 0;
+	    			return init;
+    		})
+    		.order(function (p) { return p.total/p.cnt;});
+	    //_groups.totalExpectedGroup.organization = "Total";
 	};
 	
-	var _createDomain = function () {
-		var lowest = new Date(_dimensions.masterDimension.bottom(1)[0].timestamp);
-		var highest = new Date(_dimensions.masterDimension.top(1)[0].timestamp);
-		
-		_chartParameters.minDate = lowest; // sets the lowest date value from the available data
-        _chartParameters.maxDate = highest;// sets the highest date value from the available data
-        
-        _chartParameters.domainX = d3.scale.linear().domain([_chartParameters.minDate, _chartParameters.maxDate]);
-	};
-	var _initCompositeChart = function (domString) {
-		_composite = dc.compositeChart("#"+domString);
-		return _composite;
+	var _createDomain = function () {     
+        _chartParameters.domainX = d3.scale.linear().domain([1, 24]);
+        _chartParameters.xUnits = dc.units.integers;
+		var displayDate = d3.time.format("%H"); // function to change the format of a date object to hour
+		_chartParameters.tickFormat = function(v) {console.log(v);return +v;};
 	};
 	
 	var _meterIsntConsumption = function (meterName) {
@@ -513,45 +262,13 @@ angular.module('myApp.intervalDemand', ['ngRoute'])
 		return _dimensions.masterDimension;
 	};
 	
-	var _getTotalActualGroup = function () {
-		return _groups.totalActualGroup;
+	var _getMaxGroup = function () { //TODO: dafuq is this supposed to be
+		return _groups.maxGroup;
 	};
-	var _getTotalExpectedGroup = function () {
-		return _groups.totalExpectedGroup;
-	};
-	var _getTotalCumulativeSavingsGroup = function() {
-		return _groups.totalCumulativeSavingsGroup;
+	var _getAverageGroup = function () { //TODO: dafuq is this supposed to be
+		return _groups.averageGroup;
 	};
 	
-	var _getActualGroup = function () { //TODO: dafuq is this supposed to be
-		return _groups.actualGroups[0];
-	};
-	var _getExpectedGroup = function () { //TODO: dafuq is this supposed to be
-		return _groups.expectedGroups[0];
-	};
-	var _getSavingsGroup = function () {	//TODO: dafuq is this supposed to be
-		return _groups.savingsGroups[0];
-	};
-	var _getCumulativeSavingsGroup = function() { //TODO: dafuq is this supposed to be
-		return _groups.cumulativeSavingsGroups[0];
-	};
-	
-	var _getActualGroups = function () {
-		return _groups.actualGroups;
-	};
-	var _getExpectedGroups = function () {
-		return _groups.expectedGroups;
-	};
-	var _getSavingsGroups = function () {
-		return _groups.savingsGroups;
-	};
-	var _getCumulativeSavingsGroups = function() { 
-		return _groups.cumulativeSavingsGroups;
-	};
-	
-	var _getCharts = function () {
-		return _charts;
-	};
 	var _getRawData = function () {
 		return _rawData;
 	};
@@ -587,25 +304,12 @@ angular.module('myApp.intervalDemand', ['ngRoute'])
 		getOrganizations: _getOrganizations,
 		
 		getMasterDimension : _getMasterDimension,
-		getTotalActualGroup : _getTotalActualGroup,
-		getTotalExpectedGroup : _getTotalExpectedGroup,
-		getTotalCumulativeSavingsGroup : _getTotalCumulativeSavingsGroup,
 		
-		getExpectedGroup : _getExpectedGroup,
-		getActualGroup : _getActualGroup,
-		getSavingsGroup : _getSavingsGroup,
-		getCumulativeSavingsGroup : _getCumulativeSavingsGroup,
+		getMaxGroup : _getMaxGroup,
+		getAverageGroup : _getAverageGroup,
 		
-		getExpectedGroups : _getExpectedGroups,
-		getActualGroups : _getActualGroups,
-		getSavingsGroups : _getSavingsGroups,
-		getCumulativeSavingsGroups : _getCumulativeSavingsGroups,
 		getChartParameters : _getChartParameters,
 		getUserParameters : _getUserParameters,
-		
-		csvInit : _csvInit,
-		initCompositeChart : _initCompositeChart,
-		getCharts : _getCharts,
 		
 		getRawData : _getRawData,
 		getOrganizationQuery : _getOrganizationQuery,
@@ -633,99 +337,21 @@ angular.module('myApp.intervalDemand', ['ngRoute'])
 		var lX = $scope.userParameters.width - $scope.userParameters.marginRight + 25,
 			lY = $scope.userParameters.height - 650;
 		//legend coords
-		
-		composite = dataService.initCompositeChart("test_composed");
-		//composite = dc.compositeChart("#test_composed");
-		var cumulativeAreaCharts = [];
-		var actualLineCharts = [];
-		var expectedLineCharts = [];
-		var savingsBarCharts = []; //needed?
-		var chartArray = [];
-		var barColors = [];
-	
-		for (var organization in $scope.activeOrganizations) {
-			barColors.push($scope.activeOrganizations[organization].color);
-		}
-		var cumGroup;
-		var actualGroup;
-		var expectedGroup;
-		if($scope.countActiveOrganizations() === 1) {
-			for(var org in $scope.activeOrganizations) {
-				cumGroup = $scope.activeOrganizations[org].groups.cumulativeSavings;
-				actualGroup = $scope.activeOrganizations[org].groups.actual;
-				expectedGroup = $scope.activeOrganizations[org].groups.expected;
-			}
-		}
-		else {
-			cumGroup = $scope.totalCumulativeSavingsGroup;
-			actualGroup = $scope.totalActualGroup;
-			expectedGroup = $scope.totalExpectedGroup;
-		}
-		var cumulativeArea = dc.lineChart(composite)
-		    .dimension($scope.masterDimension)
-		    .interpolate("cardinal")
-		    .colors($scope.userParameters.cumulativeColor)
-		    .group(
-		    		cumGroup, 
-		    		cumGroup.organization + " Total Savings/Waste"
-		    		)
-		    .renderArea(true)
-		    .renderDataPoints({radius:2, fillOpacity: 1, strokeOpacity: 1})
-		    .tension(0.5);
-		var actualLine = dc.lineChart(composite)
+		var intervalDemandChart = dc.lineChart("#test_composed")
 	        .dimension($scope.masterDimension)
 	        .interpolate("cardinal")
 	        .colors($scope.userParameters.actualColor)
 	        .group(
-	        		actualGroup, 
-	        		actualGroup.organization + " Actual KWH"
+	        		$scope.averageGroup, 
+	        		"lol"//averageGroup.organization
 	        		)
+	        .valueAccessor(function(p) {return p.value.total/p.value.cnt; })
 	        .renderDataPoints({radius:2, fillOpacity: 1, strokeOpacity: 1})
 	        .tension(0.5);
-		var expectedLine = dc.lineChart(composite)
-	        .dimension($scope.masterDimension)
-	        .interpolate("cardinal")
-	        .colors($scope.userParameters.expectedColor)
-	        .group(
-	        		expectedGroup,
-	        		expectedGroup.organization + " Expected KWH"
-	        		)
-	        .renderDataPoints({radius:2, fillOpacity: 1, strokeOpacity: 1})
-	        .tension(0.5);
-		var savingsBar = {};
 		
-		var ranger = dc.barChart("#ranger")
-	        .dimension($scope.masterDimension)
-	        .group($scope.savingsGroups[0], $scope.savingsGroups[0].organization + " Savings")
-	        .ordinalColors(barColors)
-	        .x($scope.chartParameters.domainX);
-		var barInitFlag = false;
+		//intervalDemandChart.xAxis().tickFormat($scope.chartParameters.tickFormat); // sets the tick format to be the month/year only
 		
-		for (var organization in $scope.activeOrganizations) {
-			var savingsGroup = $scope.activeOrganizations[organization].groups.savings;
-			if (barInitFlag === false ) {
-			savingsBar = dc.barChart(composite)
-		        .dimension($scope.masterDimension)
-		        .group(savingsGroup, savingsGroup.organization + " Savings")
-		        .ordinalColors(barColors)
-		        .centerBar(true)
-		        .barPadding(0.5)
-		        .hidableStacks(true);
-				barInitFlag = true;
-			}
-			else {
-				savingsBar.stack(savingsGroup, savingsGroup.organization + " Savings");
-			}
-		}
-		
-		chartArray.push(cumulativeArea);
-		chartArray.push(savingsBar);
-		chartArray.push(actualLine);
-		chartArray.push(expectedLine);
-		
-		composite.xAxis().tickFormat($scope.chartParameters.tickFormat); // sets the tick format to be the month/year only
-		
-		composite	//configure composite graph object
+		intervalDemandChart	//configure composite graph object
 			.width($scope.userParameters.width) //sets width
 			.height($scope.userParameters.height)
 			.margins({
@@ -734,8 +360,6 @@ angular.module('myApp.intervalDemand', ['ngRoute'])
 				top: $scope.userParameters.marginTop,
 				bottom: $scope.userParameters.marginBottom
 			})
-			.compose(chartArray)
-
 			.x($scope.chartParameters.domainX)
 			.xUnits($scope.chartParameters.xUnits) // sets X axis units
 			.xAxisLabel("Date/Time")
@@ -773,18 +397,6 @@ angular.module('myApp.intervalDemand', ['ngRoute'])
 					$scope.redrawChart();
 				})
 			});
-	     // .rangeChart(ranger);
-
-		//ranger.xAxis().tickFormat($scope.chartParameters.tickFormat); // sets the tick format to be the month/year only
-		//ranger.width($scope.userParameters.width)
-		//.centerBar(true)
-		//.margins({
-		//	left: $scope.userParameters.marginLeft,
-		//	right: $scope.userParameters.marginRight,
-		//	top: $scope.userParameters.marginTop,
-		//	bottom: $scope.userParameters.marginBottom
-		//})
-		//.xUnits($scope.chartParameters.xUnits); // sets X axis units;
 	    
 	    dc.renderAll();
 	    return composite;
@@ -794,14 +406,8 @@ angular.module('myApp.intervalDemand', ['ngRoute'])
 		//this function populates necessary variables onto the scope.
 		$scope.masterDimension  = dataService.getMasterDimension();
         
-        $scope.actualGroups = dataService.getActualGroups();
-        $scope.expectedGroups = dataService.getExpectedGroups();
-        $scope.savingsGroups = dataService.getSavingsGroups();
-        $scope.cumulativeSavingsGroups = dataService.getCumulativeSavingsGroups();
-		
-        $scope.totalExpectedGroup = dataService.getTotalExpectedGroup();
-        $scope.totalActualGroup = dataService.getTotalActualGroup();
-        $scope.totalCumulativeSavingsGroup = dataService.getTotalCumulativeSavingsGroup();
+        $scope.averageGroup = dataService.getAverageGroup();
+        $scope.maxGroup = dataService.getMaxGroup();
         
         $scope.chartParameters = dataService.getChartParameters();
 	};
@@ -814,27 +420,11 @@ angular.module('myApp.intervalDemand', ['ngRoute'])
         composite = drawChart();
         $scope.showButtons = true;
     };
-    
-	var csv = function () {
-		d3.csv("expectedActual.csv", function(error, energyData) {
-			$scope.showButtons = false;
-	    	dataService.csvInit(energyData);
-	    	
-	    	populateScope();
-	        
-	        composite = drawChart();
-	        $scope.showButtons = true;
-			$scope.$apply();
-	    });
-	};
+  
 	
 	$scope.drawHttpChart = function () {
 		$scope.chartInit = true;
-		dataService.getData().then( http, csv );
-	};
-	$scope.drawCsvChart = function () {
-		$scope.chartInit = true;
-		csv();
+		dataService.getData().then( http, function () {alert("epicfail");} );
 	};
 	$scope.redrawChart = function () {
 		composite = drawChart();
