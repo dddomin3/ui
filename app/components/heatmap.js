@@ -285,7 +285,7 @@ angular.module('myApp.heatmap', ['ngRoute'])
 		//dfault.range= 365;	//number of domains (days in current implementation)
 		dfault.cellSize= 20; //px size of cells
 		dfault.cellPadding= 0;	//px between cells
-		dfault.cellRadius= 2;	//px of cell radius
+		dfault.cellRadius= 0;	//px of cell radius
 		dfault.considerMissingDataAsZero= false;
 		dfault.domainGutter= 0; //px padding between dates
 		dfault.colLimit= 1; //number of colums per domain
@@ -332,7 +332,8 @@ angular.module('myApp.heatmap', ['ngRoute'])
 
 	
 	var _getDefaultConfig = function(){
-		
+		console.log('default config object:');
+		console.log(new _defaultConfig());
 		return new _defaultConfig();
 	}
 	
@@ -933,18 +934,16 @@ angular.module('myApp.heatmap', ['ngRoute'])
 	// 0 is Sunday
 	vm.schedules = { 
 		'0' : { },
-		'1' : { start : new Date(new Date(new Date().setHours(6)).setMinutes(15)), 
-			end : new Date(new Date(new Date().setHours(20)).setMinutes(15)) },
-		'2' : { start : new Date(new Date(new Date().setHours(8)).setMinutes(15)), 
-			end : new Date(new Date(new Date().setHours(10)).setMinutes(45)) },
-		'3' : { start : new Date(new Date(new Date().setHours(6)).setMinutes(30)), 
+		'1' : { start : new Date(new Date(new Date().setHours(8)).setMinutes(0)), 
 			end : new Date(new Date(new Date().setHours(22)).setMinutes(0)) },
-		'4' : { start : new Date(new Date(new Date().setHours(6)).setMinutes(15)), 
-			end : new Date(new Date(new Date().setHours(20)).setMinutes(0)) },
-		'5' : { start : new Date(new Date(new Date().setHours(6)).setMinutes(45)), 
-			end : new Date(new Date(new Date().setHours(20)).setMinutes(45)) },
-		'6' : { start : new Date(new Date(new Date().setHours(0)).setMinutes(0)), 
-			end : new Date(new Date(new Date().setHours(23)).setMinutes(59)) }
+		'2' : { start : new Date(new Date(new Date().setHours(8)).setMinutes(0)), 
+			end : new Date(new Date(new Date().setHours(22)).setMinutes(0)) },
+		'3' : { start : new Date(new Date(new Date().setHours(8)).setMinutes(0)), 
+			end : new Date(new Date(new Date().setHours(22)).setMinutes(0)) },
+		'4' : { start : new Date(new Date(new Date().setHours(8)).setMinutes(0)), 
+			end : new Date(new Date(new Date().setHours(22)).setMinutes(0)) },
+		'5' : { start : new Date(new Date(new Date().setHours(8)).setMinutes(0)), 
+			end : new Date(new Date(new Date().setHours(22)).setMinutes(0)) }
 		};
 	
 	vm.dataObj = {};

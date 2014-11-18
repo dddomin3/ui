@@ -10,4 +10,4 @@ angular.module('myApp.workOrderSummary', ['ngRoute'])
 	                    {name: "Daria", age: 15},
 	                    {name: "Van Dreissen", age: 55}];
 	$scope.gridOptions = {data: 'tableData'};
-});
+}]);
