@@ -12,20 +12,41 @@
 		
 	</div>
 	
-	<nl>
-		<div ng-repeat="thisEntry in displayThis">
-			<div ng-if="!isLink(thisEntry)">
-			{{thisEntry}}
-			D:
-			</div>
-			<div ng-if="isLink(thisEntry)">
-			<img ng-src= {{thisEntry}}></img>
-			:D
-			</div>
-		</div>
-	</nl>
+	<div class="btn-group" dropdown>
+		<button type="button" ng-click="queryClients()" class="btn btn-primary dropdown-toggle">
+			Organization List2<span class="caret"></span>
+		</button>
+		<ul class="dropdown-menu" role="menu">
+			<button class="btn btn-default" ng-click='setClientAll()'>All</button>
+			<li ng-repeat="(client, param) in clientQuery | orderBy:'client'">
+				<button class="btn btn-default" ng-click='initSingleClient(client)'>{{client}}</button>
+			</li>
+		</ul>
+		
+	</div>
+	
+	
+	<div>
+	<div class="jumbotron">
+	<h1>
+	Facility Details
+	</h1>
+	</div>
+	<div>
+	
+		<img ng-src= {{_image}}></img>
+			<li>
+			{{_clientName}}</li>
+			<li>{{_stationName}}</li>
+			<li>{{_projectName}}</li>
+			<li>{{_squareFootage}}
+		</li>
+	</div>
+	</div>
 </div>
 
+			<button class="btn btn-default" ng-click="open('lg')">Config</button>
+<cal-heatmap config="heat.heatmapConfig"></cal-heatmap>
 			
-
+			
 <button class="btn btn-danger" ng-click="debug()">debug!</button>
