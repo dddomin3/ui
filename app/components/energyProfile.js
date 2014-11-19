@@ -657,8 +657,10 @@ angular.module('myApp.energyProfile', ['ngRoute'])
 			lY = $scope.userParameters.height - 650;
 		//legend coords
 		
-		composite = dataService.initCompositeChart("test_composed");
-		//composite = dc.compositeChart("#test_composed");
+		composite = dataService	.initCompositeChart("test_composed")
+								.shareTitle(false)		//required so that each individual chart's titles are rendered, and composite doesnt try to get its grubby hands on it
+								.yAxisPadding("5%");	//WARNING: not in api, but xAxisScaling works. This was legit a stab in the dark.
+
 		var cumulativeAreaCharts = [];
 		var actualLineCharts = [];
 		var expectedLineCharts = [];

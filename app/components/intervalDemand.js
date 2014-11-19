@@ -22,9 +22,6 @@ angular.module('myApp.intervalDemand', ['ngRoute'])
 	var _charts = {};
 		//TODO: if the charts could be created on the service, this is where they would go
 	var _userParameters = {
-			actualColor : 'rgba(0,0,255,0.9)',
-			expectedColor : 'rgba(255,0,0,0.9)',
-			cumulativeColor : 'rgba(0,0,0,0.5)',
 			width: 750,
 			height: 680,
 			marginLeft: 75,
@@ -115,14 +112,10 @@ angular.module('myApp.intervalDemand', ['ngRoute'])
 		for (var organization in _activeOrganizations) {
 			or.push(
 				{
-	            	"name": _activeOrganizations[organization].actual,
-	            	"organization": organization
-	            },
-	            {
-	            	"name": _activeOrganizations[organization].expected,
+	            	"name": _activeOrganizations[organization].meter,
 	            	"organization": organization
 	            }
-			)
+			);
 		}
 		var message = {
 				"date": {
@@ -149,11 +142,8 @@ angular.module('myApp.intervalDemand', ['ngRoute'])
 				data.result[i].his[j].meterName = data.result[i].name;	//adds name of meter to the datapoint.
 				data.result[i].his[j].organization = data.result[i].organization;
 				
-				if(_activeOrganizations[data.result[i].organization].actual === data.result[i].name) {//marks actual
-					data.result[i].his[j].type = 'actual';
-				}
-				else if(_activeOrganizations[data.result[i].organization].expected === data.result[i].name) {//marks expected
-					data.result[i].his[j].type = 'expected';
+				if(_activeOrganizations[data.result[i].organization].meter === data.result[i].name) {//marks actual
+					data.result[i].his[j].type = 'meter';
 				}
 				_activeMeters[data.result[i].name] = '';	//keeps track of all meters that the chart currently has data for
 				//TODO:Remove_activeMeters? 
@@ -281,7 +271,7 @@ angular.module('myApp.intervalDemand', ['ngRoute'])
 	    			p.cnt--;
 	    			p.total -= +v.value;
 	    		}
-	    		return p;
+	    	return p;
     		}
 	    };
 	    var averageReduceInitGenerator = function () {
@@ -292,6 +282,9 @@ angular.module('myApp.intervalDemand', ['ngRoute'])
     			return init;
 	    	}
 		};
+		var averageOrder = function (p) {
+			return p.total/p.cnt;
+		};
 		
 		//TODO:make array, sort array, max is 0th index
 		var maxReduceAddGenerator = function (dayOfWeek) {
@@ -299,8 +292,7 @@ angular.module('myApp.intervalDemand', ['ngRoute'])
 		    	var dataOfWeek = _tfIso(v.timestamp).getDay();
 		    	if(dataOfWeek === dayOfWeek) {	//compares inputed dayOfWeek to data's day of week
 		    		p.push(v.value);
-		    		p.sort();
-		    		return p;	//returns the higher of the two values	
+		    		p.sort(function(a,b) {return b > a;});
 		    	}
 				return p;
 			};
@@ -310,7 +302,7 @@ angular.module('myApp.intervalDemand', ['ngRoute'])
 		    	var dataOfWeek = _tfIso(v.timestamp).getDay();
 		    	if(dataOfWeek === dayOfWeek) {
 		    		return p;
-		    		//this is broken without doing TODO:make array, sort array, max is 0th index
+		    		//this is broken without doing: TODO:make array, sort array, max is 0th index
 	    		}
 		    	else return p;
 	    	};
@@ -319,6 +311,10 @@ angular.module('myApp.intervalDemand', ['ngRoute'])
 	    	return function () {
     			return [0];
 	    	};
+		};
+		var maxOrder = function (p) {
+			console.log(p);
+			return p[0];
 		};
 	    
 		var daysBetween = getDaysBetween(_userParameters.highDate,_userParameters.lowDate);
@@ -338,22 +334,22 @@ angular.module('myApp.intervalDemand', ['ngRoute'])
 		    		averageReduceRemoveGenerator(dayOfWeek),
 		    		averageReduceInitGenerator()
 		    	)
-	    		.order( function (p) {return p.total/p.cnt;}
-	    	);//makes sure group is ordered by average
-	    	averageGroup.day = _dayStringArray[dayOfWeek];
-	    	averageGroup.color = _dayToColorMap[averageGroup.day];
+	    		.order( averageOrder );//makes sure group is ordered by average
+	    	averageGroup.day = _dayStringArray[dayOfWeek]+ " Average";
+	    	averageGroup.color = _dayToColorMap[_dayStringArray[dayOfWeek]];
 	    	_groups.averageGroups.push(averageGroup);
 	    	
 	    	var maxGroup = _dimensions.masterDimension.group(function(v) {
-				return v+1;
-			})
-	    	.reduce(
-		    		maxReduceAddGenerator(dayOfWeek),	
-		    		maxReduceRemoveGenerator(dayOfWeek),
-		    		maxReduceInitGenerator()
-	    	);	//makes sure group is ordered by average
-	    	maxGroup.day = _dayStringArray[dayOfWeek];
-	    	maxGroup.color = _dayToColorMap[maxGroup.day];
+					return v+1;
+				})
+		    	.reduce(
+			    		maxReduceAddGenerator(dayOfWeek),	
+			    		maxReduceRemoveGenerator(dayOfWeek),
+			    		maxReduceInitGenerator()
+		    	)
+		    	.order( maxOrder );	//makes sure group is ordered by max
+	    	maxGroup.day = _dayStringArray[dayOfWeek] + " Max";
+	    	maxGroup.color = _dayToColorMap[_dayStringArray[dayOfWeek]];
 	    	_groups.maxGroups.push(maxGroup);
 	    	
 	    	
@@ -407,13 +403,11 @@ angular.module('myApp.intervalDemand', ['ngRoute'])
 	};
 	var _initActiveOrganization = function (organization) {
 		_activeOrganizations[organization] = {
-				"actual" : "",
-				"expected" : "",
+				"meter" : "",
 				"meterQuery" : {},
 				'color' : 'rgba(0,255,255,0.5)',
 				'groups' : {
-					'actual' : {},
-					'expected' : {},
+					'meter' : {},
 					'savings' : {},
 					'cumulativeSavings': {}
 				}
@@ -457,7 +451,9 @@ angular.module('myApp.intervalDemand', ['ngRoute'])
 	$scope.average = true;
 	console.log($scope.activeOrganizations);
 	
-	var composite = dc.compositeChart("#test_composed"); //variable that stores the composite chart generated by program
+	var composite = dc	.compositeChart("#test_composed") //variable that stores the composite chart generated by program
+						.shareTitle(false)	//required so that each individual chart's titles are rendered, and composite doesnt try to get its grubby hands on it
+						.yAxisPadding("5%");	//WARNING: not in api, but xAxisScaling works. This was legit a stab in the dark.
 	//populated by drawChart
 	var drawChart = function () {
 		var lX = $scope.userParameters.width - $scope.userParameters.marginRight + 25,
@@ -475,10 +471,11 @@ angular.module('myApp.intervalDemand', ['ngRoute'])
 		        		$scope.averageGroups[i].day
 		        		)
 		        .valueAccessor(function(p) {return p.value.total/p.value.cnt; })
-		        .title(function(p) {console.log(p);return ''+(p.value.total/p.value.cnt); })
+		        .title(function(p) {return (p.value.total/p.value.cnt);})
 		        .renderTitle(true)
 		        .renderDataPoints({radius:2, fillOpacity: 1, strokeOpacity: 1})
-		        .tension(0.5);
+		        .tension(0.5)
+		        .defined(function (d) {if(d.data.value.total/d.data.value.cnt < 100) {return false;} else {return true;}});//doesn't draw values less than 100
 			charts.averageCharts.push(averageDemandChart)
 		}
 		
@@ -486,15 +483,17 @@ angular.module('myApp.intervalDemand', ['ngRoute'])
 		for(var i = 0, len = $scope.maxGroups.length; i < len; i++) {
 			var maxDemandChart = dc.lineChart(composite)
 		        .dimension($scope.masterDimension)
-		        .interpolate("cardinal")
+		       // .interpolate("cardinal")
 		        .colors($scope.maxGroups[i].color)
 		        .group(
 		        		$scope.maxGroups[i], 
 		        		$scope.maxGroups[i].day
 		        		)
+		        .valueAccessor(function(p) {return p.value[0]; })
 		        .renderTitle(true)
 		        .renderDataPoints({radius:2, fillOpacity: 1, strokeOpacity: 1})
-		        .tension(0.5);
+		        .tension(0.5)
+				.defined(function (d) {if(d.data.value[0] < 100) {return false;} else {return true;}});//doesn't draw values less than 100
 			charts.maxCharts.push(maxDemandChart)
 		}
 		
@@ -517,7 +516,7 @@ angular.module('myApp.intervalDemand', ['ngRoute'])
 			.xAxisLabel("Date/Time")
 			.elasticX(true)
 
-			.elasticY(true)
+			//.elasticY(true)
 			.renderHorizontalGridLines(true)
 			.renderVerticalGridLines(true)
 			.yAxisLabel("kWh")
@@ -525,30 +524,7 @@ angular.module('myApp.intervalDemand', ['ngRoute'])
 	
 			.mouseZoomable(true)
 
-			.brushOn(false)
-			.renderlet(function(_chart){ // this provides the functionality for an on click check for the composite chart focusing on the bar graphs (or any drawn rectangles)      	  
-				_chart.selectAll("rect").on("click", function(_item){
-					console.log(_item);
-					
-					if(_item.x !== undefined){ // if the x property appears, its a graphical 'rect', otherwise it's legend
-						var allEntries = _chart.selectAll("rect.bar")[0];
-						var clickOrganization = _item.layer.slice(0, -8); //layer is the label on the legend, which was previously set to org+" Savings"
-						console.log($scope.activeOrganizations[clickOrganization]);
-						for(var organization in $scope.activeOrganizations) {
-							if(clickOrganization === organization) {continue;} //do not remove if it was the organization clicked
-							$scope.inactiveOrganizations[organization] = $scope.activeOrganizations[organization];
-							delete $scope.activeOrganizations[organization];
-						}
-						console.log({"active": $scope.activeOrganizations, "inactive": $scope.inactiveOrganizations});
-					}
-					
-					else{ // it's a legend item
-						console.log("legend: " + _item.name);
-					}
-					$scope.$apply();
-					$scope.redrawChart();
-				})
-			});
+			.brushOn(false);
 	    
 	    dc.renderAll();
 	    return composite;
