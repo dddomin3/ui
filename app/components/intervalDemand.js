@@ -35,7 +35,17 @@ angular.module('myApp.intervalDemand', ['ngRoute'])
 	var _activeMeters = {};
 	var _activeOrganizations = {};
 	var _organizationQuery = {};
-
+	var _dayStringArray = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+	var _dayToColorMap = {
+			"Sun": "rgba(229,63,0,.8)",
+			"Mon": "rgba(222,172,0,.8)",
+			"Tue": "rgba(156, 216,0,.8)",
+			"Wed": "rgba(46, 210, 0, .8)",
+			"Thu": "rgba(0, 203, 56, .8)",
+			"Fri": "rgba(0, 197, 153, .8)",
+			"Sat": "rgba(0, 137, 191, .8)"
+	};
+	
 	var _getOrganizations = function () {	
 		//this function queries the server for all existing organizations
 		var message = {
@@ -95,7 +105,7 @@ angular.module('myApp.intervalDemand', ['ngRoute'])
 		}
 		var message = {
 				"date": {
-					"$gt": {
+					"$gte": {
 						"$date": _userParameters.lowDate ? _userParameters.lowDate : undefined
 					},
 					"$lt": {
@@ -243,16 +253,59 @@ angular.module('myApp.intervalDemand', ['ngRoute'])
     		.order(function (p) { return p.total/p.cnt;});	//makes sure group is ordered by average
 	    var daysBetween = getDaysBetween(_userParameters.highDate,_userParameters.lowDate);
 	    //_groups.totalExpectedGroup.organization = "Total";
-	    console.log(daysBetween);
-	    while(daysBetween){
-	    	console.log("hi"+daysBetween);
+	    var averageReduceAddGenerator = function (dayOfWeek) {
+	    	
+		    return function (p,v) {
+		    	var dataOfWeek = _tfIso(v.timestamp).getDay();
+		    	if(dataOfWeek === dayOfWeek) {	//compares inputed dayOfWeek to data's day of week
+		    		p.cnt++;
+					p.total += +v.value;	
+		    	}
+				return p;
+			}
+	    };
+	    var averageReduceRemoveGenerator = function (dayOfWeek) {
+	    	return function (p,v) {
+	    	var dataOfWeek = _tfIso(v.timestamp).getDay();
+	    	if(dataOfWeek === dayOfWeek) {
+	    			p.cnt--;
+	    			p.total -= +v.value;
+	    		}
+	    		return p;
+    		}
+	    };
+	    var averageReduceInitGenerator = function () {
+	    	return function () {
+    			var init = {}
+    			init.total = 0;
+    			init.cnt = 0;
+    			return init;
+	    	}
+		};
+	    
+	    _groups.averageGroups = [];
+	    _groups.maxGroups = [];
+	    while(daysBetween) {//Per Day Groups
 	    	var day = new Date( _userParameters.highDate - (1000*60*60*24)*daysBetween );
 	    	var dayOfWeek = day.getDay();
-	    	var dayString = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
-	    	console.log( [dayString[dayOfWeek], day] );
+	    	
+	    	var averageGroup = _dimensions.masterDimension.group(function(v) {
+					return v+1;
+				})
+		    	.reduce(
+		    		averageReduceAddGenerator(dayOfWeek),	
+		    		averageReduceRemoveGenerator(dayOfWeek),
+		    		averageReduceInitGenerator()
+		    	)
+	    		.order(function (p) { return p.total/p.cnt;}
+	    	);	//makes sure group is ordered by average
+	    	
+	    	averageGroup.day = _dayStringArray[dayOfWeek];
+	    	averageGroup.color = _dayToColorMap[averageGroup.day];
+	    	_groups.averageGroups.push(averageGroup);
 	    	daysBetween--;
 	    }
-	    //Per Day Groups
+	    //ENDPer Day Groups
 	};
 	
 	var _createDomain = function () {     
@@ -284,6 +337,10 @@ angular.module('myApp.intervalDemand', ['ngRoute'])
 	};
 	var _getCumulativeAverageGroup = function () { //TODO: dafuq is this supposed to be
 		return _groups.cumulativeAverageGroup;
+	};
+	
+	var _getAverageGroups = function () { //TODO: dafuq is this supposed to be
+		return _groups.averageGroups;
 	};
 	
 	var _getRawData = function () {
@@ -325,6 +382,8 @@ angular.module('myApp.intervalDemand', ['ngRoute'])
 		getCumulativeMaxGroup : _getCumulativeMaxGroup,
 		getCumulativeAverageGroup : _getCumulativeAverageGroup,
 		
+		getAverageGroups : _getAverageGroups,
+		
 		getChartParameters : _getChartParameters,
 		getUserParameters : _getUserParameters,
 		
@@ -353,17 +412,23 @@ angular.module('myApp.intervalDemand', ['ngRoute'])
 		var lX = $scope.userParameters.width - $scope.userParameters.marginRight + 25,
 			lY = $scope.userParameters.height - 650;
 		//legend coords
-		var intervalDemandChart = dc.lineChart(composite)
-	        .dimension($scope.masterDimension)
-	        .interpolate("cardinal")
-	        .colors($scope.userParameters.actualColor)
-	        .group(
-	        		$scope.averageGroup, 
-	        		"lol"//averageGroup.organization
-	        		)
-	        .valueAccessor(function(p) {return p.value.total/p.value.cnt; })
-	        .renderDataPoints({radius:2, fillOpacity: 1, strokeOpacity: 1})
-	        .tension(0.5);
+		var composedCharts = [];
+		for(var i = 0, len = $scope.averageGroups.length; i < len; i++) {
+			var intervalDemandChart = dc.lineChart(composite)
+		        .dimension($scope.masterDimension)
+		        .interpolate("cardinal")
+		        .colors($scope.averageGroups[i].color)
+		        .group(
+		        		$scope.averageGroups[i], 
+		        		$scope.averageGroups[i].day
+		        		)
+		        .valueAccessor(function(p) {return p.value.total/p.value.cnt; })
+		        .title(function(p) {console.log(p);return ''+(p.value.total/p.value.cnt); })
+		        .renderTitle(true)
+		        .renderDataPoints({radius:2, fillOpacity: 1, strokeOpacity: 1})
+		        .tension(0.5);
+			composedCharts.push(intervalDemandChart)
+		}
 		
 		composite.xAxis().tickFormat($scope.chartParameters.tickFormat); // sets the tick format to be the month/year only
 		
@@ -376,7 +441,9 @@ angular.module('myApp.intervalDemand', ['ngRoute'])
 				top: $scope.userParameters.marginTop,
 				bottom: $scope.userParameters.marginBottom
 			})
-			.compose([intervalDemandChart])
+			.compose(composedCharts)
+			.renderTitle(true)
+			
 			.x($scope.chartParameters.domainX)
 			.xUnits($scope.chartParameters.xUnits) // sets X axis units
 			.xAxisLabel("Date/Time")
@@ -423,8 +490,9 @@ angular.module('myApp.intervalDemand', ['ngRoute'])
 		//this function populates necessary variables onto the scope.
 		$scope.masterDimension  = dataService.getMasterDimension();
         
-        $scope.averageGroup = dataService.getCumulativeAverageGroup();
-        $scope.maxGroup = dataService.getCumulativeMaxGroup();
+        $scope.cumulativeAverageGroup = dataService.getCumulativeAverageGroup();
+        $scope.cumulativeMaxGroup = dataService.getCumulativeMaxGroup();
+        $scope.averageGroups = dataService.getAverageGroups();
         
         $scope.chartParameters = dataService.getChartParameters();
 	};
