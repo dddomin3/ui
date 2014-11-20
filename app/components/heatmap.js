@@ -291,9 +291,9 @@ angular.module('myApp.heatmap', ['ngRoute'])
 		dfault.colLimit= 1; //number of colums per domain
 		dfault.legend= [1,2,3,4,5,6,7,8,9,10,11,12,13];	//legend. Remember its like actually the count
 												//TODO: make vm change dependant on dataset
-		dfault.legendVerticalPosition= "center";
-		dfault.legendHorizontalPosition= "right";
-		dfault.legendOrientation= "vertical";
+		dfault.legendVerticalPosition= "top";
+		//dfault.legendHorizontalPosition= "right";
+		dfault.legendOrientation= "horizontal";
 		dfault.legendMargin= [10, 10, 10, 10];
 		dfault.legendColors= {min:'#33CC33', max:'#FF0000', empty:'#ADADAD'};	//colors of legend gradient
 		dfault.itemName= ["kWh", "kWh"];
@@ -420,7 +420,7 @@ angular.module('myApp.heatmap', ['ngRoute'])
 		//currently only works for hours because it iterates through the array of <g> objects by assuming 1 hour = 1 item in a sorted time based aray....
 		for(var p = 0; p < list.length; p++){
 			//If the current HTML5 element being examined does not reference back to THIS controller, continue iterating through elements
-			if(!(angular.element(list[p]).controller() === caller)){
+			if(!(angular.element(list[p]).controller('energySpectrum') === caller)){
 				
 				continue;
 			}
@@ -479,7 +479,7 @@ angular.module('myApp.heatmap', ['ngRoute'])
 		
 		tc.isStart = function(){
 			var g = d3.select(svg);
-			var caller = angular.element(svg).controller();
+			var caller = angular.element(svg).controller('energySpectrum');
 			
 			var day = tc.date.getDay()+'';
 			var sched = caller.schedules[day];
@@ -491,7 +491,7 @@ angular.module('myApp.heatmap', ['ngRoute'])
 		
 		tc.isEnd= function(){
 			var g = d3.select(svg);
-			var caller = angular.element(svg).controller();
+			var caller = angular.element(svg).controller('energySpectrum');
 			
 			var day = tc.date.getDay()+'';
 			var sched = caller.schedules[day];
@@ -503,7 +503,7 @@ angular.module('myApp.heatmap', ['ngRoute'])
 		
 		tc.shouldDrawSides = function(){
 			var g = d3.select(svg);
-			var caller = angular.element(svg).controller();
+			var caller = angular.element(svg).controller('energySpectrum');
 			
 			var day = tc.date.getDay()+'';
 			var sched = caller.schedules[day];
@@ -523,7 +523,7 @@ angular.module('myApp.heatmap', ['ngRoute'])
 		tc.drawSides = function(){
 			
 			var g = d3.select(svg);
-			var caller = angular.element(svg).controller();
+			var caller = angular.element(svg).controller('energySpectrum');
 			
 			var day = tc.date.getDay()+'';
 			var sched = caller.schedules[day];
@@ -691,7 +691,7 @@ angular.module('myApp.heatmap', ['ngRoute'])
 		
 		tc.drawOcc = function(){
 			var g = d3.select(svg);
-			var caller = angular.element(svg).controller();
+			var caller = angular.element(svg).controller('energySpectrum');
 			var sched = caller.schedules[tc.date.getDay()+''];
 			
 			//iterate through all svg elements (rectangles) and draw occ lines on either side
@@ -748,7 +748,7 @@ angular.module('myApp.heatmap', ['ngRoute'])
 		
 		tc.drawUnocc = function(){
 			var g = d3.select(svg);
-			var caller = angular.element(svg).controller();
+			var caller = angular.element(svg).controller('energySpectrum');
 			var sched = caller.schedules[tc.date.getDay()+''];
 			
 			var endPix = tc.getY();
@@ -913,7 +913,7 @@ angular.module('myApp.heatmap', ['ngRoute'])
 	return _servObj;
 }])
  
-.controller('heatmapCtrl', ['$scope', '$location', '$route', 'zoomHeatmapService', 'persistHeatmapService', 'heatmapDataService', 'heatmapConfigService', function($scope, $location, $route, zoomHeatmapService, persistHeatmapService, heatmapDataService, heatmapConfigService) {
+.controller('heatmapCtrl', ['$scope', '$location', '$route', 'zoomHeatmapService', 'persistHeatmapService', 'heatmapDataService', 'heatmapConfigService', '$sce', function($scope, $location, $route, zoomHeatmapService, persistHeatmapService, heatmapDataService, heatmapConfigService, $sce) {
 	var vm = this;
 
 	//inject the zoomHeatmapService into the scope.
@@ -996,7 +996,6 @@ angular.module('myApp.heatmap', ['ngRoute'])
 		}
 		
 		vm.rendered = false;
-		$scope.$emit('dashReload');
 		
 		//In one second, reload the heatmap component with the changed configuration.
 		window.setTimeout(function(){
@@ -1018,7 +1017,7 @@ angular.module('myApp.heatmap', ['ngRoute'])
 			for(var i = 0; i < heatmaps.length; i++){
 				
 				//if the heatmap belongs to this controller				
-				if(angular.element(heatmaps[i]).controller() === vm){
+				if(angular.element(heatmaps[i]).controller('energySpectrum') === vm){
 					angular.element(heatmaps[i].getElementsByTagName('line')).remove();
 				}
 			}
@@ -1077,6 +1076,22 @@ angular.module('myApp.heatmap', ['ngRoute'])
 		});
 	});
 	
+	//for testing popout using angular-ui modal
+	vm.getWidgetHtml = function(){
+		var energySpectrums = document.getElementsByTagName('energy-spectrum');
+		
+		for(var i = 0; i < energySpectrums.length; i++){
+			
+			//once we found the energy-spectrum directive whose controller matches the controller making the call, return the HTML
+			if(angular.element(energySpectrums[i]).controller('energySpectrum') === vm){
+				
+				//only return the panel-body, not the panel header (which contains config and + buttons
+				return $sce.trustAsHtml(angular.element(energySpectrums[i].getElementsByClassName("panel-body"))[0].innerHTML);
+				
+			}
+		}		
+	};
+	
 	//when we change event sets, load the event data into time cells
 	$scope.$watch('heat.eventSource', function(){
 		vm.addEvents();
@@ -1090,29 +1105,15 @@ angular.module('myApp.heatmap', ['ngRoute'])
 	
 }])
 
-.controller('dashCtrl', ['$scope', function($scope) {
-	var vm = this;
-	
-	vm.dashReload = true;
-	
-	vm.reloadDashboard = function(){
-		console.log('someone wants a dashboard reload!');
-		
-		vm.dashReload = false;
-		
-		window.setTimeout(function(){
-			console.log('shouldnt be false anymore....');
-			vm.dashReload = true;
-			$scope.$apply();
-		}, 1000);
-	};
-	
-	$scope.$on('dashReload', function(event){
-		vm.reloadDashboard();
-	});
+.directive('energySpectrum', [function() {
+	return {
+		restrict: 'E',
+		scope: {},
+		controller: 'heatmapCtrl as heat',
+		templateUrl: 'views/energySpectrum.html'
+	}
 }])
 
-//.directive('galHeatmap', [ function() {
 .directive('heatmapConfig', [ function() {
 	return {
 		restrict: 'E',

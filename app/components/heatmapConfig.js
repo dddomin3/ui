@@ -12,8 +12,7 @@ angular.module('myApp.heatmap')
 			size: size,
 			scope: $scope.$parent
 			});
-		
-		}
+		};
 }])
 
 .controller('heatmapConfigInstance', ['$scope', '$modalInstance', function($scope, $modalInstance) {

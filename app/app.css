@@ -32,3 +32,8 @@
 .alarmflagusa {
     background-image: url('usa.png');
 }
+
+.widget-popup .modal-dialog {
+	width: 100%;
+	padding: 1%;
+}
