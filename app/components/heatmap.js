@@ -32,7 +32,6 @@ angular.module('myApp.heatmap', ['ngRoute'])
 		//return $http.post('http://10.239.3.132:9763/MongoServlet-0.0.1-SNAPSHOT/send',"{\"name\":\"G02NSHVHV7S45Q1_kWh\"}")
 		return $http.get(caller.dataSource)
 			.success(function(data){
-				console.log('getting data');
 				var j = 0;
 				var last = 0;
 				var dateSortedResult = {};
@@ -332,8 +331,7 @@ angular.module('myApp.heatmap', ['ngRoute'])
 
 	
 	var _getDefaultConfig = function(){
-		console.log('default config object:');
-		console.log(new _defaultConfig());
+
 		return new _defaultConfig();
 	}
 	
