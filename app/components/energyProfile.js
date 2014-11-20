@@ -833,11 +833,16 @@ angular.module('myApp.energyProfile', ['ngRoute'])
 	
 	var http = function(data) {
 		$scope.showButtons = false;
-        
-		populateScope();
-        
-        composite = drawChart();
-        $scope.showButtons = true;
+		try {
+			populateScope();
+			composite = drawChart();
+		}
+		catch (e) {
+			console.log(e); // pass exception object to error handler
+		}
+		finally {
+			$scope.showButtons = true;
+		}
     };
     
 	var csv = function () {
