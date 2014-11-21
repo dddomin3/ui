@@ -10,7 +10,7 @@ angular.module('myApp.heatmap', ['ngRoute'])
 
 .factory('heatmapDataService', ['$http', function($http){
 	var _servObj = {};	
-
+	
 	var _setUrl = function(Url){
 		this.url = Url;
 
@@ -1021,6 +1021,7 @@ angular.module('myApp.heatmap', ['ngRoute'])
 			}
 		}
 	}
+	
 	
 	//this happens when the heatmaps load... not only when the select is chosen.
 	$scope.$watch('heat.dataSource', function(){
