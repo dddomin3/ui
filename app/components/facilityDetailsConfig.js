@@ -1,24 +1,27 @@
 'use strict';
  
-angular.module('myApp.heatmap')
+angular.module('myApp.facilityDetails')
  
-.controller('heatmapConfigController', ['$scope', '$modal', function($scope, $modal){
+.controller('facilityDetailsConfigController', ['$scope', '$modal', function($scope, $modal){
 				
 		$scope.open = function(size) {
 		
 		var modalInstance = $modal.open({
-			templateUrl: 'views/heatmapConfig.html',
-			controller: 'heatmapConfigInstance',
+			templateUrl: 'views/facilityDetailsConfig.html',
+			controller: 'facilityDetailsConfigInstance',
 			size: size,
-			scope: $scope.$parent
+			scope: $scope
 			});
 		
 		}
 }])
 
-.controller('heatmapConfigInstance', ['$scope', '$modalInstance', function($scope, $modalInstance) {
+.controller('facilityDetailsConfigInstance', ['$scope', '$modalInstance', function($scope, $modalInstance) {
+	var parent = $scope.$parent;
+	
 	$scope.ok = function() {
 		$modalInstance.close();
+		
 	};
 	
 	$scope.domainOpts = [
@@ -37,6 +40,8 @@ angular.module('myApp.heatmap')
 		
 		$scope.opened = true;
 	};
+	
+	
 	
 	//dummy data for events - should be a service function to get events of a certain type 
 	$scope.events = [
@@ -107,3 +112,5 @@ angular.module('myApp.heatmap')
 	];
 	
 }]);
+
+
