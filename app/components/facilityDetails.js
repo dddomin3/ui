@@ -13,7 +13,18 @@ angular.module('myApp.facilityDetails', ['ngRoute'])
 	var _activeOrganizations = {};
 	var _activeClients
 	var _organizationQuery = {};
+	var _weatherQuery = {};
 	var _clientQuery = {};
+
+	var _getWeather = function(city,state){
+		return $http.get("http://api.openweathermap.org/data/2.5/forecast/daily?q="+city+","+state+"&mode=json&units=imperial&cnt=5&e2b7c435e01ce8ce7833e41644057103")
+		//return $http.get("http://api.openweathermap.org/data/2.5/weather?lat=35&lon=139cnt=7")
+		.success(function(data) {
+
+			_weatherQuery=data;
+			
+		})
+	}
 
 	var _getOrganizations = function (client) {	
 		//this function queries the server for all existing organizations
@@ -88,7 +99,9 @@ angular.module('myApp.facilityDetails', ['ngRoute'])
 	};
 
 
-
+	var _getWeatherQuery =  function () {
+		return _weatherQuery;
+	};
 
 	var _getOrganizationQuery =  function () {
 		return _organizationQuery;
@@ -132,7 +145,8 @@ angular.module('myApp.facilityDetails', ['ngRoute'])
 	_servObj = {
 
 			getOrganizations: _getOrganizations,
-
+			getWeather: _getWeather,
+			getWeatherQuery : _getWeatherQuery,
 
 			getActiveOrganizations : _getActiveOrganizations,
 			initActiveOrganization : _initActiveOrganization,
@@ -155,47 +169,11 @@ angular.module('myApp.facilityDetails', ['ngRoute'])
 
 
 
-.factory('csvReaderService', ['$http', function($http){
+.factory('facilityQueryService', ['$http', function($http){
 
-//	parser copypasta'ed from internet
-	function CSVToArray( strData, strDelimiter ){
-		strDelimiter = (strDelimiter || ",");
 
-		var objPattern = new RegExp(
-				(
-						"(\\" + strDelimiter + "|\\r?\\n|\\r|^)" +
-						"(?:\"([^\"]*(?:\"\"[^\"]*)*)\"|" +
-						"([^\"\\" + strDelimiter + "\\r\\n]*))"
-				),
-				"gi"
-		);
-		var arrData = [[]];
-		var arrMatches = null;
-		while (arrMatches = objPattern.exec( strData )){
-			var strMatchedDelimiter = arrMatches[ 1 ];
-			if (
-					strMatchedDelimiter.length &&
-					strMatchedDelimiter !== strDelimiter
-			){
-				arrData.push( [] );
-			}
-			var strMatchedValue;
-			if (arrMatches[ 2 ]){
-				strMatchedValue = arrMatches[ 2 ].replace(
-						new RegExp( "\"\"", "g" ),
-						"\""
-				);
-
-			} else {
-				strMatchedValue = arrMatches[ 3 ];
-			}
-			arrData[ arrData.length - 1 ].push( strMatchedValue );
-		}
-		return( arrData );
-	}
-	//end parser copypasta'ed from internet
 	var Url  = "http://10.239.3.132:9763/MongoServlet-0.0.1-SNAPSHOT/send";
-	var _csvArray = [];
+	var _queryData = [];
 
 	// $httpProvider.defaults.headers.get = { 'Collections' : 'Facility' }
 
@@ -213,7 +191,7 @@ angular.module('myApp.facilityDetails', ['ngRoute'])
 	var _promise = $http(config).success(function(response,status,headers,config){
 
 		//_csvArray = CSVToArray(response,",");
-		_csvArray = response;
+		_queryData = response;
 	});
 	//console.log(promise);
 
@@ -221,14 +199,14 @@ angular.module('myApp.facilityDetails', ['ngRoute'])
 
 	var _servObj = {
 			promise :  _promise,
-			csvArray: function(){return _csvArray}
+			queryData: function(){return _queryData}
 	};
 
 	return _servObj;
 }])
 
-.controller('facilityDetailsCtrl', ['$scope', '$modal', '$location', '$route', 'facilityDetailsService', 'csvReaderService',
-                                    function($scope, $modal, $location, $route, dataService,csvArray) {
+.controller('facilityDetailsCtrl', ['$scope', '$modal', '$location', '$route', 'facilityDetailsService', 'facilityQueryService','sharedPropertiesService',
+                                    function($scope, $modal, $location, $route, dataService,queryData,sharedProperties) {
 
 	$scope.activeOrganizations = dataService.getActiveOrganizations();
 	$scope.activeClient="";
@@ -238,19 +216,107 @@ angular.module('myApp.facilityDetails', ['ngRoute'])
 		});
 	};
 
+	//console.log(dataService.getWeather("Somerset"));
+	$scope.initWeather = function () {
+
+		dataService.getWeather("Somerset","nj").then( function () {
+			
+			$scope.$parent.$parent.weatherQuery = dataService.getWeatherQuery();
+			$scope.testing = "testing";
+			
+			var date1 = new Date($scope.weatherQuery.list[0].dt*1000);
+			var date2 = new Date($scope.weatherQuery.list[1].dt*1000);
+			var date3 = new Date($scope.weatherQuery.list[2].dt*1000);
+			var date4 = new Date($scope.weatherQuery.list[3].dt*1000);
+			var date5 = new Date($scope.weatherQuery.list[4].dt*1000);
+
+			$scope.$parent.$parent.day1LowTemp=$scope.$parent.$parent.weatherQuery.list[0].temp.min;
+			$scope.$parent.$parent.day1HighTemp=$scope.$parent.$parent.weatherQuery.list[0].temp.max;
+			$scope.$parent.$parent.day1Rain=$scope.$parent.$parent.weatherQuery.list[0].rain;
+			$scope.$parent.$parent.day1Desc=$scope.$parent.$parent.weatherQuery.list[0].weather[0].description;
+			$scope.$parent.$parent.day1Clouds=$scope.$parent.$parent.weatherQuery.list[0].clouds;
+			$scope.$parent.$parent.day1Snow=$scope.$parent.$parent.weatherQuery.list[0].snow;
+			$scope.$parent.$parent.day1Name=getDayName(date1.getDay());
+			if($scope.$parent.$parent.day1Rain===undefined){$scope.$parent.$parent.day1Rain=0;}
+			$scope.$parent.$parent.day1Image=getAppropriateWeatherImage($scope.$parent.$parent.day1Clouds,$scope.$parent.$parent.day1Rain,$scope.$parent.$parent.day1Snow);
+
+			$scope.$parent.$parent.day2LowTemp=$scope.$parent.$parent.weatherQuery.list[1].temp.min;
+			$scope.$parent.$parent.day2HighTemp=$scope.$parent.$parent.weatherQuery.list[1].temp.max;
+			$scope.$parent.$parent.day2Rain=$scope.$parent.$parent.weatherQuery.list[1].rain;
+			$scope.$parent.$parent.day2Desc=$scope.$parent.$parent.weatherQuery.list[1].weather[0].description;
+			$scope.$parent.$parent.day2Clouds=$scope.$parent.$parent.weatherQuery.list[1].clouds;
+			$scope.$parent.$parent.day2Snow=$scope.$parent.$parent.weatherQuery.list[1].snow;
+			$scope.$parent.$parent.day2Name=getDayName(date2.getDay());
+			if($scope.$parent.$parent.day2Rain===undefined){$scope.$parent.$parent.day2Rain=0;}
+			$scope.$parent.$parent.day2Image=getAppropriateWeatherImage($scope.$parent.$parent.day2Clouds,$scope.$parent.$parent.day2Rain,$scope.$parent.$parent.day2Snow);
+
+			$scope.$parent.$parent.day3LowTemp=$scope.$parent.$parent.weatherQuery.list[2].temp.min;
+			$scope.$parent.$parent.day3HighTemp=$scope.$parent.$parent.weatherQuery.list[2].temp.max;
+			$scope.$parent.$parent.day3Rain=$scope.$parent.$parent.weatherQuery.list[2].rain;
+			$scope.$parent.$parent.day3Desc=$scope.$parent.$parent.weatherQuery.list[2].weather[0].description;
+			$scope.$parent.$parent.day3Clouds=$scope.$parent.$parent.weatherQuery.list[2].clouds;
+			$scope.$parent.$parent.day3Snow=$scope.$parent.$parent.weatherQuery.list[2].snow;
+			$scope.$parent.$parent.day3Name=getDayName(date3.getDay());
+			if($scope.$parent.$parent.day3Rain===undefined){$scope.$parent.$parent.day3Rain=0;}
+			$scope.$parent.$parent.day3Image=getAppropriateWeatherImage($scope.$parent.$parent.day3Clouds,$scope.$parent.$parent.day3Rain,$scope.$parent.$parent.day3Snow);
+
+			$scope.$parent.$parent.day4LowTemp=$scope.$parent.$parent.weatherQuery.list[3].temp.min;
+			$scope.$parent.$parent.day4HighTemp=$scope.$parent.$parent.weatherQuery.list[3].temp.max;
+			$scope.$parent.$parent.day4Rain=$scope.$parent.$parent.weatherQuery.list[3].rain;
+			$scope.$parent.$parent.day4Desc=$scope.$parent.$parent.weatherQuery.list[3].weather[0].description;
+			$scope.$parent.$parent.day4Clouds=$scope.$parent.$parent.weatherQuery.list[3].clouds;
+			$scope.$parent.$parent.day4Snow=$scope.$parent.$parent.weatherQuery.list[3].snow;
+			$scope.$parent.$parent.day4Name=getDayName(date4.getDay());
+			if($scope.$parent.$parent.day4Rain===undefined){$scope.$parent.$parent.day4Rain=0;}
+			$scope.$parent.$parent.day4Image=getAppropriateWeatherImage($scope.$parent.$parent.day4Clouds,$scope.$parent.$parent.day4Rain,$scope.$parent.$parent.day4Snow);
+
+			$scope.$parent.$parent.day5LowTemp=$scope.$parent.$parent.weatherQuery.list[4].temp.min;
+			$scope.$parent.$parent.day5HighTemp=$scope.$parent.$parent.weatherQuery.list[4].temp.max;
+			$scope.$parent.$parent.day5Rain=$scope.$parent.$parent.weatherQuery.list[4].rain;
+			$scope.$parent.$parent.day5Desc=$scope.$parent.$parent.weatherQuery.list[4].weather[0].description;
+			$scope.$parent.$parent.day5Clouds=$scope.$parent.$parent.weatherQuery.list[4].clouds;
+			$scope.$parent.$parent.day5Snow=$scope.$parent.$parent.weatherQuery.list[4].snow;
+			$scope.$parent.$parent.day5Name=getDayName(date5.getDay());
+			if($scope.$parent.$parent.day5Rain===undefined){$scope.$parent.$parent.day5Rain=0;}
+			$scope.$parent.$parent.day5Image=getAppropriateWeatherImage($scope.$parent.$parent.day5Clouds,$scope.$parent.$parent.day5Rain,$scope.$parent.$parent.day5Snow);
+
+			
+		});
+	}
+
+
+	var getAppropriateWeatherImage = function(cloudPercent,rainPercent,snowPercent){
+	if(snowPercent>10){
+	return "/app/pictures/snow.gif";
+	}
+	if(rainPercent>10){
+	return "/app/pictures/chancerain.gif";
+	}
+	if(cloudPercent<30){return "/app/pictures/clear.gif";}
+	else if(cloudPercent>=30 && cloudPercent<70){return "/app/pictures/partlycloudy.gif";}
+	else if(cloudPercent>=70){return "/app//pictures/cloudy.gif";}
+
+	
+	}
+
+	var getDayName = function(dayNumber){
+		if(dayNumber===1){return "Monday";}
+		if(dayNumber===2){return "Tuesday";}
+		if(dayNumber===3){return "Wednesday";}
+		if(dayNumber===4){return "Thursday";}
+		if(dayNumber===5){return "Friday";}
+		if(dayNumber===6){return "Saturday";}
+		if(dayNumber===7){return "Sunday";}
+	}
+
 	$scope.queryClients = function () {
 		dataService.getClients().then( function () {
 			$scope.clientQuery = dataService.getClientQuery();
 		});
 	};
 
-	csvArray.promise.then( function (d) {
-		$scope.thisCsvArray = csvArray.csvArray();
-
-
-
-
-
+	queryData.promise.then( function (d) {
+		$scope.thisQueryData = queryData.queryData();
 	});
 
 	$scope.initMultiOrganization = function (organization) {
@@ -278,20 +344,34 @@ angular.module('myApp.facilityDetails', ['ngRoute'])
 		var scopeArray = [];
 		var urlScopeArray = [];
 		dataService.initActiveOrganization(organization);
-		for(var a in $scope.thisCsvArray.result){
+		for(var a in $scope.thisQueryData.result){
 			//console.log($scope.thisCsvArray.result[a].clientName);
-			for(var c in $scope.activeOrganizations){var activeOrgString = $scope.activeOrganizations[c].name;}
+			for(var c in $scope.activeOrganizations){var activeOrgString = $scope.activeOrganizations[c].name;$scope.activeOrg = activeOrgString;}
 
 			//console.log($scope.thisCsvArray.result[a].clientName === activeOrgString);
-			if($scope.thisCsvArray.result[a].stationName === organization){
+			if($scope.thisQueryData.result[a].stationName === organization){
 				//for(var b in $scope.thisCsvArray.result[a]){
 
 				//console.log($scope.thisCsvArray.result[a][b]);
-				$scope._clientName = $scope.thisCsvArray.result[a].clientName;
-				$scope._projectName = $scope.thisCsvArray.result[a].projectName;
-				$scope._stationName = $scope.thisCsvArray.result[a].stationName;
-				$scope._squareFootage = $scope.thisCsvArray.result[a].squareFootage;
-				$scope._image = $scope.thisCsvArray.result[a].image;
+
+				$scope.$parent.$parent._clientName = $scope.thisQueryData.result[a].clientName;
+				$scope.$parent.$parent._projectName = $scope.thisQueryData.result[a].projectName;
+				$scope.$parent.$parent._liveDate = $scope.thisQueryData.result[a].liveDate;
+				$scope.$parent.$parent._facilityAddress = $scope.thisQueryData.result[a].facilityAddress;
+				$scope.$parent.$parent._image = $scope.thisQueryData.result[a].image;
+				$scope.$parent.$parent._squareFootage = $scope.thisQueryData.result[a].squareFootage;
+				$scope.$parent.$parent._buildingType = $scope.thisQueryData.result[a].buildingType;
+				
+				
+				
+				
+
+				$scope.$parent.$parent._assetCount = 0;
+				
+				for(var thisAssetType in $scope.thisQueryData.result[a].asset){
+					$scope.$parent.$parent._assetCount = $scope.$parent.$parent._assetCount+$scope.thisQueryData.result[a].asset[thisAssetType].length;
+				}
+
 				//urlScopeArray.push('<a href="' + $scope.thisCsvArray.result[a][b] + '">' + $scope.thisCsvArray.result[a][b] + '</a>');
 				//$scope.displayThis = scopeArray;
 				//$scope.urlDisplayThis = urlScopeArray;
@@ -300,14 +380,24 @@ angular.module('myApp.facilityDetails', ['ngRoute'])
 				return;
 			}
 			else{
-				$scope._clientName = "";
-				$scope._projectName = "";
-				$scope._stationName = "";
-				$scope._squareFootage = "";
-				$scope._image = "https://browshot.com/static/images/not-found.png";
+$scope.$parent.$parent._clientName = "";
+			$scope.$parent.$parent._projectName ="";
+				$scope.$parent.$parent._liveDate = "";
+				$scope.$parent.$parent._facilityAddress = "";
+				$scope.$parent._image = "https://browshot.com/static/images/not-found.png";
+				$scope.$parent.$parent._squareFootage = "";
+				$scope.$parent.$parent._buildingType = "";
+				
 			}
 		}
-	};
+
+	}
+
+
+
+	$scope.zipCode = "08873";
+	$scope.city = "Somerset";
+	$scope.state = "NJ";
 
 	$scope.setClientAll = function(){
 
@@ -317,7 +407,40 @@ angular.module('myApp.facilityDetails', ['ngRoute'])
 	$scope.initSingleClient = function (client) {
 
 		$scope.activeClient = client;
+		$scope.activeOrg = "";
+		$scope.totalizeStats();
 	};
+
+	$scope.totalizeStats = function(){
+		$scope.totalSquareFootage = 0;
+		$scope.totalAssetCount = 0;
+		$scope.$parent.$parent._assetCount = 0;
+		for(var a in $scope.thisQueryData.result){
+
+			if($scope.thisQueryData.result[a].clientName===$scope.activeClient){
+				var oldTotal = $scope.totalSquareFootage;
+				var newTotal = Number($scope.thisQueryData.result[a].squareFootage);
+				if(newTotal!==NaN){
+					$scope.totalSquareFootage = oldTotal+newTotal;
+				}
+
+
+				for(var thisAssetType in $scope.thisQueryData.result[a].asset){
+					$scope.totalAssetCount = $scope.totalAssetCount+$scope.thisQueryData.result[a].asset[thisAssetType].length;
+
+					console.log($scope.totalAssetCount);
+				}
+
+			}
+
+		}
+		$scope.$parent.$parent._assetCount = $scope.totalAssetCount;
+		$scope.$parent.$parent._squareFootage = $scope.totalSquareFootage;
+		$scope.$parent.$parent._clientName = $scope.activeClient;
+		$scope.$parent.$parent._projectName = "";
+		$scope.$parent.$parent._stationName = "";
+		$scope.$parent.$parent._image = "http://www.random.org/analysis/randbitmap-rdo.png";
+	}
 
 	$scope.isLink = function(string){
 		//var regex = /^[a-z](?:[-a-z0-9\+\.])*:(?:\/\/(?:(?:%[0-9a-f][0-9a-f]|[-a-z0-9\._~\x{A0}-\x{D7FF}\x{F900}-\x{FDCF}\x{FDF0}-\x{FFEF}\x{10000}-\x{1FFFD}\x{20000}-\x{2FFFD}\x{30000}-\x{3FFFD}\x{40000}-\x{4FFFD}\x{50000}-\x{5FFFD}\x{60000}-\x{6FFFD}\x{70000}-\x{7FFFD}\x{80000}-\x{8FFFD}\x{90000}-\x{9FFFD}\x{A0000}-\x{AFFFD}\x{B0000}-\x{BFFFD}\x{C0000}-\x{CFFFD}\x{D0000}-\x{DFFFD}\x{E1000}-\x{EFFFD}!\$&'\(\)\*\+,;=:])*@)?(?:\[(?:(?:(?:[0-9a-f]{1,4}:){6}(?:[0-9a-f]{1,4}:[0-9a-f]{1,4}|(?:[0-9]|[1-9][0-9]|1[0-9][0-9]|2[0-4][0-9]|25[0-5])(?:\.(?:[0-9]|[1-9][0-9]|1[0-9][0-9]|2[0-4][0-9]|25[0-5])){3})|::(?:[0-9a-f]{1,4}:){5}(?:[0-9a-f]{1,4}:[0-9a-f]{1,4}|(?:[0-9]|[1-9][0-9]|1[0-9][0-9]|2[0-4][0-9]|25[0-5])(?:\.(?:[0-9]|[1-9][0-9]|1[0-9][0-9]|2[0-4][0-9]|25[0-5])){3})|(?:[0-9a-f]{1,4})?::(?:[0-9a-f]{1,4}:){4}(?:[0-9a-f]{1,4}:[0-9a-f]{1,4}|(?:[0-9]|[1-9][0-9]|1[0-9][0-9]|2[0-4][0-9]|25[0-5])(?:\.(?:[0-9]|[1-9][0-9]|1[0-9][0-9]|2[0-4][0-9]|25[0-5])){3})|(?:[0-9a-f]{1,4}:[0-9a-f]{1,4})?::(?:[0-9a-f]{1,4}:){3}(?:[0-9a-f]{1,4}:[0-9a-f]{1,4}|(?:[0-9]|[1-9][0-9]|1[0-9][0-9]|2[0-4][0-9]|25[0-5])(?:\.(?:[0-9]|[1-9][0-9]|1[0-9][0-9]|2[0-4][0-9]|25[0-5])){3})|(?:(?:[0-9a-f]{1,4}:){0,2}[0-9a-f]{1,4})?::(?:[0-9a-f]{1,4}:){2}(?:[0-9a-f]{1,4}:[0-9a-f]{1,4}|(?:[0-9]|[1-9][0-9]|1[0-9][0-9]|2[0-4][0-9]|25[0-5])(?:\.(?:[0-9]|[1-9][0-9]|1[0-9][0-9]|2[0-4][0-9]|25[0-5])){3})|(?:(?:[0-9a-f]{1,4}:){0,3}[0-9a-f]{1,4})?::[0-9a-f]{1,4}:(?:[0-9a-f]{1,4}:[0-9a-f]{1,4}|(?:[0-9]|[1-9][0-9]|1[0-9][0-9]|2[0-4][0-9]|25[0-5])(?:\.(?:[0-9]|[1-9][0-9]|1[0-9][0-9]|2[0-4][0-9]|25[0-5])){3})|(?:(?:[0-9a-f]{1,4}:){0,4}[0-9a-f]{1,4})?::(?:[0-9a-f]{1,4}:[0-9a-f]{1,4}|(?:[0-9]|[1-9][0-9]|1[0-9][0-9]|2[0-4][0-9]|25[0-5])(?:\.(?:[0-9]|[1-9][0-9]|1[0-9][0-9]|2[0-4][0-9]|25[0-5])){3})|(?:(?:[0-9a-f]{1,4}:){0,5}[0-9a-f]{1,4})?::[0-9a-f]{1,4}|(?:(?:[0-9a-f]{1,4}:){0,6}[0-9a-f]{1,4})?::)|v[0-9a-f]+[-a-z0-9\._~!\$&'\(\)\*\+,;=:]+)\]|(?:[0-9]|[1-9][0-9]|1[0-9][0-9]|2[0-4][0-9]|25[0-5])(?:\.(?:[0-9]|[1-9][0-9]|1[0-9][0-9]|2[0-4][0-9]|25[0-5])){3}|(?:%[0-9a-f][0-9a-f]|[-a-z0-9\._~\x{A0}-\x{D7FF}\x{F900}-\x{FDCF}\x{FDF0}-\x{FFEF}\x{10000}-\x{1FFFD}\x{20000}-\x{2FFFD}\x{30000}-\x{3FFFD}\x{40000}-\x{4FFFD}\x{50000}-\x{5FFFD}\x{60000}-\x{6FFFD}\x{70000}-\x{7FFFD}\x{80000}-\x{8FFFD}\x{90000}-\x{9FFFD}\x{A0000}-\x{AFFFD}\x{B0000}-\x{BFFFD}\x{C0000}-\x{CFFFD}\x{D0000}-\x{DFFFD}\x{E1000}-\x{EFFFD}!\$&'\(\)\*\+,;=@])*)(?::[0-9]*)?(?:\/(?:(?:%[0-9a-f][0-9a-f]|[-a-z0-9\._~\x{A0}-\x{D7FF}\x{F900}-\x{FDCF}\x{FDF0}-\x{FFEF}\x{10000}-\x{1FFFD}\x{20000}-\x{2FFFD}\x{30000}-\x{3FFFD}\x{40000}-\x{4FFFD}\x{50000}-\x{5FFFD}\x{60000}-\x{6FFFD}\x{70000}-\x{7FFFD}\x{80000}-\x{8FFFD}\x{90000}-\x{9FFFD}\x{A0000}-\x{AFFFD}\x{B0000}-\x{BFFFD}\x{C0000}-\x{CFFFD}\x{D0000}-\x{DFFFD}\x{E1000}-\x{EFFFD}!\$&'\(\)\*\+,;=:@]))*)*|\/(?:(?:(?:(?:%[0-9a-f][0-9a-f]|[-a-z0-9\._~\x{A0}-\x{D7FF}\x{F900}-\x{FDCF}\x{FDF0}-\x{FFEF}\x{10000}-\x{1FFFD}\x{20000}-\x{2FFFD}\x{30000}-\x{3FFFD}\x{40000}-\x{4FFFD}\x{50000}-\x{5FFFD}\x{60000}-\x{6FFFD}\x{70000}-\x{7FFFD}\x{80000}-\x{8FFFD}\x{90000}-\x{9FFFD}\x{A0000}-\x{AFFFD}\x{B0000}-\x{BFFFD}\x{C0000}-\x{CFFFD}\x{D0000}-\x{DFFFD}\x{E1000}-\x{EFFFD}!\$&'\(\)\*\+,;=:@]))+)(?:\/(?:(?:%[0-9a-f][0-9a-f]|[-a-z0-9\._~\x{A0}-\x{D7FF}\x{F900}-\x{FDCF}\x{FDF0}-\x{FFEF}\x{10000}-\x{1FFFD}\x{20000}-\x{2FFFD}\x{30000}-\x{3FFFD}\x{40000}-\x{4FFFD}\x{50000}-\x{5FFFD}\x{60000}-\x{6FFFD}\x{70000}-\x{7FFFD}\x{80000}-\x{8FFFD}\x{90000}-\x{9FFFD}\x{A0000}-\x{AFFFD}\x{B0000}-\x{BFFFD}\x{C0000}-\x{CFFFD}\x{D0000}-\x{DFFFD}\x{E1000}-\x{EFFFD}!\$&'\(\)\*\+,;=:@]))*)*)?|(?:(?:(?:%[0-9a-f][0-9a-f]|[-a-z0-9\._~\x{A0}-\x{D7FF}\x{F900}-\x{FDCF}\x{FDF0}-\x{FFEF}\x{10000}-\x{1FFFD}\x{20000}-\x{2FFFD}\x{30000}-\x{3FFFD}\x{40000}-\x{4FFFD}\x{50000}-\x{5FFFD}\x{60000}-\x{6FFFD}\x{70000}-\x{7FFFD}\x{80000}-\x{8FFFD}\x{90000}-\x{9FFFD}\x{A0000}-\x{AFFFD}\x{B0000}-\x{BFFFD}\x{C0000}-\x{CFFFD}\x{D0000}-\x{DFFFD}\x{E1000}-\x{EFFFD}!\$&'\(\)\*\+,;=:@]))+)(?:\/(?:(?:%[0-9a-f][0-9a-f]|[-a-z0-9\._~\x{A0}-\x{D7FF}\x{F900}-\x{FDCF}\x{FDF0}-\x{FFEF}\x{10000}-\x{1FFFD}\x{20000}-\x{2FFFD}\x{30000}-\x{3FFFD}\x{40000}-\x{4FFFD}\x{50000}-\x{5FFFD}\x{60000}-\x{6FFFD}\x{70000}-\x{7FFFD}\x{80000}-\x{8FFFD}\x{90000}-\x{9FFFD}\x{A0000}-\x{AFFFD}\x{B0000}-\x{BFFFD}\x{C0000}-\x{CFFFD}\x{D0000}-\x{DFFFD}\x{E1000}-\x{EFFFD}!\$&'\(\)\*\+,;=:@]))*)*|(?!(?:%[0-9a-f][0-9a-f]|[-a-z0-9\._~\x{A0}-\x{D7FF}\x{F900}-\x{FDCF}\x{FDF0}-\x{FFEF}\x{10000}-\x{1FFFD}\x{20000}-\x{2FFFD}\x{30000}-\x{3FFFD}\x{40000}-\x{4FFFD}\x{50000}-\x{5FFFD}\x{60000}-\x{6FFFD}\x{70000}-\x{7FFFD}\x{80000}-\x{8FFFD}\x{90000}-\x{9FFFD}\x{A0000}-\x{AFFFD}\x{B0000}-\x{BFFFD}\x{C0000}-\x{CFFFD}\x{D0000}-\x{DFFFD}\x{E1000}-\x{EFFFD}!\$&'\(\)\*\+,;=:@])))(?:\?(?:(?:%[0-9a-f][0-9a-f]|[-a-z0-9\._~\x{A0}-\x{D7FF}\x{F900}-\x{FDCF}\x{FDF0}-\x{FFEF}\x{10000}-\x{1FFFD}\x{20000}-\x{2FFFD}\x{30000}-\x{3FFFD}\x{40000}-\x{4FFFD}\x{50000}-\x{5FFFD}\x{60000}-\x{6FFFD}\x{70000}-\x{7FFFD}\x{80000}-\x{8FFFD}\x{90000}-\x{9FFFD}\x{A0000}-\x{AFFFD}\x{B0000}-\x{BFFFD}\x{C0000}-\x{CFFFD}\x{D0000}-\x{DFFFD}\x{E1000}-\x{EFFFD}!\$&'\(\)\*\+,;=:@])|[\x{E000}-\x{F8FF}\x{F0000}-\x{FFFFD}|\x{100000}-\x{10FFFD}\/\?])*)?(?:\#(?:(?:%[0-9a-f][0-9a-f]|[-a-z0-9\._~\x{A0}-\x{D7FF}\x{F900}-\x{FDCF}\x{FDF0}-\x{FFEF}\x{10000}-\x{1FFFD}\x{20000}-\x{2FFFD}\x{30000}-\x{3FFFD}\x{40000}-\x{4FFFD}\x{50000}-\x{5FFFD}\x{60000}-\x{6FFFD}\x{70000}-\x{7FFFD}\x{80000}-\x{8FFFD}\x{90000}-\x{9FFFD}\x{A0000}-\x{AFFFD}\x{B0000}-\x{BFFFD}\x{C0000}-\x{CFFFD}\x{D0000}-\x{DFFFD}\x{E1000}-\x{EFFFD}!\$&'\(\)\*\+,;=:@])|[\/\?])*)?$/i
@@ -335,15 +458,46 @@ angular.module('myApp.facilityDetails', ['ngRoute'])
 
 	};
 
-	$scope.open = function(size) {
 
+
+
+
+	$scope.open = function(size) {
+		$scope.activeOrg = "";
+		
 		var modalInstance = $modal.open({
-			templateUrl: 'views/heatmapConfig.html',
-			controller: 'heatmapConfigInstance',
+			templateUrl: 'views/facilityDetailsConfig.html',
+			controller: 'facilityDetailsConfigInstance',
 			size: size,
-			scope: $scope.$parent
+			scope: $scope
 		});
 
+	}
+	
+	$scope.facilitySelected=function(){
+	//console.log($scope.weatherQuery===undefined)
+	if($scope.weatherQuery===undefined){return false;}
+	else{return true;}
+	}
+
+	$scope.isBlank = function(thisString){
+		//if($scope._clientName===undefined){$scope._clientName="";}
+		//if($scope._projectName===undefined){$scope._projectName="";}
+		//if($scope._stationName===undefined){$scope._stationName="";}
+		//if($scope._squareFootage===undefined){$scope._squareFootage="";}
+		//if($scope._image===undefined){$scope._image="";}
+		//console.log($scope.activeOrg+"_"+$scope.activeClient);
+		if(thisString==="" || thisString===undefined){
+			return true;
+		}
+		else{
+			return false;
+		}
+	}
+
+	$scope.isZero = function(thisNumber){
+		if(thisNumber===0 || thisNumber===undefined){return true;}
+		else{return false;}
 	}
 
 	$scope.queryOrganizations();
@@ -351,10 +505,51 @@ angular.module('myApp.facilityDetails', ['ngRoute'])
 	$scope.apply;
 }])
 
-.directive('heatmapConfig', [ function() {
+.service('sharedPropertiesService', function () {
+	var clientName = "";
+	var projectName = "";
+	var stationName = "";
+	var squareFootage = "";
+	var image = "";
+
+	return {
+		getClientName: function () {
+			return clientName;
+		},
+		getProjectName: function () {
+			return projectName;
+		},
+		getStationName: function () {
+			return stationName;
+		},
+		getSquareFootage: function () {
+			return squareFootage;
+		},
+		getImage: function () {
+			return image;
+		},
+		setClientName: function(value) {
+			clientName = value;
+		},
+		setProjectName: function(value) {
+			projectName = value;
+		},
+		setStationName: function(value) {
+			stationName = value;
+		},
+		setSquareFootage: function(value) {
+			squareFootage = value;
+		},
+		setImage: function(value) {
+			image = value;
+		}
+	};
+})
+
+.directive('facilityDetailsConfig', [ function() {
 	return {
 		restrict: 'E',
 		heat: '=heat',
-		templateUrl : 'views/heatmapConfig.html'
+		templateUrl : 'views/facilityDetailsConfig.html'
 	}
 }]);

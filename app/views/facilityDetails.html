@@ -1,29 +1,8 @@
 <div class="col-md-4">
 	<!-- org -->
-	<div class="btn-group" dropdown>
-		<button type="button" ng-click="queryOrganizations()" class="btn btn-primary dropdown-toggle">
-			Organization List<span class="caret"></span>
-		</button>
-		<ul class="dropdown-menu" role="menu">
-			<li ng-repeat="(organization, param) in organizationQuery | orderBy:'organization'">
-				<button class="btn btn-default" ng-click='initSingleOrganization(organization)'>{{organization}}</button>
-			</li>
-		</ul>
-		
-	</div>
 	
-	<div class="btn-group" dropdown>
-		<button type="button" ng-click="queryClients()" class="btn btn-primary dropdown-toggle">
-			Organization List2<span class="caret"></span>
-		</button>
-		<ul class="dropdown-menu" role="menu">
-			<button class="btn btn-default" ng-click='setClientAll()'>All</button>
-			<li ng-repeat="(client, param) in clientQuery | orderBy:'client'">
-				<button class="btn btn-default" ng-click='initSingleClient(client)'>{{client}}</button>
-			</li>
-		</ul>
-		
-	</div>
+	
+	
 	
 	
 	<div>
@@ -31,22 +10,134 @@
 	<h1>
 	Facility Details
 	</h1>
+	<div ng-if="!isBlank(_clientName)">
+	{{_clientName}}
+	</div>
+	<div ng-if="!isBlank(_projectName)">
+	{{_projectName}}
+	</div>
 	</div>
 	<div>
-	
+	<div ng-if="!isBlank(_image)">
 		<img ng-src= {{_image}}></img>
-			<li>
-			{{_clientName}}</li>
-			<li>{{_stationName}}</li>
-			<li>{{_projectName}}</li>
-			<li>{{_squareFootage}}
-		</li>
+		</div>
+			<li ng-if="!isBlank(_liveDate)">Went live on {{_liveDate}}</li>
+			<li ng-if="!isBlank(_facilityAddress)">Located at {{_facilityAddress}}</li>
+			<li ng-if="!isBlank(_buildingType)">{{_buildingType}}</li>
+			<li ng-if="!isBlank(_squareFootage)">Total of {{_squareFootage}} sq ft.</li>
+			<li ng-if="!isZero(_assetCount)">Total key assets monitored: {{_assetCount}}</li>
 	</div>
 	</div>
+	<div ng-if="facilitySelected()">
+<table cellspacing="0" cellpadding="0" class="dataTable" >
+	<thead>
+		<tr>
+		<td class="taC" style="width: 20%;">{{day1Name}} </td>
+		<td class="taC" style="width: 20%;">{{day2Name}} </td>
+		<td class="taC" style="width: 20%;">{{day3Name}} </td>
+		<td class="taC" style="width: 20%;">{{day4Name}} </td>
+		<td class="taC" style="width: 20%;">{{day5Name}} </td>
+		</tr>
+	</thead>
+	<tbody>
+		<tr class="wHover noBorder">
+		<td class="taC" >
+		<div><img src="{{day1Image}}" alt="Clear" width="42" height="42" class="condIcon" /></div>
+		<div class="b nobr">
+		<span style="color: #900;">{{day1HighTemp}}; F</span>
+		<span style="font-weight: normal; color: #999;">|</span>
+		<span style="color: #009;">{{day1LowTemp}} ; F</span>
+		</div>
+		</td>
+		<td class="taC" >
+		<div><img src="{{day2Image}}" alt="Clear" width="42" height="42" class="condIcon" /></div>
+		<div class="b nobr">
+		<span style="color: #900;">{{day2HighTemp}} ; F</span>
+		<span style="font-weight: normal; color: #999;">|</span>
+		<span style="color: #009;">{{day2HighTemp}} ; F</span>
+		</div>
+		</td>
+		<td class="taC" >
+		<div><img src="{{day3Image}}" alt="Partly Cloudy" width="42" height="42" class="condIcon" /></div>
+		<div class="b nobr">
+		<span style="color: #900;">{{day3HighTemp}} ; F</span>
+		<span style="font-weight: normal; color: #999;">|</span>
+		<span style="color: #009;">{{day3HighTemp}} ; F</span>
+		</div>
+		</td>
+		<td class="taC" >
+		<div><img src="{{day4Image}}" alt="Chance of Rain" width="42" height="42" class="condIcon" /></div>
+		<div class="b nobr">
+		<span style="color: #900;">{{day4HighTemp}} ; F</span>
+		<span style="font-weight: normal; color: #999;">|</span>
+		<span style="color: #009;">{{day4HighTemp}} ; F</span>
+		</div>
+		</td>
+		<td class="taC" >
+		<div><img src="{{day5Image}}" alt="Clear" width="42" height="42" class="condIcon" /></div>
+		<div class="b nobr">
+		<span style="color: #900;">{{day5HighTemp}} ; F</span>
+		<span style="font-weight: normal; color: #999;">|</span>
+		<span style="color: #009;">{{day5HighTemp}} ; F</span>
+		</div>
+		</td>
+		</tr>
+		<tr class="wHover noBorder">
+		<td class="taC" >
+		{{day1Desc}}
+		<div ng-if="!isZero(day1Rain) && isZero(day1Snow)">
+		{{day1Rain}}% chance of rain
+		</div>
+		<div ng-if="!isZero(day1Snow)">
+		{{day1Snow}}% chance of snow
+		</div>
+		</td>
+		<td class="taC" >
+		{{day2Desc}}
+		<div ng-if="!isZero(day2Rain) && isZero(day2Snow)">
+		{{day2Rain}}% chance of rain
+		</div>
+		<div ng-if="!isZero(day2Snow)">
+		{{day2Snow}}% chance of snow
+		</div>
+		</td>
+		<td class="taC" >
+		{{day3Desc}}
+		<div ng-if="!isZero(day3Rain) && isZero(day3Snow)">
+		{{day3Rain}}% chance of rain
+		</div>
+		<div ng-if="!isZero(day3Snow)">
+		{{day3Snow}}% chance of snow
+		</div>
+		</td>
+		<td class="taC" >
+		{{day4Desc}}
+		<div ng-if="!isZero(day4Rain) &&isZero(day4Snow)">
+		{{day4Rain}}% chance of rain
+		</div>
+		<div ng-if="!isZero(day4Snow)">
+		{{day4Snow}}% chance of snow
+		</div>
+		</td>
+		<td class="taC" >
+		{{day5Desc}}
+		<div ng-if="!isZero(day5Rain)&&isZero(day5Snow)">
+		{{day5Rain}}% chance of rain
+		</div>
+		<div ng-if="!isZero(day5Snow)">
+		{{day5Snow}}% chance of snow
+		</div>
+		</td>
+		</tr>
+	</tbody>
+</table>
+</div>
 </div>
 
-			<button class="btn btn-default" ng-click="open('lg')">Config</button>
-<cal-heatmap config="heat.heatmapConfig"></cal-heatmap>
+			<button class="btn btn-default" ng-click="open('lg');queryOrganizations()">Config</button>
+
 			
 			
 <button class="btn btn-danger" ng-click="debug()">debug!</button>
+
+
