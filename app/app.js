@@ -16,7 +16,9 @@ angular.module('myApp', [
   'angularDc',
   'colorpicker.module',
   'myApp.calendar',
-  'ui.bootstrap'
+  'ui.bootstrap',
+  'myApp.utilityGraph',
+  'myApp.panelComponent'
 ]).
 
 config(['$routeProvider', function($routeProvider) {
