@@ -9,10 +9,12 @@ angular.module('myApp.heatmap', ['ngRoute'])
 }])
 
 .run(['directiveService', function(directiveService){
-	//directiveService.addFullComponent({
-		//tag: 'energy-spectrum',
-		//controller: 'heatmapCtrl',
-		//configController: 'heatmapConfigController'});
+	directiveService.addFullComponent({
+		tag: 'energy-spectrum',
+		controller: 'heatmapCtrl',
+		configController: 'heatmapConfigController',
+		namespace: 'heat'}
+		);
 }])
 
 .factory('heatmapDataService', ['$http', function($http){

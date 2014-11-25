@@ -9,11 +9,12 @@ angular.module('myApp.panelComponent', ['ngRoute'])
 }])
 
 .run(['directiveService', function(directiveService){
-	//directiveService.addFullComponent({
-		//tag: 'utility-graph',
-		//controller: 'utilityGraphController',
-		//configController: 'utilityConfigController'}
-	//);
+	directiveService.addFullComponent({
+		tag: 'utility-graph',
+		controller: 'utilityGraphController',
+		configController: 'utilityConfigController',
+		namespace: 'utility'}
+	);
 }])
 
 .factory('directiveService', ['$templateCache', function($templateCache){
@@ -46,6 +47,10 @@ angular.module('myApp.panelComponent', ['ngRoute'])
 		return _directiveList;
 	};
 	
+	var _getComponentList = function(){
+		return _componentList;
+	};
+	
 	var _getCache = function(){
 		return $templateCache;
 	}
@@ -53,6 +58,8 @@ angular.module('myApp.panelComponent', ['ngRoute'])
 	serviceObject = {
 		addDirectiveByElementTag : _addDirectiveByElementTag,
 		getDirectiveList : _getDirectiveList,
+		addFullComponent : _addFullComponent,
+		getComponentList : _getComponentList,
 		getCache : _getCache
 	}
 	
@@ -61,8 +68,15 @@ angular.module('myApp.panelComponent', ['ngRoute'])
 
 .controller('panelController', [ 'directiveService', function(directiveService){
 	var vm = this;
+	vm.bodyDirective = {
+		tag: function(){return 'utility-graph';},
+		controller: function(){return 'utilityGraphController';},
+		configController: function(){return 'utilityConfigController';},
+		namespace: function(){return 'utility';}
+	};
 	angular.extend(vm, directiveService);
+	
 	console.log(vm);
-	console.log(vm.getDirectiveList());
+	console.log(vm.getComponentList());
 
 }]);
