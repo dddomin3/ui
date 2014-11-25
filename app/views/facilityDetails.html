@@ -1,4 +1,7 @@
-<div class="col-md-4">
+<!DOCTYPE html>
+<html lang="en-US">
+
+<div class="container">
 	<!-- org -->
 	
 	
@@ -7,20 +10,29 @@
 	
 	<div>
 	<div class="jumbotron">
+	<center>
 	<h1>
 	Facility Details
 	</h1>
+	</center>
+	<center>
+	<button class="btn btn-default" ng-click="open('lg');queryOrganizations()">Facility Selection</button>
+	</center>
+	</div>
+	<h1>
 	<div ng-if="!isBlank(_clientName)">
 	{{_clientName}}
 	</div>
 	<div ng-if="!isBlank(_projectName)">
 	{{_projectName}}
 	</div>
-	</div>
+	</h1>
 	<div>
+	
 	<div ng-if="!isBlank(_image)">
 		<img ng-src= {{_image}}></img>
 		</div>
+		
 			<li ng-if="!isBlank(_liveDate)">Went live on {{_liveDate}}</li>
 			<li ng-if="!isBlank(_facilityAddress)">Located at {{_facilityAddress}}</li>
 			<li ng-if="!isBlank(_buildingType)">{{_buildingType}}</li>
@@ -32,11 +44,11 @@
 <table cellspacing="0" cellpadding="0" class="dataTable" >
 	<thead>
 		<tr>
-		<td class="taC" style="width: 20%;">{{day1Name}} </td>
-		<td class="taC" style="width: 20%;">{{day2Name}} </td>
-		<td class="taC" style="width: 20%;">{{day3Name}} </td>
-		<td class="taC" style="width: 20%;">{{day4Name}} </td>
-		<td class="taC" style="width: 20%;">{{day5Name}} </td>
+		<td class="taC" style="width: 21%;">{{day1Name}} </td>
+		<td class="taC" style="width: 21%;">{{day2Name}} </td>
+		<td class="taC" style="width: 21%;">{{day3Name}} </td>
+		<td class="taC" style="width: 21%;">{{day4Name}} </td>
+		<td class="taC" style="width: 21%;">{{day5Name}} </td>
 		</tr>
 	</thead>
 	<tbody>
@@ -134,10 +146,10 @@
 </div>
 </div>
 
-			<button class="btn btn-default" ng-click="open('lg');queryOrganizations()">Config</button>
+			
 
 			
 			
-<button class="btn btn-danger" ng-click="debug()">debug!</button>
+
 
 
