@@ -8,6 +8,13 @@ angular.module('myApp.heatmap', ['ngRoute'])
   });
 }])
 
+.run(['directiveService', function(directiveService){
+	//directiveService.addFullComponent({
+		//tag: 'energy-spectrum',
+		//controller: 'heatmapCtrl',
+		//configController: 'heatmapConfigController'});
+}])
+
 .factory('heatmapDataService', ['$http', function($http){
 	var _servObj = {};	
 	

@@ -8,13 +8,38 @@ angular.module('myApp.panelComponent', ['ngRoute'])
   });
 }])
 
+.run(['directiveService', function(directiveService){
+	//directiveService.addFullComponent({
+		//tag: 'utility-graph',
+		//controller: 'utilityGraphController',
+		//configController: 'utilityConfigController'}
+	//);
+}])
+
 .factory('directiveService', ['$templateCache', function($templateCache){
 	var serviceObject = {};
 	var _directiveList = [];
+	var _componentList = [];
 	
 	var _addDirectiveByElementTag = function(tag){
-		$templateCache.put(tag, "<"+tag+">"+"</"+tag+">");
-		_directiveList.push(tag);
+		if(!$templateCache.get(tag)){
+			$templateCache.put(tag, "<"+tag+">"+"</"+tag+">");
+			_directiveList.push(tag);
+		}
+	};
+	
+	/*Format for component object:
+	{
+		tag : "my-component-directives-element-tag"
+		controller : "myComponentsController"
+		configController : "myComponentsConfigController"
+	}
+	*/
+	var _addFullComponent = function(componentObject){
+		if(!$templateCache.get(componentObject.tag)){
+			$templateCache.put(componentObject.tag, "<"+componentObject.tag+">"+"</"+componentObject.tag+">");
+			_componentList.push(componentObject);
+		}
 	};
 	
 	var _getDirectiveList = function(){
@@ -38,7 +63,6 @@ angular.module('myApp.panelComponent', ['ngRoute'])
 	var vm = this;
 	angular.extend(vm, directiveService);
 	console.log(vm);
-	directiveService.addDirectiveByElementTag('utility-graph');
-		console.log(vm.getDirectiveList());
+	console.log(vm.getDirectiveList());
 
 }]);
