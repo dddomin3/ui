@@ -219,8 +219,9 @@ angular.module('myApp.facilityDetails', ['ngRoute'])
 	//console.log(dataService.getWeather("Somerset"));
 	$scope.initWeather = function () {
 
-		dataService.getWeather("Somerset","nj").then( function () {
-			
+		dataService.getWeather($scope.$parent.$parent._city,$scope.$parent.$parent._state).then( function () {
+			console.log(dataService.getWeatherQuery());
+			if(dataService.getWeatherQuery().cod==="200"){
 			$scope.$parent.$parent.weatherQuery = dataService.getWeatherQuery();
 			$scope.testing = "testing";
 			
@@ -280,7 +281,7 @@ angular.module('myApp.facilityDetails', ['ngRoute'])
 			if($scope.$parent.$parent.day5Rain===undefined){$scope.$parent.$parent.day5Rain=0;}
 			$scope.$parent.$parent.day5Image=getAppropriateWeatherImage($scope.$parent.$parent.day5Clouds,$scope.$parent.$parent.day5Rain,$scope.$parent.$parent.day5Snow);
 
-			
+			}
 		});
 	}
 
@@ -360,8 +361,9 @@ angular.module('myApp.facilityDetails', ['ngRoute'])
 				$scope.$parent.$parent._facilityAddress = $scope.thisQueryData.result[a].facilityAddress;
 				$scope.$parent.$parent._image = $scope.thisQueryData.result[a].image;
 				$scope.$parent.$parent._squareFootage = $scope.thisQueryData.result[a].squareFootage;
+				$scope.$parent.$parent._city =$scope.thisQueryData.result[a].city;
+				$scope.$parent.$parent._state =$scope.thisQueryData.result[a].state;
 				$scope.$parent.$parent._buildingType = $scope.thisQueryData.result[a].buildingType;
-				
 				
 				
 				
@@ -387,7 +389,8 @@ $scope.$parent.$parent._clientName = "";
 				$scope.$parent._image = "https://browshot.com/static/images/not-found.png";
 				$scope.$parent.$parent._squareFootage = "";
 				$scope.$parent.$parent._buildingType = "";
-				
+				$scope.$parent.$parent._city = "";
+				$scope.$parent.$parent._state = "";
 			}
 		}
 
@@ -395,9 +398,7 @@ $scope.$parent.$parent._clientName = "";
 
 
 
-	$scope.zipCode = "08873";
-	$scope.city = "Somerset";
-	$scope.state = "NJ";
+
 
 	$scope.setClientAll = function(){
 
@@ -439,7 +440,7 @@ $scope.$parent.$parent._clientName = "";
 		$scope.$parent.$parent._clientName = $scope.activeClient;
 		$scope.$parent.$parent._projectName = "";
 		$scope.$parent.$parent._stationName = "";
-		$scope.$parent.$parent._image = "http://www.random.org/analysis/randbitmap-rdo.png";
+		$scope.$parent.$parent._image = "";
 	}
 
 	$scope.isLink = function(string){
