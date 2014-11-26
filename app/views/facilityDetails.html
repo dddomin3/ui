@@ -1,47 +1,100 @@
 <!DOCTYPE html>
 <html lang="en-US">
 
-<div class="container">
-	<!-- org -->
-	
-	
-	
-	
-	
+
+<div ng-if="!expanded">
+<div class="container" style="background-color:lightgrey;width:330px;float:left" >
 	<div>
-	<div class="jumbotron">
+	<div>
+	<div>
+	<button class="btn btn-default" ng-click="open('lg');queryOrganizations()" >Select Facility</button>
+	<button class="btn btn-default" ng-click="expand()" >Expand</button>
 	<center>
-	<h1>
-	Facility Details
-	</h1>
-	</center>
-	<center>
-	<button class="btn btn-default" ng-click="open('lg');queryOrganizations()">Facility Selection</button>
-	</center>
-	</div>
-	<h1>
+	
+	<b>
 	<div ng-if="!isBlank(_clientName)">
 	{{_clientName}}
 	</div>
 	<div ng-if="!isBlank(_projectName)">
 	{{_projectName}}
 	</div>
-	</h1>
+	</b>
 	<div>
+	<center>
 	
-	<div ng-if="!isBlank(_image)">
-		<img ng-src= {{_image}}></img>
-		</div>
-		
+			<li ng-if="!isZero(siteCount)">This organization has a total of {{siteCount}} sites</li>
 			<li ng-if="!isBlank(_liveDate)">Went live on {{_liveDate}}</li>
 			<li ng-if="!isBlank(_facilityAddress)">Located at {{_facilityAddress}}</li>
 			<li ng-if="!isBlank(_buildingType)">{{_buildingType}}</li>
 			<li ng-if="!isBlank(_squareFootage)">Total of {{_squareFootage}} sq ft.</li>
 			<li ng-if="!isZero(_assetCount)">Total key assets monitored: {{_assetCount}}</li>
+
+	</div>
+	</div>
+
+</div>
+</center>
+</div>
+</div>
+</div>
+
+<!-- orggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggggg -->
+
+<div ng-if="expanded">
+<div class="container-fluid" style="background-color:white">
+
+  <title>My First HTML</title>
+
+	<!-- org -->
+	
+	
+	
+	
+	<div>
+	<div >
+	
+	<div class="jumbotron" style="background-color:#428bca">
+	<center>
+	<h1>
+	Facility Details
+	</h1>
+	</center>
+	<center>
+	<button class="btn btn-default" ng-click="open('lg');queryOrganizations()">Select Facility</button>
+	<button class="btn btn-default" ng-click="expand()" >Minimize</button>
+	</center>
+	</div>
+	
+	<div>
+	
+	
+	<center>
+	
+	<b>
+	<div ng-if="!isBlank(_clientName)">
+	{{_clientName}}
+	</div>
+	<div ng-if="!isBlank(_projectName)">
+	{{_projectName}}
+	</div>
+	</b>
+	<div>
+	<center>
+	<div ng-if="!isBlank(_image)">
+		<img ng-src= {{_image}}></img>
+		</div>
+			<li ng-if="!isZero(siteCount)">This organization has a total of {{siteCount}} sites</li>
+			<li ng-if="!isBlank(_liveDate)">Went live on {{_liveDate}}</li>
+			<li ng-if="!isBlank(_facilityAddress)">Located at {{_facilityAddress}}</li>
+			<li ng-if="!isBlank(_buildingType)">{{_buildingType}}</li>
+			<li ng-if="!isBlank(_squareFootage)">Total of {{_squareFootage}} sq ft.</li>
+			<li ng-if="!isZero(_assetCount)">Total key assets monitored: {{_assetCount}}</li>
+
 	</div>
 	</div>
 	<div ng-if="facilitySelected()">
-<table cellspacing="0" cellpadding="0" class="dataTable" >
+	<center>
+<table  class="dataTable" border="3">
 	<thead>
 		<tr>
 		<td class="taC" style="width: 21%;">{{day1Name}} </td>
@@ -143,10 +196,18 @@
 		</tr>
 	</tbody>
 </table>
+</center>
+</div>
+</div>
+</center>
 </div>
 </div>
 
-			
+
+
+
+</div>
+				
 
 			
 			

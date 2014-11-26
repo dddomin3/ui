@@ -231,16 +231,21 @@ angular.module('myApp.facilityDetails', ['ngRoute'])
 			var date4 = new Date($scope.weatherQuery.list[3].dt*1000);
 			var date5 = new Date($scope.weatherQuery.list[4].dt*1000);
 
-			$scope.$parent.$parent.day1LowTemp=$scope.$parent.$parent.weatherQuery.list[0].temp.min;
-			$scope.$parent.$parent.day1HighTemp=$scope.$parent.$parent.weatherQuery.list[0].temp.max;
-			$scope.$parent.$parent.day1Rain=$scope.$parent.$parent.weatherQuery.list[0].rain;
-			$scope.$parent.$parent.day1Desc=$scope.$parent.$parent.weatherQuery.list[0].weather[0].description;
-			$scope.$parent.$parent.day1Clouds=$scope.$parent.$parent.weatherQuery.list[0].clouds;
-			$scope.$parent.$parent.day1Snow=$scope.$parent.$parent.weatherQuery.list[0].snow;
+			var weatherQueryArray = $scope.$parent.$parent.weatherQuery.list
+			var day1=weatherQueryArray[0];
+			var day2=weatherQueryArray[1];
+			var day3=weatherQueryArray[2];
+			var day4=weatherQueryArray[3];
+			var day5=weatherQueryArray[4];
+			$scope.$parent.$parent.day1LowTemp=day1.temp.min;
+			$scope.$parent.$parent.day1HighTemp=day1.temp.max;
+			$scope.$parent.$parent.day1Rain=day1.rain;
+			$scope.$parent.$parent.day1Desc=day1.weather[0].description;
+			$scope.$parent.$parent.day1Clouds=day1.clouds;
+			$scope.$parent.$parent.day1Snow=day1.snow;
 			$scope.$parent.$parent.day1Name=getDayName(date1.getDay());
-			if($scope.$parent.$parent.day1Rain===undefined){$scope.$parent.$parent.day1Rain=0;}
-			$scope.$parent.$parent.day1Image=getAppropriateWeatherImage($scope.$parent.$parent.day1Clouds,$scope.$parent.$parent.day1Rain,$scope.$parent.$parent.day1Snow);
-
+			$scope.$parent.$parent.day1Image="/app/pictures/"+day1.weather[0].icon+".png";
+			
 			$scope.$parent.$parent.day2LowTemp=$scope.$parent.$parent.weatherQuery.list[1].temp.min;
 			$scope.$parent.$parent.day2HighTemp=$scope.$parent.$parent.weatherQuery.list[1].temp.max;
 			$scope.$parent.$parent.day2Rain=$scope.$parent.$parent.weatherQuery.list[1].rain;
@@ -248,8 +253,7 @@ angular.module('myApp.facilityDetails', ['ngRoute'])
 			$scope.$parent.$parent.day2Clouds=$scope.$parent.$parent.weatherQuery.list[1].clouds;
 			$scope.$parent.$parent.day2Snow=$scope.$parent.$parent.weatherQuery.list[1].snow;
 			$scope.$parent.$parent.day2Name=getDayName(date2.getDay());
-			if($scope.$parent.$parent.day2Rain===undefined){$scope.$parent.$parent.day2Rain=0;}
-			$scope.$parent.$parent.day2Image=getAppropriateWeatherImage($scope.$parent.$parent.day2Clouds,$scope.$parent.$parent.day2Rain,$scope.$parent.$parent.day2Snow);
+			$scope.$parent.$parent.day2Image="/app/pictures/"+day2.weather[0].icon+".png";
 
 			$scope.$parent.$parent.day3LowTemp=$scope.$parent.$parent.weatherQuery.list[2].temp.min;
 			$scope.$parent.$parent.day3HighTemp=$scope.$parent.$parent.weatherQuery.list[2].temp.max;
@@ -258,8 +262,7 @@ angular.module('myApp.facilityDetails', ['ngRoute'])
 			$scope.$parent.$parent.day3Clouds=$scope.$parent.$parent.weatherQuery.list[2].clouds;
 			$scope.$parent.$parent.day3Snow=$scope.$parent.$parent.weatherQuery.list[2].snow;
 			$scope.$parent.$parent.day3Name=getDayName(date3.getDay());
-			if($scope.$parent.$parent.day3Rain===undefined){$scope.$parent.$parent.day3Rain=0;}
-			$scope.$parent.$parent.day3Image=getAppropriateWeatherImage($scope.$parent.$parent.day3Clouds,$scope.$parent.$parent.day3Rain,$scope.$parent.$parent.day3Snow);
+			$scope.$parent.$parent.day3Image="/app/pictures/"+day3.weather[0].icon+".png";
 
 			$scope.$parent.$parent.day4LowTemp=$scope.$parent.$parent.weatherQuery.list[3].temp.min;
 			$scope.$parent.$parent.day4HighTemp=$scope.$parent.$parent.weatherQuery.list[3].temp.max;
@@ -268,8 +271,7 @@ angular.module('myApp.facilityDetails', ['ngRoute'])
 			$scope.$parent.$parent.day4Clouds=$scope.$parent.$parent.weatherQuery.list[3].clouds;
 			$scope.$parent.$parent.day4Snow=$scope.$parent.$parent.weatherQuery.list[3].snow;
 			$scope.$parent.$parent.day4Name=getDayName(date4.getDay());
-			if($scope.$parent.$parent.day4Rain===undefined){$scope.$parent.$parent.day4Rain=0;}
-			$scope.$parent.$parent.day4Image=getAppropriateWeatherImage($scope.$parent.$parent.day4Clouds,$scope.$parent.$parent.day4Rain,$scope.$parent.$parent.day4Snow);
+			$scope.$parent.$parent.day4Image="/app/pictures/"+day4.weather[0].icon+".png";
 
 			$scope.$parent.$parent.day5LowTemp=$scope.$parent.$parent.weatherQuery.list[4].temp.min;
 			$scope.$parent.$parent.day5HighTemp=$scope.$parent.$parent.weatherQuery.list[4].temp.max;
@@ -278,27 +280,12 @@ angular.module('myApp.facilityDetails', ['ngRoute'])
 			$scope.$parent.$parent.day5Clouds=$scope.$parent.$parent.weatherQuery.list[4].clouds;
 			$scope.$parent.$parent.day5Snow=$scope.$parent.$parent.weatherQuery.list[4].snow;
 			$scope.$parent.$parent.day5Name=getDayName(date5.getDay());
-			if($scope.$parent.$parent.day5Rain===undefined){$scope.$parent.$parent.day5Rain=0;}
-			$scope.$parent.$parent.day5Image=getAppropriateWeatherImage($scope.$parent.$parent.day5Clouds,$scope.$parent.$parent.day5Rain,$scope.$parent.$parent.day5Snow);
+			$scope.$parent.$parent.day5Image="/app/pictures/"+day5.weather[0].icon+".png";
 
 			}
 		});
 	}
 
-
-	var getAppropriateWeatherImage = function(cloudPercent,rainPercent,snowPercent){
-	if(snowPercent>10){
-	return "/app/pictures/snow.gif";
-	}
-	if(rainPercent>10){
-	return "/app/pictures/chancerain.gif";
-	}
-	if(cloudPercent<30){return "/app/pictures/clear.gif";}
-	else if(cloudPercent>=30 && cloudPercent<70){return "/app/pictures/partlycloudy.gif";}
-	else if(cloudPercent>=70){return "/app//pictures/cloudy.gif";}
-
-	
-	}
 
 	var getDayName = function(dayNumber){
 		if(dayNumber===1){return "Monday";}
@@ -307,7 +294,7 @@ angular.module('myApp.facilityDetails', ['ngRoute'])
 		if(dayNumber===4){return "Thursday";}
 		if(dayNumber===5){return "Friday";}
 		if(dayNumber===6){return "Saturday";}
-		if(dayNumber===7){return "Sunday";}
+		if(dayNumber===0){return "Sunday";}
 	}
 
 	$scope.queryClients = function () {
@@ -342,6 +329,7 @@ angular.module('myApp.facilityDetails', ['ngRoute'])
 
 
 		}
+		$scope.$parent.$parent.siteCount=0;
 		var scopeArray = [];
 		var urlScopeArray = [];
 		dataService.initActiveOrganization(organization);
@@ -386,7 +374,7 @@ $scope.$parent.$parent._clientName = "";
 			$scope.$parent.$parent._projectName ="";
 				$scope.$parent.$parent._liveDate = "";
 				$scope.$parent.$parent._facilityAddress = "";
-				$scope.$parent._image = "https://browshot.com/static/images/not-found.png";
+				$scope.$parent._image = "";
 				$scope.$parent.$parent._squareFootage = "";
 				$scope.$parent.$parent._buildingType = "";
 				$scope.$parent.$parent._city = "";
@@ -409,12 +397,20 @@ $scope.$parent.$parent._clientName = "";
 
 		$scope.activeClient = client;
 		$scope.activeOrg = "";
+		$scope.$parent.$parent.activeOrg="";
+		$scope.$parent.$parent._buildingType = "";
+		$scope.$parent.$parent._liveDate = "";
+				$scope.$parent.$parent._facilityAddress = "";
+		delete $scope.$parent.$parent.weatherQuery;
 		$scope.totalizeStats();
 	};
+	
+	
 
 	$scope.totalizeStats = function(){
 		$scope.totalSquareFootage = 0;
 		$scope.totalAssetCount = 0;
+		$scope.$parent.$parent.siteCount = 0;
 		$scope.$parent.$parent._assetCount = 0;
 		for(var a in $scope.thisQueryData.result){
 
@@ -429,12 +425,14 @@ $scope.$parent.$parent._clientName = "";
 				for(var thisAssetType in $scope.thisQueryData.result[a].asset){
 					$scope.totalAssetCount = $scope.totalAssetCount+$scope.thisQueryData.result[a].asset[thisAssetType].length;
 
-					console.log($scope.totalAssetCount);
+					//console.log($scope.totalAssetCount);
 				}
-
+				$scope.$parent.$parent.siteCount=$scope.$parent.$parent.siteCount+1;
+				
 			}
 
 		}
+		console.log($scope.$parent.$parent.siteCount);
 		$scope.$parent.$parent._assetCount = $scope.totalAssetCount;
 		$scope.$parent.$parent._squareFootage = $scope.totalSquareFootage;
 		$scope.$parent.$parent._clientName = $scope.activeClient;
@@ -456,6 +454,15 @@ $scope.$parent.$parent._clientName = "";
 
 	$scope.debug = function () {
 		console.log($scope);
+
+	};
+	
+	$scope.expanded=false;
+	$scope.expand = function () {
+		if($scope.expanded===false){
+		$scope.expanded=true;}
+		else if($scope.expanded===true){
+		$scope.expanded=false;}
 
 	};
 
