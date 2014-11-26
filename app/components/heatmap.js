@@ -8,11 +8,11 @@ angular.module('myApp.heatmap', ['ngRoute'])
   });
 }])
 
-.run(['directiveService', function(directiveService){
+.run(['directiveService', '$controller', function(directiveService, $controller){
 	directiveService.addFullComponent({
 		tag: function(){return 'energy-spectrum';},
-		controller: function(){return 'heatmapCtrl';},
-		configController: function(){'heatmapConfigController'},
+		controller: function(){return $controller('heatmapCtrl', {'$scope':$scope});},
+		configController: function(){return $controller('heatmapConfigController', {'$scope':$scope})},
 		namespace: function(){'heat'},
 		controllerAs: function(){'heatmapCtrl as heat'}}
 		);
@@ -921,11 +921,9 @@ angular.module('myApp.heatmap', ['ngRoute'])
 	return _servObj;
 }])
  
-.controller('heatmapCtrl', ['$scope', '$location', '$route', 'zoomHeatmapService', 'persistHeatmapService', 'heatmapDataService', 'heatmapConfigService', '$sce', 'directiveService', function($scope, $location, $route, zoomHeatmapService, persistHeatmapService, heatmapDataService, heatmapConfigService, $sce, directiveService) {
+.controller('heatmapCtrl', ['$scope', '$location', '$route', 'zoomHeatmapService', 'persistHeatmapService', 'heatmapDataService', 'heatmapConfigService', '$sce', function($scope, $location, $route, zoomHeatmapService, persistHeatmapService, heatmapDataService, heatmapConfigService, $sce, directiveService) {
 	var vm = this;
-	
-	directiveService.addDirectiveByElementTag('energy-spectrum');
-	
+
 	//inject the zoomHeatmapService into the scope.
 	angular.extend(vm, zoomHeatmapService);	
 	angular.extend(vm, persistHeatmapService);

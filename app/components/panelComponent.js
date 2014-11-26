@@ -69,18 +69,29 @@ angular.module('myApp.panelComponent', ['ngRoute'])
 	return serviceObject;
 }])
 
-.controller('panelController', [ 'directiveService', function(directiveService){
+.controller('panelController', [ 'directiveService', '$controller', '$scope', function(directiveService, $controller, $scope){
 	var vm = this;
+	
 	vm.bodyDirective = {
 		tag: function(){return 'utility-graph';},
-		controller: function(){return 'utilityGraphController';},
-		configController: function(){return 'utilityConfigController';},
+		controller: function(){return $controller('utilityGraphController', {'$scope': $scope});},
+		configController: function(){return $controller('utilityConfigController', {'$scope': $scope});},
 		namespace: function(){return 'utility';},
 		controllerAs: function(){return 'utilityGraphController as utility';}
 	};
 	angular.extend(vm, directiveService);
 	
-	console.log(vm);
-	console.log(vm.getComponentList());
-
+	$scope.$watch('component.bodyDirective.namespace', function(newValue, oldValue, scope){
+		console.log(newValue());
+		console.log(oldValue());
+		console.log(scope);
+		
+		if(!vm[newValue()]){
+			vm[newValue()] = vm.bodyDirective.controller();
+		}
+		
+		if(newValue != oldValue){
+			delete vm[oldValue()];
+		}
+	});
 }]);
