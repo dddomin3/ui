@@ -10,10 +10,12 @@ angular.module('myApp.panelComponent', ['ngRoute'])
 
 .run(['directiveService', function(directiveService){
 	directiveService.addFullComponent({
-		tag: 'utility-graph',
-		controller: 'utilityGraphController',
-		configController: 'utilityConfigController',
-		namespace: 'utility'}
+		tag: function(){return 'utility-graph';},
+		controller: function(){return 'utilityGraphController';},
+		configController: function(){return 'utilityConfigController';},
+		namespace: function(){return 'utility';},
+		controllerAs: function(){return 'utilityGraphController as utility';}
+		}
 	);
 }])
 
@@ -37,8 +39,9 @@ angular.module('myApp.panelComponent', ['ngRoute'])
 	}
 	*/
 	var _addFullComponent = function(componentObject){
-		if(!$templateCache.get(componentObject.tag)){
-			$templateCache.put(componentObject.tag, "<"+componentObject.tag+">"+"</"+componentObject.tag+">");
+		console.log(componentObject);
+		if(!$templateCache.get(componentObject.tag())){
+			$templateCache.put(componentObject.tag(), "<"+componentObject.tag()+">"+"</"+componentObject.tag()+">");
 			_componentList.push(componentObject);
 		}
 	};
@@ -72,7 +75,8 @@ angular.module('myApp.panelComponent', ['ngRoute'])
 		tag: function(){return 'utility-graph';},
 		controller: function(){return 'utilityGraphController';},
 		configController: function(){return 'utilityConfigController';},
-		namespace: function(){return 'utility';}
+		namespace: function(){return 'utility';},
+		controllerAs: function(){return 'utilityGraphController as utility';}
 	};
 	angular.extend(vm, directiveService);
 	

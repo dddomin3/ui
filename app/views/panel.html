@@ -10,7 +10,7 @@
 			<select ng-model="component.bodyDirective" ng-options="value.tag for value in component.getComponentList()"></select>
 		</div>
 	</div>
-	<div class = "panel-body" ng-controller = "component.bodyDirective.controller+as+component.bodyDirective.namespace">
-		<div ng-include="component.bodyDirective.tag"></div>
+	<div class = "panel-body" ng-controller = "component.bodyDirective.controllerAs">
+		<div ng-include="component.bodyDirective.tag()"></div>
 	</div>
 </div>
