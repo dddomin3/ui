@@ -1,13 +1,13 @@
 <!DOCTYPE html>
 <html lang="en-US">
 
-
+<div ng-controller="facilityDetailsCtrl">
 <div ng-if="!expanded">
 <div class="container" style="background-color:lightgrey;width:330px;float:left" >
 	<div>
 	<div>
 	<div>
-	<button class="btn btn-default" ng-click="open('lg');queryOrganizations()" >Select Facility</button>
+	<button class="btn btn-default" ng-click="openConfig('lg');queryOrganizations()" >Select Facility</button>
 	<button class="btn btn-default" ng-click="expand()" >Expand</button>
 	<center>
 	
@@ -60,8 +60,9 @@
 	</h1>
 	</center>
 	<center>
-	<button class="btn btn-default" ng-click="open('lg');queryOrganizations()">Select Facility</button>
+	<button class="btn btn-default" ng-click="openConfig('lg');queryOrganizations()">Select Facility</button>
 	<button class="btn btn-default" ng-click="expand()" >Minimize</button>
+	<button class="btn btn-default" ng-click="debug()" >debug</button>
 	</center>
 	</div>
 	
@@ -204,11 +205,11 @@
 </div>
 
 
-
-
 </div>
-				
-
+</div>
+</div>
+</div>		
+</div>
 			
 			
 

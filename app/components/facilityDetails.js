@@ -17,7 +17,7 @@ angular.module('myApp.facilityDetails', ['ngRoute'])
 	var _clientQuery = {};
 
 	var _getWeather = function(city,state){
-		return $http.get("http://api.openweathermap.org/data/2.5/forecast/daily?q="+city+","+state+"&mode=json&units=imperial&cnt=5&e2b7c435e01ce8ce7833e41644057103")
+		return $http.get("http://api.openweathermap.org/data/2.5/forecast/daily?q="+city+","+state+"&mode=json&units=imperial&cnt=7&e2b7c435e01ce8ce7833e41644057103")
 		//return $http.get("http://api.openweathermap.org/data/2.5/weather?lat=35&lon=139cnt=7")
 		.success(function(data) {
 
@@ -221,7 +221,7 @@ angular.module('myApp.facilityDetails', ['ngRoute'])
 
 		dataService.getWeather($scope.$parent.$parent._city,$scope.$parent.$parent._state).then( function () {
 			console.log(dataService.getWeatherQuery());
-			if(dataService.getWeatherQuery().cod==="200"){
+			if(dataService.getWeatherQuery().cod==="200" && dataService.getWeatherQuery().cnt>=5){
 			$scope.$parent.$parent.weatherQuery = dataService.getWeatherQuery();
 			$scope.testing = "testing";
 			
@@ -282,6 +282,54 @@ angular.module('myApp.facilityDetails', ['ngRoute'])
 			$scope.$parent.$parent.day5Name=getDayName(date5.getDay());
 			$scope.$parent.$parent.day5Image="/app/pictures/"+day5.weather[0].icon+".png";
 
+			}
+			else{
+			delete $scope.$parent.$parent.weatherQuery;
+			delete $scope.$parent.$parent.day1LowTemp;
+			delete $scope.$parent.$parent.day1HighTemp;
+			delete $scope.$parent.$parent.day1Rain;
+			delete $scope.$parent.$parent.day1Desc;
+			delete $scope.$parent.$parent.day1Cloud;
+			delete $scope.$parent.$parent.day1Snow;
+			delete $scope.$parent.$parent.day1Name;
+			delete $scope.$parent.$parent.day1Image;
+			
+			delete $scope.$parent.$parent.day2LowTemp;
+			delete $scope.$parent.$parent.day2HighTemp;
+			delete $scope.$parent.$parent.day2Rain;
+			delete $scope.$parent.$parent.day2Desc;
+			delete $scope.$parent.$parent.day2Cloud;
+			delete $scope.$parent.$parent.day2Snow;
+			delete $scope.$parent.$parent.day2Name;
+			delete $scope.$parent.$parent.day2Image;
+
+			delete $scope.$parent.$parent.day3LowTemp;
+			delete $scope.$parent.$parent.day3HighTemp;
+			delete $scope.$parent.$parent.day3Rain;
+			delete $scope.$parent.$parent.day3Desc;
+			delete $scope.$parent.$parent.day3Cloud;
+			delete $scope.$parent.$parent.day3Snow;
+			delete $scope.$parent.$parent.day3Name;
+			delete $scope.$parent.$parent.day3Image;
+
+			delete $scope.$parent.$parent.day4LowTemp;
+			delete $scope.$parent.$parent.day4HighTemp;
+			delete $scope.$parent.$parent.day4Rain;
+			delete $scope.$parent.$parent.day4Desc;
+			delete $scope.$parent.$parent.day4Cloud;
+			delete $scope.$parent.$parent.day4Snow;
+			delete $scope.$parent.$parent.day4Name;
+			delete $scope.$parent.$parent.day4Image;
+
+			delete $scope.$parent.$parent.day5LowTemp;
+			delete $scope.$parent.$parent.day5HighTemp;
+			delete $scope.$parent.$parent.day5Rain;
+			delete $scope.$parent.$parent.day5Desc;
+			delete $scope.$parent.$parent.day5Cloud;
+			delete $scope.$parent.$parent.day5Snow;
+			delete $scope.$parent.$parent.day5Name;
+			delete $scope.$parent.$parent.day5Image;
+			
 			}
 		});
 	}
@@ -470,11 +518,23 @@ $scope.$parent.$parent._clientName = "";
 
 
 
-	$scope.open = function(size) {
+	$scope.openConfig = function(size) {
 		$scope.activeOrg = "";
 		
 		var modalInstance = $modal.open({
 			templateUrl: 'views/facilityDetailsConfig.html',
+			controller: 'facilityDetailsConfigInstance',
+			size: size,
+			scope: $scope
+		});
+
+	}
+	
+	$scope.openDetailed = function(size) {
+		$scope.activeOrg = "";
+		
+		var modalInstance = $modal.open({
+			templateUrl: 'views/detailedfacilityDetails.html',
 			controller: 'facilityDetailsConfigInstance',
 			size: size,
 			scope: $scope
