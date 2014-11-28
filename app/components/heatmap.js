@@ -11,6 +11,7 @@ angular.module('myApp.heatmap', ['ngRoute'])
 .run(['directiveService', function(directiveService){
 	directiveService.addFullComponent({
 		tag: function(){return 'energy-spectrum';},
+		configTag: function(){return 'heatmap-config';},
 		tagHtml: function(){return "<energy-spectrum></energy-spectrum>";},
 		directiveName: function(){return 'energySpectrum';},
 		namespace: function(){return 'heat'}
@@ -1083,22 +1084,6 @@ angular.module('myApp.heatmap', ['ngRoute'])
 				*/
 		});
 	});
-	
-	//for testing popout using angular-ui modal
-	vm.getWidgetHtml = function(){
-		var energySpectrums = document.getElementsByTagName('energy-spectrum');
-		
-		for(var i = 0; i < energySpectrums.length; i++){
-			
-			//once we found the energy-spectrum directive whose controller matches the controller making the call, return the HTML
-			if(angular.element(energySpectrums[i]).controller('energySpectrum') === vm){
-				
-				//only return the panel-body, not the panel header (which contains config and + buttons
-				return $sce.trustAsHtml(angular.element(energySpectrums[i].getElementsByClassName("panel-body"))[0].innerHTML);
-				
-			}
-		}		
-	};
 	
 	//when we change event sets, load the event data into time cells
 	$scope.$watch('heat.eventSource', function(){

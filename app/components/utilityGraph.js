@@ -8,6 +8,17 @@ angular.module('myApp.utilityGraph', ['ngRoute'])
   });
 }])
 
+.run(['directiveService', function(directiveService){
+	directiveService.addFullComponent({
+		tag: function(){return 'utility-graph';},
+		configTag: function(){return 'utility-graph-config';},
+		tagHtml: function(){return "<utility-graph></utility-graph>";},
+		directiveName: function(){return 'utilityGraph';},
+		namespace: function(){return 'utility';},
+		}
+	);
+}])
+
 .factory('utilityGraphDataService', ['$http', function($http){
 	var serviceObject = {};
 	
@@ -69,5 +80,14 @@ angular.module('myApp.utilityGraph', ['ngRoute'])
 		scope: {},
 		controller: 'utilityGraphController as utility',
 		templateUrl: 'views/utilityGraph.html'
+	}
+}])
+
+.directive('utilityGraphConfig', [function() {
+	return {
+		restrict: 'E',
+		utility: '=utility',
+		controller: 'utilityConfigController as config',
+		templateUrl: 'views/configButton.html'
 	}
 }])
