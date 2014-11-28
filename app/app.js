@@ -46,5 +46,25 @@ config(['$routeProvider', function($routeProvider) {
 		templateUrl: 'views/workOrderSummary.html',
 		controller: 'workOrderSummaryCtrl'
 	}).
+	when('/workOrderSummaryModal', {
+		templateUrl: 'views/workOrderSummaryModal.html',
+		controller: 'workOrderSummaryModalCtrl'
+	}).
+	when('/workOrderSummaryConfig', {
+		templateUrl: 'views/workOrderSummaryConfig.html',
+		controller: 'workOrderSummaryConfigCtrl'
+	}).
+	when('/workOrderSummary', {
+		templateUrl: 'views/workOrderSummary.html',
+		controller: 'workOrderSummaryCtrl'
+	}).
+	when('/workOrderSummaryFacility', {
+		templateUrl: 'views/workOrderSummaryFacility.html',
+		controller: 'workOrderSummaryFacilityCtrl'
+	}).
+	when('/workOrderSummaryAsset', {
+		templateUrl: 'views/workOrderSummaryAsset.html',
+		controller: 'workOrderSummaryAssetCtrl'
+	}).
 	otherwise({redirectTo: '/heatmap'});
 }]);
