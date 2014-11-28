@@ -8,14 +8,13 @@ angular.module('myApp.heatmap', ['ngRoute'])
   });
 }])
 
-.run(['directiveService', '$controller', function(directiveService, $controller){
+.run(['directiveService', function(directiveService){
 	directiveService.addFullComponent({
 		tag: function(){return 'energy-spectrum';},
-		controller: function(){return $controller('heatmapCtrl', {'$scope':$scope});},
-		configController: function(){return $controller('heatmapConfigController', {'$scope':$scope})},
-		namespace: function(){'heat'},
-		controllerAs: function(){'heatmapCtrl as heat'}}
-		);
+		tagHtml: function(){return "<energy-spectrum></energy-spectrum>";},
+		directiveName: function(){return 'energySpectrum';},
+		namespace: function(){return 'heat'}
+		});
 }])
 
 .factory('heatmapDataService', ['$http', function($http){
@@ -1117,16 +1116,7 @@ angular.module('myApp.heatmap', ['ngRoute'])
 .directive('energySpectrum', [function() {
 	return {
 		restrict: 'E',
-		scope: {},
 		controller: 'heatmapCtrl as heat',
 		templateUrl: 'views/energySpectrum.html'
-	}
-}])
-
-.directive('heatmapConfig', [ function() {
-	return {
-		restrict: 'E',
-		heat: '=heat',
-		templateUrl : 'views/heatmapConfig.html'
 	}
 }])

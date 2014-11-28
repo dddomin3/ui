@@ -49,7 +49,6 @@ angular.module('myApp.utilityGraph', ['ngRoute'])
 
 	//after data is loaded, this callback assigns the dimension and group.
 	.finally(function(){
-		console.log('in finally?');
 		
 		vm.utilityDimension = crossfilter(vm.data).dimension(function(d){
 			return d3.time.month(new Date(d.timestamp));

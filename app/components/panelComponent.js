@@ -11,10 +11,9 @@ angular.module('myApp.panelComponent', ['ngRoute'])
 .run(['directiveService', function(directiveService){
 	directiveService.addFullComponent({
 		tag: function(){return 'utility-graph';},
-		controller: function(){return 'utilityGraphController';},
-		configController: function(){return 'utilityConfigController';},
+		tagHtml: function(){return "<utility-graph></utility-graph>";},
+		directiveName: function(){return 'utilityGraph';},
 		namespace: function(){return 'utility';},
-		controllerAs: function(){return 'utilityGraphController as utility';}
 		}
 	);
 }])
@@ -39,7 +38,6 @@ angular.module('myApp.panelComponent', ['ngRoute'])
 	}
 	*/
 	var _addFullComponent = function(componentObject){
-		console.log(componentObject);
 		if(!$templateCache.get(componentObject.tag())){
 			$templateCache.put(componentObject.tag(), "<"+componentObject.tag()+">"+"</"+componentObject.tag()+">");
 			_componentList.push(componentObject);
@@ -69,29 +67,42 @@ angular.module('myApp.panelComponent', ['ngRoute'])
 	return serviceObject;
 }])
 
-.controller('panelController', [ 'directiveService', '$controller', '$scope', function(directiveService, $controller, $scope){
+.controller('panelController', [ 'directiveService', '$scope', function(directiveService, $scope){
 	var vm = this;
 	
 	vm.bodyDirective = {
 		tag: function(){return 'utility-graph';},
-		controller: function(){return $controller('utilityGraphController', {'$scope': $scope});},
-		configController: function(){return $controller('utilityConfigController', {'$scope': $scope});},
+		tagHtml: function(){return "<utility-graph></utility-graph>";},
+		directiveName: function(){return 'utilityGraph';},
 		namespace: function(){return 'utility';},
-		controllerAs: function(){return 'utilityGraphController as utility';}
 	};
 	angular.extend(vm, directiveService);
 	
+	//currently watching the namespace? Creates a dependency on the controller for the panel contents being namespaced....
 	$scope.$watch('component.bodyDirective.namespace', function(newValue, oldValue, scope){
-		console.log(newValue());
-		console.log(oldValue());
-		console.log(scope);
 		
-		if(!vm[newValue()]){
-			vm[newValue()] = vm.bodyDirective.controller();
-		}
-		
-		if(newValue != oldValue){
-			delete vm[oldValue()];
-		}
+		//new value is not yet compiled into HTML....
+		window.setTimeout(function(){
+			var componentDirectives = document.getElementsByTagName(vm.bodyDirective.tag());
+			
+			for(var i = 0; i < componentDirectives.length; i++){
+				console.log(angular.element(componentDirectives[i]).controller(vm.bodyDirective.directiveName()));
+					//check if the component being examined has the same controller as THIS panelComponent controller (i.e. that the current component is the contents of this panel)
+				if(angular.element(componentDirectives[i].parentNode).controller() === vm){
+					
+					//delete the reference to the "old" controller (indexed by namespace) and add a reference to the "new" controller
+					if(!scope[newValue()]){
+						scope[newValue()] = angular.element(componentDirectives[i]).controller(vm.bodyDirective.directiveName());
+					}
+				
+					if(newValue != oldValue){
+						delete scope[oldValue()];
+					}
+					
+					//should only be one "content" of the panel... after we have found it, return.
+					return;
+				}
+			}		
+		}, 100);
 	});
 }]);
