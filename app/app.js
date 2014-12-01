@@ -19,7 +19,8 @@ angular.module('myApp', [
   'ui.bootstrap',
   'myApp.utilityGraph',
   'myApp.panelComponent',
-  'myApp.dashboard'
+  'myApp.dashboard',
+  'myApp.ticketImpulse'
 ]).
 
 config(['$routeProvider', function($routeProvider) {
@@ -62,6 +63,10 @@ config(['$routeProvider', function($routeProvider) {
 	when('/workOrderSummaryFacility', {
 		templateUrl: 'views/workOrderSummaryFacility.html',
 		controller: 'workOrderSummaryFacilityCtrl'
+	}).
+	when('/ticketImpulse', {
+		templateUrl: 'views/ticketImpulse.html',
+		controller: 'ticketImpulseCtrl'
 	}).
 	when('/workOrderSummaryAsset', {
 		templateUrl: 'views/workOrderSummaryAsset.html',
