@@ -220,7 +220,7 @@ angular.module('myApp.facilityDetails', ['ngRoute'])
 	$scope.initWeather = function () {
 
 		dataService.getWeather($scope.$parent.$parent._city,$scope.$parent.$parent._state).then( function () {
-			console.log(dataService.getWeatherQuery());
+			//console.log(dataService.getWeatherQuery());
 			if(dataService.getWeatherQuery().cod==="200" && dataService.getWeatherQuery().cnt>=5){
 			$scope.$parent.$parent.weatherQuery = dataService.getWeatherQuery();
 			$scope.testing = "testing";
@@ -334,6 +334,7 @@ angular.module('myApp.facilityDetails', ['ngRoute'])
 		});
 	}
 
+	
 
 	var getDayName = function(dayNumber){
 		if(dayNumber===1){return "Monday";}
@@ -381,7 +382,12 @@ angular.module('myApp.facilityDetails', ['ngRoute'])
 		var scopeArray = [];
 		var urlScopeArray = [];
 		dataService.initActiveOrganization(organization);
-		for(var a in $scope.thisQueryData.result){
+		setDetails(organization);
+
+	}
+
+var setDetails = function(organization){
+for(var a in $scope.thisQueryData.result){
 			//console.log($scope.thisCsvArray.result[a].clientName);
 			for(var c in $scope.activeOrganizations){var activeOrgString = $scope.activeOrganizations[c].name;$scope.activeOrg = activeOrgString;}
 
@@ -389,8 +395,8 @@ angular.module('myApp.facilityDetails', ['ngRoute'])
 			if($scope.thisQueryData.result[a].stationName === organization){
 				//for(var b in $scope.thisCsvArray.result[a]){
 
-				//console.log($scope.thisCsvArray.result[a][b]);
-
+				
+if($scope.$parent.$parent.$parent.$parent.$parent!==null){$scope.$parent.$parent.$parent.$parent.$parent.organization = organization;}
 				$scope.$parent.$parent._clientName = $scope.thisQueryData.result[a].clientName;
 				$scope.$parent.$parent._projectName = $scope.thisQueryData.result[a].projectName;
 				$scope.$parent.$parent._liveDate = $scope.thisQueryData.result[a].liveDate;
@@ -429,12 +435,12 @@ $scope.$parent.$parent._clientName = "";
 				$scope.$parent.$parent._state = "";
 			}
 		}
+}
 
-	}
+$scope.refresh = function(){
 
-
-
-
+setDetails($scope.$parent.$parent.$parent.organization);
+}
 
 	$scope.setClientAll = function(){
 
@@ -480,7 +486,7 @@ $scope.$parent.$parent._clientName = "";
 			}
 
 		}
-		console.log($scope.$parent.$parent.siteCount);
+		
 		$scope.$parent.$parent._assetCount = $scope.totalAssetCount;
 		$scope.$parent.$parent._squareFootage = $scope.totalSquareFootage;
 		$scope.$parent.$parent._clientName = $scope.activeClient;
