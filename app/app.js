@@ -20,7 +20,8 @@ angular.module('myApp', [
   'myApp.utilityGraph',
   'myApp.panelComponent',
   'myApp.dashboard',
-  'myApp.ticketImpulse'
+  'myApp.ticketImpulse',
+  'myApp.eventPage'
 ]).
 
 config(['$routeProvider', function($routeProvider) {
@@ -71,6 +72,10 @@ config(['$routeProvider', function($routeProvider) {
 	when('/workOrderSummaryAsset', {
 		templateUrl: 'views/workOrderSummaryAsset.html',
 		controller: 'workOrderSummaryAssetCtrl'
+	}).
+	when('/eventPage',{
+		templateUrl: 'views/eventPage.html',
+		controller: 'eventPageCtrl'
 	}).
 	otherwise({redirectTo: '/heatmap'});
 }]);
