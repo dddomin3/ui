@@ -18,7 +18,8 @@ angular.module('myApp', [
   'myApp.calendar',
   'ui.bootstrap',
   'myApp.utilityGraph',
-  'myApp.panelComponent'
+  'myApp.panelComponent',
+  'myApp.dashboard'
 ]).
 
 config(['$routeProvider', function($routeProvider) {
