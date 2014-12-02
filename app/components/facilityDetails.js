@@ -396,7 +396,7 @@ for(var a in $scope.thisQueryData.result){
 				//for(var b in $scope.thisCsvArray.result[a]){
 
 				
-if($scope.$parent.$parent.$parent.$parent.$parent!==null){$scope.$parent.$parent.$parent.$parent.$parent.organization = organization;}
+if($scope.$parent.$parent.$parent.$parent!==null){$scope.$parent.$parent.$parent.$parent.organization = organization;}
 				$scope.$parent.$parent._clientName = $scope.thisQueryData.result[a].clientName;
 				$scope.$parent.$parent._projectName = $scope.thisQueryData.result[a].projectName;
 				$scope.$parent.$parent._liveDate = $scope.thisQueryData.result[a].liveDate;
@@ -409,7 +409,7 @@ if($scope.$parent.$parent.$parent.$parent.$parent!==null){$scope.$parent.$parent
 				
 				
 				
-
+ 
 				$scope.$parent.$parent._assetCount = 0;
 				
 				for(var thisAssetType in $scope.thisQueryData.result[a].asset){
@@ -428,7 +428,7 @@ $scope.$parent.$parent._clientName = "";
 			$scope.$parent.$parent._projectName ="";
 				$scope.$parent.$parent._liveDate = "";
 				$scope.$parent.$parent._facilityAddress = "";
-				$scope.$parent._image = "";
+				$scope.$parent.$parent._image = "";
 				$scope.$parent.$parent._squareFootage = "";
 				$scope.$parent.$parent._buildingType = "";
 				$scope.$parent.$parent._city = "";
@@ -438,9 +438,30 @@ $scope.$parent.$parent._clientName = "";
 }
 
 $scope.refresh = function(){
-
-setDetails($scope.$parent.$parent.$parent.organization);
-//$scope.initSingleClient($scope.$parent.$parent.$parent.client);
+console.log($scope.$parent.$parent.$parent);
+console.log($scope);
+if($scope._assetCount===undefined){$scope._assetCount=""};
+if($scope.siteCount===undefined){$scope.siteCount=""};
+if($scope._clientName===undefined){$scope._clientName=""};
+if($scope._projectName===undefined){$scope._projectName=""};
+if($scope._liveDate===undefined){$scope._liveDate=""};
+if($scope._facilityAddress===undefined){$scope._facilityAddress=""};
+if($scope._image===undefined){$scope._image=""};
+if($scope._squareFootage===undefined){$scope._squareFootage=""};
+if($scope._city===undefined){$scope._city=""};
+if($scope._state===undefined){$scope._state=""};
+if($scope._buildingType===undefined){$scope._buildingType=""};
+				$scope.$parent.$parent._assetCount = $scope._assetCount;
+				$scope.$parent.$parent.siteCount=$scope.siteCount;
+				$scope.$parent.$parent._clientName = $scope._clientName;
+				$scope.$parent.$parent._projectName = $scope._projectName;
+				$scope.$parent.$parent._liveDate = $scope._liveDate;
+				$scope.$parent.$parent._facilityAddress = $scope._facilityAddress;
+				$scope.$parent.$parent._image = $scope._image;
+				$scope.$parent.$parent._squareFootage = $scope._squareFootage;
+				$scope.$parent.$parent._city =$scope._city;
+				$scope.$parent.$parent._state =$scope._state;
+				$scope.$parent.$parent._buildingType = $scope._buildingType;
 }
 
 	$scope.setClientAll = function(){
@@ -459,6 +480,8 @@ setDetails($scope.$parent.$parent.$parent.organization);
 		delete $scope.$parent.$parent.weatherQuery;
 		$scope.totalizeStats();
 	};
+	
+	
 	
 	
 
