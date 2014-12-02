@@ -1,36 +1,58 @@
 <navbar></navbar>
-<div class="container-fluid" ng-controller="dashboardController as dashboard"> 
+<div class="container-fluid">
 	<div class="row">
-		<div ng-class="dashboard.classes(0,0)">
-			<panel-component directive="dashboard.components[0][0]"></panel-component>
+		<div class="col-md-1">
+			<ul class="nav nav-sidebar">
+				<li>
+					<a href='#/heatmap'>heatmap</a>
+				</li>
+				<li>
+					<a href='#/energyProfile'>energyProfile</a>
+				</li>
+				<li>
+					<a href='#/facilityDetails'>facilityDetails</a>
+				</li>
+				<li ng-include src=" 'views/facilityDetails.html' "></li>
+			</ul>
 		</div>
-		<div ng-class="dashboard.classes(0,1)">
-			<panel-component directive="dashboard.components[0][1]"></panel-component>		
-		</div>
-		<div ng-class="dashboard.classes(0,2)">
-			<panel-component directive="dashboard.components[0][2]"></panel-component>		
-		</div>
-	</div>
-	<div class="row">
-		<div ng-class="dashboard.classes(1,0)">
-			<panel-component directive="dashboard.components[1][0]"></panel-component>		
-		</div>
-		<div ng-class="dashboard.classes(1,1)">
-			<panel-component directive="dashboard.components[1][1]"></panel-component>		
-		</div>
-		<div ng-class="dashboard.classes(1,2)">
-			<panel-component directive="dashboard.components[1][2]"></panel-component>		
-		</div>	
-	</div>
-	<div class="row">
-		<div ng-class="dashboard.classes(2,0)">
-			<panel-component directive="dashboard.components[2][0]"></panel-component>		
-		</div>
-		<div ng-class="dashboard.classes(2,1)">
-			<panel-component directive="dashboard.components[2][1]"></panel-component>		
-		</div>
-		<div ng-class="dashboard.classes(2,2)">
-			<panel-component directive="dashboard.components[2][2]"></panel-component>		
+		<div class="col-md-11">
+			<div class="container-fluid" ng-controller="dashboardController as dashboard"> 
+				<div class="row">
+					<div ng-class="dashboard.classes(0,0)">
+						<panel-component directive="dashboard.components[0][0]"></panel-component>
+					</div>
+					<div ng-class="dashboard.classes(0,1)">
+						<panel-component directive="dashboard.components[0][1]"></panel-component>		
+					</div>
+					<div ng-class="dashboard.classes(0,2)">
+						<panel-component directive="dashboard.components[0][2]"></panel-component>		
+					</div>
+				</div>
+				<div class="row">
+					<div ng-class="dashboard.classes(1,0)">
+						<panel-component directive="dashboard.components[1][0]"></panel-component>		
+					</div>
+					<div ng-class="dashboard.classes(1,1)">
+						<panel-component directive="dashboard.components[1][1]"></panel-component>		
+					</div>
+					<div ng-class="dashboard.classes(1,2)">
+						<panel-component directive="dashboard.components[1][2]"></panel-component>		
+					</div>	
+				</div>
+				<div class="row">
+					<div ng-class="dashboard.classes(2,0)">
+						<panel-component directive="dashboard.components[2][0]"></panel-component>		
+					</div>
+					<div ng-class="dashboard.classes(2,1)">
+						<panel-component directive="dashboard.components[2][1]"></panel-component>		
+					</div>
+					<div ng-class="dashboard.classes(2,2)">
+						<panel-component directive="dashboard.components[2][2]"></panel-component>		
+					</div>
+				</div>
+			</div>
 		</div>
 	</div>
 </div>
+		
+			
