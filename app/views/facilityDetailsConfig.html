@@ -12,7 +12,7 @@
 		</button>
 		<ul class="dropdown-menu" role="menu">
 			<li ng-repeat="(organization, param) in organizationQuery | orderBy:'organization'">
-				<button class="btn btn-default" ng-click='initSingleOrganization(organization);initWeather()'>{{organization}}</button>
+				<a class="btn btn-default" ng-click='initSingleOrganization(organization);initWeather()'>{{organization}}</a>
 			</li>
 		</ul>
 		
@@ -29,9 +29,9 @@
 			<span class="caret"></span>
 		</button>
 		<ul class="dropdown-menu" role="menu">
-			<button class="btn btn-default" ng-click='setClientAll()'>All</button>
+			<a class="btn btn-default" ng-click='setClientAll()'>All</a>
 			<li ng-repeat="(client, param) in clientQuery | orderBy:'client'">
-				<button class="btn btn-default" ng-click='initSingleClient(client)'>{{client}}</button>
+				<a class="btn btn-default" ng-click='initSingleClient(client)'>{{client}}</a>
 			</li>
 		</ul>
 		

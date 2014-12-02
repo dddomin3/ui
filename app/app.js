@@ -11,6 +11,7 @@ angular.module('myApp', [
   'myApp.intervalDemand',
   'myApp.timeSeries',
   'myApp.facilityDetails',
+  'myApp.workOrderGrid',
   'myApp.workOrderSummary',
   'calHeatmap',
   'angularDc',
@@ -19,7 +20,9 @@ angular.module('myApp', [
   'ui.bootstrap',
   'myApp.utilityGraph',
   'myApp.panelComponent',
-  'myApp.dashboard'
+  'myApp.dashboard',
+  'myApp.ticketImpulse',
+  'myApp.eventPage'
 ]).
 
 config(['$routeProvider', function($routeProvider) {
@@ -46,6 +49,38 @@ config(['$routeProvider', function($routeProvider) {
 	when('/workOrderSummary', {
 		templateUrl: 'views/workOrderSummary.html',
 		controller: 'workOrderSummaryCtrl'
+	}).
+	when('/workOrderSummaryModal', {
+		templateUrl: 'views/workOrderSummaryModal.html',
+		controller: 'workOrderSummaryModalCtrl'
+	}).
+	when('/workOrderSummaryConfig', {
+		templateUrl: 'views/workOrderSummaryConfig.html',
+		controller: 'workOrderSummaryConfigCtrl'
+	}).
+	when('/workOrderSummary', {
+		templateUrl: 'views/workOrderSummary.html',
+		controller: 'workOrderSummaryCtrl'
+	}).
+	when('/workOrderSummaryFacility', {
+		templateUrl: 'views/workOrderSummaryFacility.html',
+		controller: 'workOrderSummaryFacilityCtrl'
+	}).
+	when('/ticketImpulse', {
+		templateUrl: 'views/ticketImpulse.html',
+		controller: 'ticketImpulseCtrl'
+	}).
+	when('/workOrderSummaryAsset', {
+		templateUrl: 'views/workOrderSummaryAsset.html',
+		controller: 'workOrderSummaryAssetCtrl'
+	}).
+	when('/workOrderGrid',{
+		templateUrl: 'views/workOrderGrid.html',
+		controller: 'workOrderGridCtrl'
+	}).
+	when('/eventPage',{
+		templateUrl: 'views/eventPage.html',
+		controller: 'eventPageCtrl'
 	}).
 	otherwise({redirectTo: '/heatmap'});
 }]);
