@@ -3,16 +3,9 @@
 	<div id="wrapper">
 		<div id="sidebar-wrapper">
 			<ul class="nav nav-sidebar">
-				<li ng-include src=" 'views/facilityDetails.html' "></li>
-				<li>
-					<a href='#/heatmap'>heatmap</a>
-				</li>
-				<li>
-					<a href='#/energyProfile'>energyProfile</a>
-				</li>
-				<li>
-					<a href='#/facilityDetails'>facilityDetails</a>
-				</li>
+					<div ng-repeat="component in dashboard.getSidebar() track by $index">
+						<sidebar-component directive="$parent.dashboard.getSidebar()[$index]" index="{{$index}}"></sidebar-component>
+					</div>
 			</ul>
 		</div>
 		<div id="right-sidebar-wrapper">
@@ -44,7 +37,7 @@
 					<div class="row">
 						<div ng-repeat="component in dashboard.getSideBarMap()">
 							<div class="col-md-3">
-								<palette-dashboard-component></palette-dashboard-component>
+								<palette-sidebar-component></palette-sidebar-component>
 							</div>
 						</div>
 					</div>

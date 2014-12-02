@@ -84,4 +84,14 @@ angular.module('myApp.panelComponent', ['ngRoute'])
 			scope.component.bodyDirective = scope.bodyDirective;
 		}
 	}
+}])
+
+.directive('sidebarComponent', [ function(){
+		return {
+		restrict: 'E',
+		scope: {
+			bodyDirective: '=directive'
+		},
+		template: '<div ng-include="bodyDirective.tag()"></div>',
+	}
 }]);
