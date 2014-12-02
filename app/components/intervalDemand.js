@@ -1,5 +1,5 @@
 'use strict';
-angular.module('myApp.ticketImpulse', ['ngRoute'])
+angular.module('myApp.intervalDemand', ['ngRoute'])
 
 .factory('intervalDemandChartService', ['$http', function($http){
 
@@ -521,7 +521,7 @@ angular.module('myApp.ticketImpulse', ['ngRoute'])
 	
 	return _servObj;
 }])
-.controller('ticketImpulseCtrl', ['$scope', '$location', 'intervalDemandChartService', 'intervalDemandDataService', 
+.controller('intervalDemandCtrl', ['$scope', '$location', 'intervalDemandChartService', 'intervalDemandDataService', 
                     function($scope, $location, chartService, dataService) {
 	$scope.timeSeries = 'ticketImpulse';
 	$scope.showButtons = true;
