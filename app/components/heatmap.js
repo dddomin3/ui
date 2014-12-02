@@ -14,7 +14,8 @@ angular.module('myApp.heatmap', ['ngRoute'])
 		configTag: function(){return 'heatmap-config';},
 		tagHtml: function(){return "<energy-spectrum></energy-spectrum>";},
 		directiveName: function(){return 'energySpectrum';},
-		namespace: function(){return 'heat'}
+		namespace: function(){return 'heat'},
+		paletteImage: function(){return 'usa.png';}
 		});
 }])
 

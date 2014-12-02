@@ -62,9 +62,22 @@ angular.module('myApp.dashboard', ['ngRoute'])
 
 .controller('dashboardController', [ '$scope', 'directiveService', function($scope, directiveService){
 	var vm = this;
+	vm.configDashboard = false;
+	
+	angular.extend(vm, directiveService);
+	
+	vm.config = function(){
+		vm.configDashboard = !vm.configDashboard;
+		
+	}
 	
 	vm.classes = function(row, col){
-		if(!vm.components[row][col].tag){return 'hidden';}
+		if(vm.configDashboard){
+			return 'col-md-4';
+		}
+		else if(!vm.components[row][col].tag){
+			return 'hidden';
+		}
 		else{
 			switch(col) {
 				case 0:
@@ -102,11 +115,19 @@ angular.module('myApp.dashboard', ['ngRoute'])
 	vm.components = [];
 	vm.components.push([{},{},directiveService.getComponentMap()['energy-spectrum']]);
 	vm.components.push([{},{},{}]);
-	vm.components.push([{},directiveService.getComponentMap()['energy-spectrum'],directiveService.getComponentMap()['energy-spectrum']]);
+	vm.components.push([{},{},{}]);
 	
-	$scope.$watch('dashboard.components', function(newValue, oldValue, scope){
+	vm.getComponent = function(row, col){
+		return vm.components[row][col];
+	};
 	
-	});
+	$scope.$watch('dashboard.getComponent(0,0)', function(newValue, oldValue, scope){
+		console.log('change to components');
+	}, true);
+	
+	vm.refresh = function(){
+		$scope.$apply();
+	};
 	
 	console.log(directiveService.getComponentMap());
 	console.log(vm.components);
@@ -115,7 +136,68 @@ angular.module('myApp.dashboard', ['ngRoute'])
 .directive('navbar', [ function(){
 	return {
 		restrict: 'E',
-		scope: {},
 		templateUrl: 'views/navbar.html'
+	}
+}])
+
+.directive('paletteDashboardComponent', [ '$compile', function($compile){
+	return{
+		restrict: 'E',
+		template: '<img src={{component.paletteImage()}} title={{component.tag()}}>',
+		link: function(scope, el, attr){
+			//add listener functions to the element.
+			
+			//add drop listeners to component containers.
+			el[0].ondragenter = function(){
+				//only select panels in the main body (div page-content-wrapper)
+				var panels = document.getElementById('page-content-wrapper').getElementsByTagName('panel-component');
+				
+				angular.forEach(panels, function(panel, index){					
+					angular.element(panel)[0].ondragover= function(e){
+						e.preventDefault();
+						return false;
+					};
+										
+					angular.element(panel)[0].ondrop= function(event){
+						
+						var jqElement = angular.element(panel);						
+						var controller = jqElement.controller();
+						
+						var row = +jqElement.attr('row');
+						var column = +jqElement.attr('column');
+						
+						controller.components[row][column] = scope.component;
+						
+						controller.refresh();
+					};
+				});
+			};
+			
+			//sometimes dragenter event isnt fired when dragging???
+			el[0].ondrag = function(){
+				//only select panels in the main body (div page-content-wrapper)
+				var panels = document.getElementById('page-content-wrapper').getElementsByTagName('panel-component');
+				
+				angular.forEach(panels, function(panel, index){					
+					angular.element(panel)[0].ondragover= function(e){
+						e.preventDefault();
+						return false;
+					};
+										
+					angular.element(panel)[0].ondrop= function(event){
+						
+						var jqElement = angular.element(panel);						
+						var controller = jqElement.controller();
+						
+						var row = +jqElement.attr('row');
+						var column = +jqElement.attr('column');
+						
+						controller.components[row][column] = scope.component;
+						
+						controller.refresh();
+					};
+				});
+			};
+		}
 	}
 }]);

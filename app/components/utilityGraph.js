@@ -15,6 +15,7 @@ angular.module('myApp.utilityGraph', ['ngRoute'])
 		tagHtml: function(){return "<utility-graph></utility-graph>";},
 		directiveName: function(){return 'utilityGraph';},
 		namespace: function(){return 'utility';},
+		paletteImage: function(){return 'hotcool.png';}
 		}
 	);
 }])
