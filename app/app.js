@@ -11,6 +11,7 @@ angular.module('myApp', [
   'myApp.intervalDemand',
   'myApp.timeSeries',
   'myApp.facilityDetails',
+  'myApp.workOrderGrid',
   'myApp.workOrderSummary',
   'calHeatmap',
   'angularDc',
@@ -72,6 +73,10 @@ config(['$routeProvider', function($routeProvider) {
 	when('/workOrderSummaryAsset', {
 		templateUrl: 'views/workOrderSummaryAsset.html',
 		controller: 'workOrderSummaryAssetCtrl'
+	}).
+	when('/workOrderGrid',{
+		templateUrl: 'views/workOrderGrid.html',
+		controller: 'workOrderGridCtrl'
 	}).
 	when('/eventPage',{
 		templateUrl: 'views/eventPage.html',
