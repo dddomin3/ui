@@ -440,6 +440,7 @@ $scope.$parent.$parent._clientName = "";
 $scope.refresh = function(){
 
 setDetails($scope.$parent.$parent.$parent.organization);
+//$scope.initSingleClient($scope.$parent.$parent.$parent.client);
 }
 
 	$scope.setClientAll = function(){

@@ -43,7 +43,7 @@
 		</div>
 			<li ng-if="!isZero(siteCount)">This organization has a total of {{siteCount}} sites</li>
 			<li ng-if="!isBlank(_liveDate)">Went live on {{_liveDate}}</li>
-			<li ng-if="!isBlank(_facilityAddress)">Located at {{_facilityAddress}}</li>
+			<li ng-if="!isBlank(_facilityAddress)">Located at {{_facilityAddress}}, {{_city}}, {{_state}}</li>
 			<li ng-if="!isBlank(_buildingType)">{{_buildingType}}</li>
 			<li ng-if="!isBlank(_squareFootage)">Total of {{_squareFootage}} sq ft.</li>
 			<li ng-if="!isZero(_assetCount)">Total key assets monitored: {{_assetCount}}</li>

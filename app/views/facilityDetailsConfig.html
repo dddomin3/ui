@@ -1,5 +1,6 @@
 <div>
-	<div ng-controller="facilityDetailsCtrl">
+	<div ng-controller="facilityDetailsCtrl" style="height: 0%">
+	
 	<div class="btn-group" dropdown>
 		<button type="button" ng-click="queryOrganizations()" class="btn btn-primary dropdown-toggle">
 		<div ng-if="!isBlank(activeOrg)">
@@ -39,4 +40,5 @@
 	<div class="modal-footer">
 		<button class="btn btn-primary" ng-click="ok()">OK</button>
 	</div>
+</div>
 </div>
