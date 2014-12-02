@@ -1,20 +1,15 @@
 <!DOCTYPE html>
-<html lang="en-US">
-
-<table>
-    <tr>
 
 
-<td id="sidebar">
 <div ng-controller="facilityDetailsCtrl">
-<div class="container" style="background-color:lightgrey;width:330px;float:left" >
+<div class="container-fluid" style="background-color:lightgrey;width:330px;float:left" >
 	<div>
 	<div>
 	<div>
 	<button class="btn btn-default" ng-click="openConfig('lg');queryOrganizations()" >Select Facility</button>
 	<button class="btn btn-default" ng-click="openDetailed('lg')" >Expand</button>
-	<center>
 	
+	<center>
 	<b>
 	<div ng-if="!isBlank(_clientName)">
 	{{_clientName}}
@@ -23,41 +18,20 @@
 	{{_projectName}}
 	</div>
 	</b>
+	</center<
 	<div>
 	<center>
-	
 			<li ng-if="!isZero(siteCount)">This organization has a total of {{siteCount}} sites</li>
 			<li ng-if="!isBlank(_liveDate)">Went live on {{_liveDate}}</li>
-			<li ng-if="!isBlank(_facilityAddress)">Located at {{_facilityAddress}}</li>
+			<li ng-if="!isBlank(_facilityAddress)">Located at {{_facilityAddress}}, {{_city}}, {{_state}}</li>
 			<li ng-if="!isBlank(_buildingType)">{{_buildingType}}</li>
 			<li ng-if="!isBlank(_squareFootage)">Total of {{_squareFootage}} sq ft.</li>
 			<li ng-if="!isZero(_assetCount)">Total key assets monitored: {{_assetCount}}</li>
-
+	</center>
 	</div>
 	</div>
 
 </div>
-</center>
 </div>
 </div>
 </div>
-</div>
-</td>
-
-<td>
-<div id="header">
-<img ng-src="http://mitosoc.org/blogs/wp-content/themes/Cutline2pt1/images/header.jpg"></img>
-</div>
-    <div id="content">
-	<img ng-src= "http://www.ironpaper.com/webintel/wp-content/uploads/2014/06/Content-300x199.png"></img>
-	</div>
-    <div id="footer">
-	<img ng-src="https://s3.amazonaws.com/data.niftyquoter.com/ckassets/p/1337/content_footer-9_f8e1d5d83b92ca30c03fdc84c126992fcb3e021b.png"></img>
-	</div>
-	</td>
-	
-	</tr>
-  </table>
-
-</html>
-
