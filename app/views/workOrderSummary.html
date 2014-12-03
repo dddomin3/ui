@@ -1,7 +1,7 @@
 <h1><b>Work Order Summary</b></h1>
 <h3>Organizational Overview for: {{organizationName}}</h3>
 
-<div class="btn-group" dropdown>
+<!-- <div class="btn-group" dropdown>
 		<button type="button" class="btn btn-primary dropdown-toggle">
 			Facility View<span class="caret"></span>
 		</button>
@@ -10,9 +10,9 @@
 				<a  ng-click='facilityView(facilityName)'>{{facilityName}}</a>
 			</li>
 		</ul>
-</div>
+</div> -->
 
-<div class="gridStyle" ui-grid="gridOptions"></div> 
+<div  class="gridStyle" ui-grid="gridOptions" external-scopes="test" ui-grid-auto-resize></div> 
 <button type="button"><a ng-click='backToOrganizationSelect()'>Change Organization</a></button>
     	
 

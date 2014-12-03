@@ -1,6 +1,6 @@
 'use strict';
  
-angular.module('myApp.workOrderSummary', ['ngRoute', 'ui.grid'])
+angular.module('myApp.workOrderSummary', ['ngRoute', 'ui.grid', 'ui.grid.autoResize'])
 
 .factory('workOrderSummaryService', ['$http','sharedPropertyService', function($http, sharedProperties){
 	
@@ -194,7 +194,7 @@ angular.module('myApp.workOrderSummary', ['ngRoute', 'ui.grid'])
 	$scope.openTickets = sharedProperties.getAllOpenTickets();
 	
 	if($scope.responseData == null){
-		$location.url('/workOrderSummary');			
+		$location.url('/workOrderSummaryModal');			
 		$route.reload();
 	}
 	
@@ -278,6 +278,15 @@ angular.module('myApp.workOrderSummary', ['ngRoute', 'ui.grid'])
 
 .controller('workOrderSummaryFacilityCtrl', ['$scope', '$location', 'uiGridConstants', '$route', 'sharedPropertyService', 
   function($scope, $location, uiGridConstants, $route, sharedProperties){
+	
+	$scope.test = {
+			showMessage: function(row){
+				console.log(row)
+				console.log($scope.organizationView);
+				$scope.assetView(row.asset);
+			}
+	};
+	
 	$scope.facilityName = sharedProperties.getFacility();
 	$scope.responseData = sharedProperties.getResults();
 	$scope.facilityNames = sharedProperties.getFacilityNames();
@@ -285,7 +294,7 @@ angular.module('myApp.workOrderSummary', ['ngRoute', 'ui.grid'])
 	
 	
 	if($scope.responseData == null){
-		$location.url('/workOrderSummary');			
+		$location.url('/workOrderSummaryModal');			
 		$route.reload();
 	}
 	
@@ -300,39 +309,47 @@ angular.module('myApp.workOrderSummary', ['ngRoute', 'ui.grid'])
 				closedDate = new Date();
 			}
 		
-		number = (closedDate - createdDate)/(1000*60*60*24) 
+		number = (closedDate - createdDate)/(1000*60*60*24); 
 		
 		return number;
 	}
 	
-	var assetNames = [];
-	var numEvents = 0;
-	var numClosedEvents = 0;
-	var totalTimeToClose = 0;
-	var numOpenTickets = 0;
-	
-		for(var j=0;j<$scope.responseData.length;j++) {
-			if($scope.responseData[j].facility === $scope.facilityName) {
-				numEvents += 1;
-				if($scope.responseData[j].status === "Closed") {
-					numClosedEvents += 1;
+	var assetNames = [];	
+	var facilityArray = [];
+		
+		for(var i=0;i<$scope.responseData.length;i++){
+			if($scope.responseData[i].facility === $scope.facilityName){
+				if(assetNames.indexOf($scope.responseData[i].asset) == -1){
+					assetNames.push($scope.responseData[i].asset);
 				}
-				if(assetNames.indexOf($scope.responseData[j].asset) == -1){
-					assetNames.push($scope.responseData[j].asset);
-				}
-				totalTimeToClose = totalTimeToClose + $scope.calculateDays($scope.responseData[j]);
 			}
 		}
-		for(var i=0;i<$scope.openTickets.length;i++){
-			if($scope.openTickets[i].facility === $scope.facilityName){
-				numOpenTickets += 1;
+		for(var i=0;i<assetNames.length;i++){
+			var numEvents = 0;
+			var numClosedEvents = 0;
+			var totalTimeToClose = 0;
+			var numOpenTickets = 0;
+			for(var j=0;j<$scope.responseData.length;j++){
+				if($scope.responseData[j].asset === assetNames[i]){
+					numEvents +=1;
+					if($scope.responseData[j].status === "Closed"){
+						numClosedEvents += 1;
+					}
+					totalTimeToClose = totalTimeToClose + $scope.calculateDays($scope.responseData[j]);
+				}
 			}
+			for(var j=0;j<$scope.openTickets.length;j++){
+				if($scope.openTickets[j].asset === assetNames[i]){
+					numOpenTickets += 1;
+				}
+			}
+			var facilityObject = {asset: assetNames[i], numberOfEvents: numEvents, numberOpenEvents: numOpenTickets, numberClosedEvents: numClosedEvents, averageTimeToClose: Math.round(totalTimeToClose/numEvents), value: Math.round(Math.random()*100000)/100};
+			facilityArray.push(facilityObject)
 		}
-	
+		$scope.facilityView = facilityArray;
+			
 	$scope.assetNames = assetNames;
-	var facilityObject = [{facility: $scope.facilityName, numberOfEvents: numEvents, numberOpenEvents: numOpenTickets, numberClosedEvents: numClosedEvents, averageTimeToClose: Math.round(totalTimeToClose/numEvents), value: Math.round(Math.random()*100000)/100}];	
-	$scope.facilityView = facilityObject;
-	
+		
 	$scope.assetView = function(assetName){
 		sharedProperties.setAsset(assetName);
 		sharedProperties.setAssetNames($scope.assetNames);
@@ -361,20 +378,31 @@ angular.module('myApp.workOrderSummary', ['ngRoute', 'ui.grid'])
 	
 	$scope.gridOptions = {
 			enableSorting: true,
+			rowTemplate: '<div ng-click="getExternalScopes().showMessage(row.entity)"  ng-repeat="col in colContainer.renderedColumns track by col.colDef.name" class="ui-grid-cell" ui-grid-cell></div>',
+			showFooter: true,
 			data: 'facilityView',
 			columnDefs: [
-			             {field: 'facility', displayName: 'Facility'},
-			             {field: 'numberOfEvents', displayName: 'Number Of Events Created This Month'},
-			             {field: 'numberOpenEvents', displayName: 'Total Number of Open Events'},
-			             {field: 'numberClosedEvents', displayName: 'Number of Events Closed This Month'},
+			             {field: 'asset', displayName: 'Asset'},
+			             {field: 'numberOfEvents', displayName: 'Number Of Events Created This Month', aggregationType: uiGridConstants.aggregationTypes.sum},
+			             {field: 'numberOpenEvents', displayName: 'Total Number of Open Events', aggregationType: uiGridConstants.aggregationTypes.sum},
+			             {field: 'numberClosedEvents', displayName: 'Number of Events Closed This Month', aggregationType: uiGridConstants.aggregationTypes.sum},
 			             {field: 'averageTimeToClose', displayName: 'Average Days To Close Event(s)', aggregationType: uiGridConstants.aggregationTypes.avg},
-			             {field: 'value', displayName: 'Avoidable Cost'}
+			             {field: 'value', displayName: 'Avoidable Cost', aggregationType: uiGridConstants.aggregationTypes.sum}
 			             ]
 	};
 }])
 
 .controller('workOrderSummaryCtrl', ['$http', '$scope', '$location', 'uiGridConstants', '$route','workOrderSummaryService', 'sharedPropertyService',   
   function($http, $scope, $location, uiGridConstants, $route, dataService, sharedProperties){
+	
+	$scope.test = {
+			showMessage: function(row){
+				console.log(row)
+				console.log($scope.organizationView);
+				$scope.facilityView(row.facility);
+			}
+	};
+	
 	$scope.organizationName = sharedProperties.getOrganization();
 	dataService.getFacilityData().then(function(response){
 		$scope.responseData = response.data.result;
@@ -468,6 +496,7 @@ angular.module('myApp.workOrderSummary', ['ngRoute', 'ui.grid'])
 	
 	$scope.gridOptions = {
 			enableSorting: true,
+			rowTemplate: '<div ng-click="getExternalScopes().showMessage(row.entity)"  ng-repeat="col in colContainer.renderedColumns track by col.colDef.name" class="ui-grid-cell" ui-grid-cell></div>',
 			showFooter: true,
 			data: 'organizationView',
 			columnDefs: [
