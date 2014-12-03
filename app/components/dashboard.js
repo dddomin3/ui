@@ -121,7 +121,7 @@ angular.module('myApp.dashboard', ['ngRoute'])
 	};
 	
 	vm.editMainViewClass = function(){
-		if(vm.editTopbar){
+		if(vm.editMainView){
 			return 'alert alert-success';
 		}
 		else return 'alert alert-danger';
@@ -146,37 +146,41 @@ angular.module('myApp.dashboard', ['ngRoute'])
 		$scope.$apply();
 	};
 	
+	vm.isEmptyPanel = function(row, col){
+		return !vm.components[row][col].tag || (vm.components[row][col].tag() == 'empty-panel');
+	}
+	
 	vm.classes = function(row, col){
 		if(vm.configDashboard){
 			return 'col-md-4';
 		}
-		else if(!vm.components[row][col].tag){
+		else if(vm.isEmptyPanel(row, col)){
 			return 'hidden';
 		}
 		else{
 			switch(col) {
 				case 0:
-					if(!vm.components[row][1].tag && !vm.components[row][2].tag){
+					if(vm.isEmptyPanel(row, 1) && vm.isEmptyPanel(row, 2)){
 						return 'col-md-12';
 					}
-					else if(vm.components[row][1].tag){
+					else if(!vm.isEmptyPanel(row, 1)){
 						return 'col-md-4';
 					}
 					else{
 						return 'col-md-8';
 					}
 				case 1:
-					if(!vm.components[row][0].tag && !vm.components[row][2].tag){
+					if(vm.isEmptyPanel(row, 0) && vm.isEmptyPanel(row, 2)){
 						return 'col-md-12';
 					}
-					else if(vm.components[row][0].tag && vm.components[row][2].tag){
+					else if(!vm.isEmptyPanel(row, 0) && !vm.isEmptyPanel(row, 2)){
 						return 'col-md-4';
 					}
 					else{
 						return 'col-md-8';
 					}
 				case 2:
-					if(!vm.components[row][0].tag && !vm.components[row][1].tag){
+					if(vm.isEmptyPanel(row, 0) && vm.isEmptyPanel(row, 1)){
 						return 'col-md-12';
 					}
 					//TODO - make an option for 'right alignment' where the rightmost column is width 8 when middle is missing.
@@ -220,9 +224,9 @@ angular.module('myApp.dashboard', ['ngRoute'])
 	vm.topbar.push(vm.getTopBarMap()['a-very-specific-button']);
 
 	vm.components = [];
-	vm.components.push([{},{},directiveService.getComponentMap()['energy-spectrum']]);
-	vm.components.push([{},{},{}]);
-	vm.components.push([{},{},{}]);
+	vm.components.push([directiveService.getComponentMap()['empty-panel'],directiveService.getComponentMap()['empty-panel'],directiveService.getComponentMap()['empty-panel']]);
+	vm.components.push([directiveService.getComponentMap()['empty-panel'],directiveService.getComponentMap()['empty-panel'],directiveService.getComponentMap()['empty-panel']]);
+	vm.components.push([directiveService.getComponentMap()['empty-panel'],directiveService.getComponentMap()['empty-panel'],directiveService.getComponentMap()['empty-panel']]);
 	
 }])
 
@@ -241,35 +245,12 @@ angular.module('myApp.dashboard', ['ngRoute'])
 			//add listener functions to the element.
 			
 			//add drop listeners to component containers.
+			
+			/* should be the same as below, but sometimes doesnt fire event....
 			el[0].ondragenter = function(){
-				//only select panels in the main body (div page-content-wrapper)
-				var panels = document.getElementById('page-content-wrapper').getElementsByTagName('panel-component');
-				
-				angular.forEach(panels, function(panel, index){					
-					angular.element(panel)[0].ondragover= function(e){
-						e.preventDefault();
-						return false;
-					};
-										
-					angular.element(panel)[0].ondrop= function(event){
-						
-						var jqElement = angular.element(panel);						
-						var controller = jqElement.controller();
-						
-						var row = +jqElement.attr('row');
-						var column = +jqElement.attr('column');
-						
-						controller.components[row][column] = scope.component;
-						
-						controller.refresh();
-						//remove listeners
-						angular.forEach(panels, function(panel, index){
-							angular.element(panel)[0].ondragover = null;
-							angular.element(panel)[0].ondrop = null;							
-						});
-					};
-				});
+
 			};
+			*/
 			
 			//sometimes dragenter event isnt fired when dragging???
 			el[0].ondrag = function(){
@@ -281,10 +262,10 @@ angular.module('myApp.dashboard', ['ngRoute'])
 
 					controller.editMainView=true;
 					controller.refresh();
-				
+					
 					angular.forEach(panels, function(panel, index){
 						var jqElement = angular.element(panel);						
-							
+						
 						jqElement[0].ondragover= function(e){
 							e.preventDefault();
 							return false;
@@ -299,6 +280,9 @@ angular.module('myApp.dashboard', ['ngRoute'])
 							
 							controller.editMainView = false;
 							controller.refresh();
+							
+							console.log('dashboard controller on drop:');
+							console.log(controller);
 							
 							//remove listeners
 							angular.forEach(panels, function(panel, index){

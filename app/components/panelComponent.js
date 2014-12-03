@@ -27,6 +27,15 @@ angular.module('myApp.panelComponent', ['ngRoute'])
 		paletteImage: function(){return 'redx.png';}
 		});
 		
+	directiveService.addFullComponent({
+		tag: function(){return 'empty-panel';},
+		configTag: function(){return '';},
+		tagHtml: function(){return "<empty-panel><empty-panel>";},
+		directiveName: function(){return 'emptyPanel';},
+		namespace: function(){return 'empty'},
+		paletteImage: function(){return 'redx.png';}
+		});
+		
 	//this needs to go away and a more generic button (or reuse of angular js button directive used)
 	directiveService.addTopBarComponent({
 		tag: function(){return 'a-very-specific-button';},
@@ -47,6 +56,8 @@ angular.module('myApp.panelComponent', ['ngRoute'])
 	};
 	angular.extend(vm, directiveService);
 	console.log(vm.getTopBarMap());
+	
+	/*
 	//currently watching the namespace? Creates a dependency on the controller for the panel contents being namespaced....
 	$scope.$watch('component.bodyDirective.namespace', function(newValue, oldValue, scope){
 		if(!vm.bodyDirective.tag){
@@ -78,6 +89,7 @@ angular.module('myApp.panelComponent', ['ngRoute'])
 			}		
 		}, 100);
 	});
+	*/
 	
 		//for testing popout using angular-ui modal
 	vm.getWidgetHtml = function(){
@@ -108,6 +120,7 @@ angular.module('myApp.panelComponent', ['ngRoute'])
 		restrict: 'E',
 		scope: {
 			bodyDirective: '=directive',
+			dashboard: '=dashboard'
 		},
 		controller: 'panelController as component',
 		templateUrl: 'views/panel.html',
@@ -117,6 +130,12 @@ angular.module('myApp.panelComponent', ['ngRoute'])
 	}
 }])
 
+.directive('emptyPanel', [ function() {
+	return {
+		restrict: 'E',
+		template : '<div ng-if="dashboard.editMainView" ng-class="dashboard.editMainViewClass()" style="margin:10px; height:50px; border-style:dotted;">Drop a Dashboard Component!</div></div>'
+	}
+}])
 
 .directive('emptyRow', [ function() {
 	return {
