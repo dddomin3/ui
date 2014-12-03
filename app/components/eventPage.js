@@ -19,6 +19,7 @@ angular.module('myApp.eventPage', ['ngRoute'])
 	 $scope.myTicketType = "null";
 	 $scope.myAsset = "null";
 	 $scope.organization = "null";
+	 $scope.doMyGraphing = false;
 	 
 	 var getAsset = function(){
 		 return $scope.myTicket == null ? "null" : $scope.myTicket.asset;
@@ -71,11 +72,15 @@ angular.module('myApp.eventPage', ['ngRoute'])
 			
 			$scope.myTicketType = response.data.result[0].anomaly;
 			$scope.myAsset = response.data.result[0].asset;
-			
 	   }).then(function(){
 		   getAllMyTickets();
 	   })
 	 ;
+	 
+	 var drawMyGraphs = function(){
+		 console.log("graphs!!");
+	 }
+	 
 	 
 	//  ***********  End throw-away function for programming/debugging only  ********************
 	 
@@ -97,7 +102,8 @@ angular.module('myApp.eventPage', ['ngRoute'])
 		 }).then(function(){
 			 //TODO create full history tables of the database object ** will probably need to break down into time windows to make faster querying **
 			 getAllMyPoints(pointsUsed);
-		 });
+		 })
+	   ;
 		 
 	 };
 	 
@@ -132,19 +138,31 @@ angular.module('myApp.eventPage', ['ngRoute'])
 			 myArray(pointsUsed[i], contentHeader, "{"+organizationMessage+","+nameMessage+"\"}");;
 		 };
 		 
-		 var timeout = function(flag){
+		 var retry = function(flag){
 			 if(!flag){
-				 console.log(flag);
 				 setTimeout(function(){
-					 timeout(counter == max);
+					 retry(counter == max);
 				 },10);
+			 }
+			 else{
+				 $scope.doMyGraphing = true; 
+				 $scope.$apply();
 			 }
 			 
 			 return counter == max;
 		 };
 		 
-		 timeout(counter == max);
+		 retry(counter == max);
 	 }
+	 
+	 $scope.$watch(
+		 'doMyGraphing', 
+		 function(val){
+			 if(val == true){
+				 drawMyGraphs();	 
+			 }
+		 }
+	);
 	 
 	 //TODO display the anomaly detail information
 
