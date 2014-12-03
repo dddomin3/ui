@@ -69,6 +69,7 @@ body {
     border: 2px solid rgb(212,212,212);
     width: 100%;
     height: 300px;
+    cursor: pointer;
 }
 .gridStyleTwo{
     border: 2px solid rgb(212,212,212);

@@ -2,7 +2,7 @@
 <h3>{{facilityName}} Facility Overview</h3>
 <div class="btn-group" dropdown>
 		<button type="button" class="btn btn-primary dropdown-toggle">
-			Facility View<span class="caret"></span>
+			Change Facility<span class="caret"></span>
 		</button>
 		<ul class="dropdown-menu" role="menu">
 			<li ng-repeat="facilityName in facilityNames">
@@ -10,7 +10,7 @@
 			</li>
 		</ul>
 </div>
-<div class="btn-group" dropdown>
+<!-- <div class="btn-group" dropdown>
 		<button type="button" class="btn btn-primary dropdown-toggle">
 			Asset View<span class="caret"></span>
 		</button>
@@ -19,8 +19,8 @@
 				<a  ng-click='assetView(assetName)'>{{assetName}}</a>
 			</li>
 		</ul>
-</div>
+</div> -->
 
-<div class="gridStyleTwo" ui-grid="gridOptions"></div> 
+<div class="gridStyle" ui-grid="gridOptions" external-scopes="test"></div> 
 <button type="button"><a ng-click='backToOverview()'>Organization Home</a></button>
 <button type="button"><a ng-click='backToOrganizationSelect()'>Change Organization</a></button>
