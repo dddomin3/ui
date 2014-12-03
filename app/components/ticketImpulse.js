@@ -3,7 +3,7 @@ angular.module('myApp.ticketImpulse', ['ngRoute'])
 
 .factory('ticketImpulseChartService', ['$http', function($http){
 
-	var _init = function (composite, activeOrganizations, sortedData, userParameters) {
+	var _init = function (composite, sortedData, userParameters) {
 		var getDaysBetween = function(endDate, startDate){
 			var daysBetween = Math.round((endDate - startDate)/(1000*60*60*24));
 			
@@ -31,8 +31,6 @@ angular.module('myApp.ticketImpulse', ['ngRoute'])
 		var _tfMonthYear = d3.time.format("%m-%Y"); //format for x-axis labels USED BY CSV INIT
 		var _tfIso = d3.time.format.iso.parse; //TODO: maybe the service can populate the users scope with convienence values like this?
 			//this is a function that parses lots of timestamp formats, so its convenient 
-		chartHelper._activeOrganizations = activeOrganizations;
-			//this stores all organizations that need to be drawn on the chart. this stores information like which meters,
 		var _dayStringArray = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
 			//Date.getDay returns a number, which this array translates into the day fo week
 		var _dayToColorMap = {
@@ -381,141 +379,68 @@ angular.module('myApp.ticketImpulse', ['ngRoute'])
 			"Sat": "rgba(0, 137, 191, .8)"
 	};
 	
-	var _getOrganizations = function () {	//TODO: Singleton changes	
+	var _getData = function () {	//TODO: Singleton changes	
 		//this function queries the server for all existing organizations
 		//it's messy since it technically grabs all information after the below hardcoded date,
 		//and strings together a key value pair of all organizations, but whatever.
-		var message = {
-				"date": {
-			        "$gt": {
-			            "$date": "2014-10-22T22:02:48.488Z"
-			        }
-			    }
-			};
+		var mongoUrl = "http://10.239.3.132:9763/MongoServlet-0.0.1-SNAPSHOT/send";
+		var today = new Date();
+		var firstOfMonth = new Date(today.getFullYear(), today.getMonth()-6, 1);
 		
-		return $http.post('http://10.239.3.132:9763/MongoServlet-0.0.1-SNAPSHOT/send', JSON.stringify(message))
-		.success(
-				function (data) {
-					var organizationQuery = {};
-					for(var i = 0, ilen = data.result.length; i < ilen; i++) {
-						organizationQuery[data.result[i].organization] = '';	//keeps track of all meters in query
-					}
-					data.organizationQuery = organizationQuery;
-				}
-		)
-		.error( function () { alert('fail to query data'); } );
-	};
-	var _getMeters = function (organization, activeOrganizations, userParameters) {	
-		//this function queries the server for all existing meters and stores it under the _activeOrganizations entry
-		//it's messy since it technically grabs all information after the below hardcoded date,
-		//and strings together a key value pair of all organizations, but whatever.
-		var message = {
-			    "date": {
-			        "$gt": {
-			            "$date": "2014-10-15T22:02:48.488Z"
-			        }
-			    },
-			    "organization" : organization ? organization : undefined
-			};
-		
-		return $http.post('http://10.239.3.132:9763/MongoServlet-0.0.1-SNAPSHOT/send', JSON.stringify(message))
-		.success(
-			function (data) {
-				console.log(data);
-				for(var i = 0, ilen = data.result.length; i < ilen; i++) {
-					activeOrganizations[organization].meterQuery[data.result[i].name] = '';	//keeps track of all meters in query
-				}
-			}
-		)
-		.error( function () { alert('fail to query meters'); } );
-	};
-
-	var _getData = function (activeOrganizations, userParameters) {
-		//this function queries for all meters outlined within the _activeOrganizations 
-		if (Object.keys(activeOrganizations).length === 0) {
-			activeOrganizations["ANDO"] = {
-				"meter" : "SITE_kW",
-				"meterQuery" : {
-					"SITE_kW": '',
-					"kWdiv": ''
-				},
-				'color' : 'rgba(127,127,55,0.5)',
-				'groups' : {
-					'meter' : {},
-					'savings' : {},
-					'cumulativeSavings': {}
-				}
-			};
-		}
-		var or = [];
-		for (var organization in activeOrganizations) {
-			or.push(
-				{
-	            	"name": activeOrganizations[organization].meter,
-	            	"organization": organization
-	            }
-			);
-		}
-		var message = {
-				"date": {
-					"$gte": {
-						"$date": userParameters.lowDate ? userParameters.lowDate : undefined
-					},
-					"$lt": {
-						"$date": userParameters.highDate ? userParameters.highDate : undefined
-					}
-				},
-				"$or": or
-			};
-		return $http.post('http://10.239.3.132:9763/MongoServlet-0.0.1-SNAPSHOT/send', JSON.stringify(message))
-		.success(function(d) {
-			return _successData(d, activeOrganizations);
-		})
-		.error( function () { alert('fail to query data'); } );
-	};
-	var _successData = function (data, activeOrganizations) {
-		var dataArray = [];
-		for(var i = 0, ilen = data.result.length; i < ilen; i++) {
-			for(var j = 0, jlen = data.result[i].his.length; j < jlen; j++) {
-				data.result[i].his[j].meterName = data.result[i].name;	//adds name of meter to the datapoint.
-				data.result[i].his[j].organization = data.result[i].organization;
-				
-				if(activeOrganizations[data.result[i].organization].meter === data.result[i].name) {//marks actual
-					data.result[i].his[j].type = 'meter';
-				}
-			}
-			Array.prototype.push.apply(dataArray, data.result[i].his); //adds an array to an array. like a super push
-			//_ndx.add(data.result[i].his);
-		}
-		var sorter = crossfilter.quicksort.by( function (d) {
-			return new Date(d.timestamp); 
-		});
-		sorter(dataArray, 0, dataArray.length);
-		data.sortedData = dataArray;
-	};
-	
-	var _getOrganizationQuery =  function () {
-		return _organizationQuery;
-	};
-	var _initActiveOrganization = function (organization, activeOrganizations) {
-		activeOrganizations[organization] = {
-			"meter" : "",
-			"meterQuery" : {},
-			'color' : 'rgba(0,255,255,0.5)',
-			'groups' : {
-				'meter' : {},
-				'savings' : {},
-				'cumulativeSavings': {}
+		var requestString = requestString = {
+			"createdTime": {
+				"$gt": {"$date": ""+firstOfMonth.toJSON()},
+				"$lt": {"$date": ""+today.toJSON() }
 			}
 		};
-		_getMeters(organization, activeOrganizations);
+		
+		var config = {
+				method: 'POST',
+				headers: {'Collection':'Event'},
+				url: mongoUrl,
+				data: JSON.stringify(requestString)
+		};
+			
+		var promise = $http(config).success(_successData)
+		.error ( 
+			function(e){console.error(e); return false;}
+		);
+		return promise;
+	};
+	
+	var _successData = function(data, status, headers, config){
+		console.log(data);
+		var treatedData = {};
+		for(var i = 0, ilen = data.result.length; i < ilen; i++) {
+			var org = data.result[i].organization;
+			var fac = data.result[i].facility;
+			var asset = data.result[i].asset;
+			if(treatedData[org]) {	//if organization entry exists
+				if(treatedData[org][fac]) {	//if facility entry exists
+					if(treatedData[org][fac][asset]) { //if asset entry exists
+						treatedData[org][fac][asset].push(data.result[i]);	//add ticket to list
+					}
+					else {	//asset doesn't exist but org and fac do
+						treatedData[org][fac][asset] = [data.result[i]];	//init asset. save ticket under asset
+					}
+				}
+				else {	//facility doesn't exist, but org does
+					treatedData[org][fac] =	{};							//init facility
+					treatedData[org][fac][asset] = [data.result[i]];	//init asset. save ticket under asset
+				}
+			}
+			else {
+				treatedData[org] = {};								//init org
+				treatedData[org][fac] =	{};							//init facility
+				treatedData[org][fac][asset] = [data.result[i]];	//init asset. save ticket under asset
+			}
+		}
+		data.treatedData = treatedData;
+		return true;
 	};
 	
 	_servObj = {
 		getData : _getData,
-		initActiveOrganization: _initActiveOrganization,
-		getOrganizations: _getOrganizations,
-		getOrganizationQuery: _getOrganizationQuery,
 		getDefaultUserParameters: _getDefaultUserParameters
 	};
 	
@@ -527,8 +452,9 @@ angular.module('myApp.ticketImpulse', ['ngRoute'])
 	$scope.showButtons = true;
 	$scope.chartInit = false;
 	$scope.userParameters = dataService.getDefaultUserParameters();
-	$scope.activeOrganizations = {};
 	$scope.inactiveOrganizations = {};
+	$scope.treatedData = {};
+	$scope.active = {};
 	console.log($scope.activeOrganizations);
 	
 	var composite = dc	.compositeChart("#test_composed"); //variable that stores the composite chart generated by program
@@ -547,10 +473,10 @@ angular.module('myApp.ticketImpulse', ['ngRoute'])
 	};
 	
 	var http = function(response) {
+		$scope.treatedData = response.data.treatedData;
 		$scope.chartHelper = chartService.init(
 			composite,
-			$scope.activeOrganizations,
-			response.data.sortedData,
+			response.data.treatedData,
 			$scope.userParameters
 		);
 		$scope.showButtons = false;
@@ -559,7 +485,7 @@ angular.module('myApp.ticketImpulse', ['ngRoute'])
 			composite = $scope.chartHelper.drawChart(false);
 		}
 		catch (e) {
-			console.log(e); // pass exception object to error handler
+			console.error(e); // pass exception object to error handler
 		}
 		finally {
 			$scope.showButtons = true;
@@ -569,28 +495,47 @@ angular.module('myApp.ticketImpulse', ['ngRoute'])
 	
 	$scope.drawHttpChart = function () {
 		$scope.chartInit = true;
-		dataService.getData($scope.activeOrganizations, $scope.userParameters).then( http, function () {alert("epicfail");} );
+		dataService.getData($scope.userParameters).then( http, function () {alert("epicfail");} );
 	};
 	$scope.redrawChart = function () {
 		composite = $scope.chartHelper.drawChart(false);
 	};
 	
-	$scope.queryOrganizations = function () {
-		dataService.getOrganizations().then( function (response) {
-			$scope.organizationQuery = response.data.organizationQuery;
+	$scope.queryData = function () {
+		dataService.getData().then( function (response) {
+			$scope.treatedData = response.data.treatedData;
 		});
 	};
-	$scope.deleteOrganization = function (organization) {
-		if(organization in $scope.activeOrganizations) {
-			delete $scope.activeOrganizations[organization];
+	$scope.deleteActive = function (org, fac, asset) {
+		delete $scope.active[org][fac][asset];
+		if( Object.keys($scope.active[org][fac]).length === 0) {	//deletes any empty entries
+			delete $scope.active[org][fac];	
 		}
-		else if(organization in $scope.inactiveOrganizations) {
-			delete $scope.inactiveOrganizations[organization];
+		if( Object.keys($scope.active[org]).length === 0) {
+			delete $scope.active[org];
 		}
 		$scope.redrawChart();
 	};
-	$scope.initOrganization = function (organization) {
-		dataService.initActiveOrganization(organization, $scope.activeOrganizations);
+	$scope.initAsset = function (org, fac, asset) {
+		if($scope.active[org]) {	//if organization entry exists
+			if($scope.active[org][fac]) {	//if facility entry exists
+				if($scope.active[org][fac][asset]) { //if asset entry exists
+					$scope.active[org][fac][asset].push($scope.treatedData[org][fac][asset]);	//add ticket to list
+				}
+				else {	//asset doesn't exist but org and fac do
+					$scope.active[org][fac][asset] = $scope.treatedData[org][fac][asset];	//init asset. save ticket under asset
+				}
+			}
+			else {	//facility doesn't exist, but org does
+				$scope.active[org][fac] =	{};							//init facility
+				$scope.active[org][fac][asset] = $scope.treatedData[org][fac][asset];	//init asset. save ticket under asset
+			}
+		}
+		else {
+			$scope.active[org] = {};								//init org
+			$scope.active[org][fac] = {};							//init facility
+			$scope.active[org][fac][asset] = $scope.treatedData[org][fac][asset];	//init asset. save ticket under asset
+		}
 	};
 	$scope.countActiveOrganizations = function () {
 		return Object.keys($scope.activeOrganizations).length;
@@ -650,11 +595,10 @@ angular.module('myApp.ticketImpulse', ['ngRoute'])
 	
 	$scope.logScope = function () {
 		console.log($scope);
-		console.log(Object.keys($scope.activeOrganizations).length);
 	};
 	$scope.debug = function () {
-		console.log($scope.activeOrganizations);
+		console.log($scope);
 	};
 
-	$scope.queryOrganizations();
+	$scope.queryData();
 }]);
