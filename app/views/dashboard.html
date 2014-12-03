@@ -1,14 +1,14 @@
 <div class="container-fluid" ng-controller="dashboardController as dashboard">
 	<navbar></navbar>
-	<div id="wrapper">
+	<div ng-attr-id="{{dashboard.divWrapper()}}">
 		<div id="sidebar-wrapper">
 			<ul class="nav nav-sidebar">
-					<div ng-repeat="component in dashboard.getSidebar() track by $index">
-						<sidebar-component directive="$parent.dashboard.getSidebar()[$index]" index="{{$index}}"></sidebar-component>
-					</div>
+				<div ng-repeat="component in dashboard.getSidebar() track by $index">
+					<sidebar-component directive="$parent.dashboard.getSidebar()[$index]" index="{{$index}}" dashboard="$parent.dashboard"></sidebar-component>
+				</div>
 			</ul>
 		</div>
-		<div id="right-sidebar-wrapper">
+		<div ng-if="dashboard.configDashboard" id="right-sidebar-wrapper">
 			<ul class="nav nav-sidebar">
 				<div class="container-fluid">
 					<div class="row">
@@ -27,7 +27,7 @@
 					<div class="row">
 						<div ng-repeat="component in dashboard.getTopBarMap()">
 							<div class="col-md-3">
-								<palette-dashboard-component></palette-dashboard-component>
+								<palette-topbar-component></palette-topbar-component>
 							</div>
 						</div>
 					</div>

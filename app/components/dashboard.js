@@ -14,6 +14,7 @@ angular.module('myApp.dashboard', ['ngRoute'])
 	var _componentList = [];
 	var _componentMap = {};
 	var _sidebarMap = {};
+	var _topbarMap = {};
 	
 	var _addDirectiveByElementTag = function(tag){
 		if(!$templateCache.get(tag)){
@@ -39,7 +40,15 @@ angular.module('myApp.dashboard', ['ngRoute'])
 			$templateCache.put(componentObject.configTag(), "<"+componentObject.configTag()+">"+"</"+componentObject.configTag()+">");
 			
 			_sidebarMap[componentObject.tag()] = componentObject;
-	}
+	};
+	
+	var _addTopBarComponent = function(componentObject){
+			$templateCache.put(componentObject.tag(), "<"+componentObject.tag()+">"+"</"+componentObject.tag()+">");
+			
+			$templateCache.put(componentObject.configTag(), "<"+componentObject.configTag()+">"+"</"+componentObject.configTag()+">");
+			
+			_topbarMap[componentObject.tag()] = componentObject;
+	};
 	
 	var _getDirectiveList = function(){
 		return _directiveList;
@@ -57,6 +66,10 @@ angular.module('myApp.dashboard', ['ngRoute'])
 		return _sidebarMap;
 	};
 	
+	var _getTopBarMap = function(){
+		return _topbarMap;
+	};
+	
 	var _getCache = function(){
 		return $templateCache;
 	}
@@ -66,9 +79,11 @@ angular.module('myApp.dashboard', ['ngRoute'])
 		getDirectiveList : _getDirectiveList,
 		addFullComponent : _addFullComponent,
 		addSideBarComponent: _addSideBarComponent,
+		addTopBarComponent: _addTopBarComponent,
 		getComponentList : _getComponentList,
 		getComponentMap: _getComponentMap,
 		getSideBarMap: _getSideBarMap,
+		getTopBarMap: _getTopBarMap,
 		getCache : _getCache
 	}
 	
@@ -77,14 +92,59 @@ angular.module('myApp.dashboard', ['ngRoute'])
 
 .controller('dashboardController', [ '$scope', 'directiveService', function($scope, directiveService){
 	var vm = this;
+	vm.editSidebar = false;
+	vm.editTopbar = false;
+	vm.editMainView = false;
 	vm.configDashboard = false;
-	
+
 	angular.extend(vm, directiveService);
+	
+	vm.divWrapper = function(){
+		if(vm.configDashboard){
+			return 'wrapper';
+		}
+		else return 'wrapper-no-right-padding';
+	}
+	
+	vm.editTopbarClass = function(){
+		if(vm.editTopbar){
+			return 'alert alert-success';
+		}
+		else return 'alert alert-danger';
+	};
+	
+	vm.editSidebarClass = function(){
+		if(vm.editSidebar){
+			return 'alert alert-success';
+		}
+		else return 'alert alert-danger';
+	};
+	
+	vm.editMainViewClass = function(){
+		if(vm.editTopbar){
+			return 'alert alert-success';
+		}
+		else return 'alert alert-danger';
+	};
+	
+	vm.rightBarClass = function(){
+		if(vm.configDashboard){
+			return 'nav nav-sidebar';
+		}
+		else return 'hidden';
+	}
 	
 	vm.config = function(){
 		vm.configDashboard = !vm.configDashboard;
-		
 	}
+	
+	vm.getComponent = function(row, col){
+		return vm.components[row][col];
+	};
+
+	vm.refresh = function(){
+		$scope.$apply();
+	};
 	
 	vm.classes = function(row, col){
 		if(vm.configDashboard){
@@ -106,7 +166,7 @@ angular.module('myApp.dashboard', ['ngRoute'])
 						return 'col-md-8';
 					}
 				case 1:
-					if(!vm.components[row][0].tag && !vm.components[row][1].tag){
+					if(!vm.components[row][0].tag && !vm.components[row][2].tag){
 						return 'col-md-12';
 					}
 					else if(vm.components[row][0].tag && vm.components[row][2].tag){
@@ -126,8 +186,13 @@ angular.module('myApp.dashboard', ['ngRoute'])
 			}
 		}
 	};
+	
 	vm.getSidebar = function(){
 		return vm.sidebar;
+	};
+	
+	vm.getTopbar = function(){
+		return vm.topbar;
 	};
 	
 	vm.sidebar = [];
@@ -140,27 +205,25 @@ angular.module('myApp.dashboard', ['ngRoute'])
 	vm.sidebar.push(vm.getSideBarMap()['empty-row']);
 	vm.sidebar.push(vm.getSideBarMap()['empty-row']);
 	vm.sidebar.push(vm.getSideBarMap()['empty-row']);
-
-
-
-	console.log(vm.sidebar);
 	
+	vm.topbar = [];
+	vm.topbar.push(vm.getTopBarMap()['empty-col']);
+	vm.topbar.push(vm.getTopBarMap()['empty-col']);
+	vm.topbar.push(vm.getTopBarMap()['empty-col']);
+	vm.topbar.push(vm.getTopBarMap()['empty-col']);
+	vm.topbar.push(vm.getTopBarMap()['empty-col']);
+	vm.topbar.push(vm.getTopBarMap()['empty-col']);
+	vm.topbar.push(vm.getTopBarMap()['empty-col']);
+	vm.topbar.push(vm.getTopBarMap()['empty-col']);
+	vm.topbar.push(vm.getTopBarMap()['empty-col']);
+	vm.topbar.push(vm.getTopBarMap()['empty-col']);
+	vm.topbar.push(vm.getTopBarMap()['a-very-specific-button']);
+
 	vm.components = [];
 	vm.components.push([{},{},directiveService.getComponentMap()['energy-spectrum']]);
 	vm.components.push([{},{},{}]);
 	vm.components.push([{},{},{}]);
 	
-	
-	vm.getComponent = function(row, col){
-		return vm.components[row][col];
-	};
-
-	vm.refresh = function(){
-		$scope.$apply();
-	};
-	
-	console.log(directiveService.getComponentMap());
-	console.log(vm.components);
 }])
 
 .directive('navbar', [ function(){
@@ -199,6 +262,11 @@ angular.module('myApp.dashboard', ['ngRoute'])
 						controller.components[row][column] = scope.component;
 						
 						controller.refresh();
+						//remove listeners
+						angular.forEach(panels, function(panel, index){
+							angular.element(panel)[0].ondragover = null;
+							angular.element(panel)[0].ondrop = null;							
+						});
 					};
 				});
 			};
@@ -208,25 +276,39 @@ angular.module('myApp.dashboard', ['ngRoute'])
 				//only select panels in the main body (div page-content-wrapper)
 				var panels = document.getElementById('page-content-wrapper').getElementsByTagName('panel-component');
 				
-				angular.forEach(panels, function(panel, index){					
-					angular.element(panel)[0].ondragover= function(e){
-						e.preventDefault();
-						return false;
-					};
-										
-					angular.element(panel)[0].ondrop= function(event){
-						
+				if(!angular.element(panels).controller().editMainView){
+					var controller = angular.element(panels).controller();
+
+					controller.editMainView=true;
+					controller.refresh();
+				
+					angular.forEach(panels, function(panel, index){
 						var jqElement = angular.element(panel);						
-						var controller = jqElement.controller();
-						
-						var row = +jqElement.attr('row');
-						var column = +jqElement.attr('column');
-						
-						controller.components[row][column] = scope.component;
-						
-						controller.refresh();
-					};
-				});
+							
+						jqElement[0].ondragover= function(e){
+							e.preventDefault();
+							return false;
+						};
+											
+						jqElement[0].ondrop= function(event){
+														
+							var row = +jqElement.attr('row');
+							var column = +jqElement.attr('column');
+							
+							controller.components[row][column] = scope.component;
+							
+							controller.editMainView = false;
+							controller.refresh();
+							
+							//remove listeners
+							angular.forEach(panels, function(panel, index){
+								angular.element(panel)[0].ondragover = null;
+								angular.element(panel)[0].ondrop = null;					
+					
+							});
+						};
+					});
+				}
 			};
 		}
 	}
@@ -240,59 +322,106 @@ angular.module('myApp.dashboard', ['ngRoute'])
 			//add listener functions to the element.
 			
 			//add drop listeners to component containers.
+			
+			/* should be the same as below, but sometimes doesnt fire event....
 			el[0].ondragenter = function(){
-				//only select panels in the main body (div page-content-wrapper)
-				var panels = document.getElementById('sidebar-wrapper').getElementsByTagName('sidebar-component');
-				
-				angular.forEach(panels, function(panel, index){
-					
-					angular.element(panel)[0].ondragover= function(e){
-						e.preventDefault();
-						return false;
-					};
-										
-					angular.element(panel)[0].ondrop= function(event){
-						console.log('in drop');
-						
-						var jqElement = angular.element(panel);						
-						var controller = jqElement.controller();
-						
-						var index= +jqElement.attr('index');
-						
-						controller.sidebar[index] = scope.component;
-						
-						controller.refresh();
-					};
-				});
+
 			};
+			*/
 			
 			//sometimes dragenter event isnt fired when dragging???
 			el[0].ondrag = function(){
 				//only select panels in the main body (div page-content-wrapper)
 				var panels = document.getElementById('sidebar-wrapper').getElementsByTagName('sidebar-component');
-				
-				angular.forEach(panels, function(panel, index){
-				
-					angular.element(panel)[0].ondragover= function(e){
-						e.preventDefault();
-						return false;
-					};
-										
-					angular.element(panel)[0].ondrop= function(event){
-						console.log('in drop');
+								
+				if(!angular.element(panels).controller().editSidebar){
+					var controller = angular.element(panels).controller();
 
+					controller.editSidebar=true;
+					controller.refresh();
+				
+					angular.forEach(panels, function(panel, index){
 						var jqElement = angular.element(panel);						
-						var controller = jqElement.controller();
-						
-						var index= +jqElement.attr('index');
-						
-						controller.sidebar[index] = scope.component;
-						
-						console.log(jqElement);
-						
-						controller.refresh();
-					};
-				});
+							
+						jqElement[0].ondragover= function(e){
+							e.preventDefault();
+							return false;
+						};
+											
+						jqElement[0].ondrop= function(event){
+							
+							var index= +jqElement.attr('index');
+							
+							controller.sidebar[index] = scope.component;
+							
+							controller.editSidebar=false;
+							controller.refresh();
+							//remove listeners
+							angular.forEach(panels, function(panel, index){
+								angular.element(panel)[0].ondragover = null;
+								angular.element(panel)[0].ondrop = null;					
+					
+							});
+						};
+					});
+				}
+			};
+		}
+	}
+}])
+
+.directive('paletteTopbarComponent', [ '$compile', function($compile){
+	return{
+		restrict: 'E',
+		template: '<img src={{component.paletteImage()}} title={{component.tag()}}>',
+		link: function(scope, el, attr){
+			//add listener functions to the element.
+			
+						//add drop listeners to component containers.
+			
+			/* should be the same as below, but sometimes doesnt fire event....
+			el[0].ondragenter = function(){
+
+			};
+			*/
+			
+			//sometimes dragenter event isnt fired when dragging???
+			el[0].ondrag = function(){
+				//only select panels in the main body (div page-content-wrapper)
+				var panels = document.getElementsByTagName('navbar')[0].getElementsByTagName('topbar-component');
+				
+				if(!angular.element(panels).controller().editTopbar){
+					var controller = angular.element(panels).controller();
+
+					controller.editTopbar=true;
+					controller.refresh();
+				
+					angular.forEach(panels, function(panel, index){
+						var jqElement = angular.element(panel);						
+							
+						jqElement[0].ondragover= function(e){
+							e.preventDefault();
+							return false;
+						};
+											
+						jqElement[0].ondrop= function(event){
+							
+							var index= +jqElement.attr('index');
+							
+							controller.topbar[index] = scope.component;
+							
+							controller.editTopbar = false;
+							controller.refresh();
+							
+							//remove listeners
+							angular.forEach(panels, function(panel, index){
+								angular.element(panel)[0].ondragover = null;
+								angular.element(panel)[0].ondrop = null;					
+					
+							});
+						};
+					});
+				}
 			};
 		}
 	}

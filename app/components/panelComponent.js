@@ -8,6 +8,37 @@ angular.module('myApp.panelComponent', ['ngRoute'])
   });
 }])
 
+.run(['directiveService', function(directiveService){
+	directiveService.addSideBarComponent({
+		tag: function(){return 'empty-row';},
+		configTag: function(){return '';},
+		tagHtml: function(){return "<empty-row><empty-row>";},
+		directiveName: function(){return 'emptyRow';},
+		namespace: function(){return 'empty'},
+		paletteImage: function(){return 'redx.png';}
+		});
+	
+	directiveService.addTopBarComponent({
+		tag: function(){return 'empty-col';},
+		configTag: function(){return '';},
+		tagHtml: function(){return "<empty-col><empty-col>";},
+		directiveName: function(){return 'emptycol';},
+		namespace: function(){return 'empty'},
+		paletteImage: function(){return 'redx.png';}
+		});
+		
+	//this needs to go away and a more generic button (or reuse of angular js button directive used)
+	directiveService.addTopBarComponent({
+		tag: function(){return 'a-very-specific-button';},
+		configTag: function(){return '';},
+		tagHtml: function(){return "<a-very-specific-button><a-very-specific-button>";},
+		directiveName: function(){return 'aVerySpecificButton';},
+		namespace: function(){return 'button'},
+		paletteImage: function(){return 'devconfig.png';}
+		});
+	}
+])
+
 .controller('panelController', [ 'directiveService', '$scope', '$sce', function(directiveService, $scope, $sce){
 	var vm = this;
 	
@@ -15,7 +46,7 @@ angular.module('myApp.panelComponent', ['ngRoute'])
 
 	};
 	angular.extend(vm, directiveService);
-	
+	console.log(vm.getTopBarMap());
 	//currently watching the namespace? Creates a dependency on the controller for the panel contents being namespaced....
 	$scope.$watch('component.bodyDirective.namespace', function(newValue, oldValue, scope){
 		if(!vm.bodyDirective.tag){
@@ -76,7 +107,7 @@ angular.module('myApp.panelComponent', ['ngRoute'])
 	return {
 		restrict: 'E',
 		scope: {
-			bodyDirective: '=directive'
+			bodyDirective: '=directive',
 		},
 		controller: 'panelController as component',
 		templateUrl: 'views/panel.html',
@@ -86,12 +117,46 @@ angular.module('myApp.panelComponent', ['ngRoute'])
 	}
 }])
 
-.directive('sidebarComponent', [ function(){
-		return {
+
+.directive('emptyRow', [ function() {
+	return {
+		restrict: 'E',
+		template : '<div class="row"><div ng-if="dashboard.editSidebar" ng-class="dashboard.editSidebarClass()" style="margin:10px; height:50px; border-style:dotted;">Drop a Sidebar Component!</div></div>'
+	}
+}])
+
+.directive('emptyCol', [ function() {
+	return {
+		restrict: 'E',
+		template : '<div ng-if="dashboard.editTopbar" ng-class="dashboard.editTopbarClass()" style="margin:10px; height:50px;"></div>'
+	}
+}])
+
+.directive('topbarComponent', [ function(){
+	return {
 		restrict: 'E',
 		scope: {
-			bodyDirective: '=directive'
+			bodyDirective: '=directive',
+			dashboard: '=dashboard'
+		},
+		template: '<div class="col-md-1"><div ng-include="bodyDirective.tag()"></div></div>',
+	}
+}])
+
+.directive('sidebarComponent', [ function(){
+	return {
+		restrict: 'E',
+		scope: {
+			bodyDirective: '=directive',
+			dashboard: '=dashboard'
 		},
 		template: '<div ng-include="bodyDirective.tag()"></div>',
+	}
+}])
+
+.directive('aVerySpecificButton', [ function(){
+	return {
+		restrict: 'E',
+		template: '<button class="btn btn-default" ng-click="dashboard.config()"><img src="config.png"/></button>'
 	}
 }]);

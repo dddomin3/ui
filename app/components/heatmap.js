@@ -1103,6 +1103,9 @@ angular.module('myApp.heatmap', ['ngRoute'])
 	return {
 		restrict: 'E',
 		controller: 'heatmapCtrl as heat',
-		templateUrl: 'views/energySpectrum.html'
+		templateUrl: 'views/energySpectrum.html',
+		link: function(scope, el, atr){
+			scope.$parent.heat = scope.heat;
+		}
 	}
 }])

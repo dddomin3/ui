@@ -32,15 +32,15 @@
         </li>
 		!-->
       </ul>
-	  <!--
-      <form class="navbar-form navbar-left" role="search">
-        <div class="form-group">
+      <!--
+	  <form class="navbar-form navbar-left" role="search">
+		<div class="form-group">
           <input type="text" class="form-control" placeholder="Search">
         </div>
         <button type="submit" class="btn btn-default">Submit</button>
-      </form>
-	   !-->
-      <ul class="nav navbar-nav navbar-right">
+	  </form>
+      !-->
+      <div class="row">
 		<!--
 		<li><a href="#">Link</a></li>
         <li class="dropdown">
@@ -54,9 +54,11 @@
           </ul>
         </li>
 		!-->
-		<button class="btn btn-default" ng-click="dashboard.config()"><img src="config.png"/></button>
+		<!--<button class="btn btn-default" ng-click="dashboard.config()"><img src="config.png"/></button>!-->
+			<div ng-repeat="component in dashboard.getTopbar() track by $index">
+				<topbar-component directive="$parent.dashboard.getTopbar()[$index]" index="{{$index}}" dashboard="$parent.dashboard"></topbar-component>
+			</div>
 		</div>
-	  </ul>
     </div><!-- /.navbar-collapse -->
 	
   </div><!-- /.container-fluid -->

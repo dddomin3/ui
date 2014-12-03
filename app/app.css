@@ -87,6 +87,15 @@ body {
   transition: all 0.4s ease 0s;
 }
 
+#wrapper-no-right-padding {
+  padding-left: 250px;
+  transition: all 0.4s ease 0s;
+}
+
+.wrapper-no-padding {
+	padding-right:0px;
+}
+
 #sidebar-wrapper {
   margin-left: -250px;
   left: 250px;

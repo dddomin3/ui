@@ -10,15 +10,6 @@ angular.module('myApp.facilityDetails', ['ngRoute'])
 		namespace: function(){return 'facility'},
 		paletteImage: function(){return 'report.png';}
 		});
-		
-	directiveService.addSideBarComponent({
-		tag: function(){return 'empty-row';},
-		configTag: function(){return '';},
-		tagHtml: function(){return "<empty-row><empty-row>";},
-		directiveName: function(){return 'emptyRow';},
-		namespace: function(){return 'empty'},
-		paletteImage: function(){return 'report.png';}
-		});
 }])
 
 .factory('facilityDetailsService', ['$http', function($http){
@@ -645,13 +636,6 @@ setDetails($scope.$parent.$parent.$parent.organization);
 	return {
 		restrict: 'E',
 		templateUrl : 'views/facilityDetails.html'
-	}
-}])
-
-.directive('emptyRow', [ function() {
-	return {
-		restrict: 'E',
-		template : '<div class="row"><div style="background-color:gray; margin:10px; height:50px; border-style:dotted;">Drop a Sidebar Component Here!</div></div>'
 	}
 }])
 
