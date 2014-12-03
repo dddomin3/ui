@@ -252,7 +252,24 @@ angular.module('myApp.dashboard', ['ngRoute'])
 			};
 			*/
 			
-			//sometimes dragenter event isnt fired when dragging???
+			el[0].ondragend = function(){
+				var panels = document.getElementById('page-content-wrapper').getElementsByTagName('panel-component');
+				
+				if(angular.element(panels).controller().editMainView){
+					
+					var controller = angular.element(panels).controller();
+					controller.editMainView=false;
+					controller.refresh();
+					
+					//remove listeners
+					angular.forEach(panels, function(panel, index){
+						angular.element(panel)[0].ondragover = null;
+						angular.element(panel)[0].ondrop = null;					
+			
+					});
+				};
+			};
+			
 			el[0].ondrag = function(){
 				//only select panels in the main body (div page-content-wrapper)
 				var panels = document.getElementById('page-content-wrapper').getElementsByTagName('panel-component');
@@ -265,7 +282,7 @@ angular.module('myApp.dashboard', ['ngRoute'])
 					
 					angular.forEach(panels, function(panel, index){
 						var jqElement = angular.element(panel);						
-						
+
 						jqElement[0].ondragover= function(e){
 							e.preventDefault();
 							return false;
@@ -280,16 +297,6 @@ angular.module('myApp.dashboard', ['ngRoute'])
 							
 							controller.editMainView = false;
 							controller.refresh();
-							
-							console.log('dashboard controller on drop:');
-							console.log(controller);
-							
-							//remove listeners
-							angular.forEach(panels, function(panel, index){
-								angular.element(panel)[0].ondragover = null;
-								angular.element(panel)[0].ondrop = null;					
-					
-							});
 						};
 					});
 				}
@@ -312,6 +319,24 @@ angular.module('myApp.dashboard', ['ngRoute'])
 
 			};
 			*/
+			
+			el[0].ondragend = function(){
+				var panels = document.getElementById('sidebar-wrapper').getElementsByTagName('sidebar-component');
+				
+				if(angular.element(panels).controller().editSidebar){
+					
+					var controller = angular.element(panels).controller();
+					controller.editSidebar=false;
+					controller.refresh();
+					
+					//remove listeners
+					angular.forEach(panels, function(panel, index){
+						angular.element(panel)[0].ondragover = null;
+						angular.element(panel)[0].ondrop = null;					
+			
+					});
+				};
+			};
 			
 			//sometimes dragenter event isnt fired when dragging???
 			el[0].ondrag = function(){
@@ -369,7 +394,25 @@ angular.module('myApp.dashboard', ['ngRoute'])
 			};
 			*/
 			
-			//sometimes dragenter event isnt fired when dragging???
+			el[0].ondragend = function(){
+				var panels = document.getElementsByTagName('navbar')[0].getElementsByTagName('topbar-component');
+				
+				if(angular.element(panels).controller().editTopbar){
+					
+					var controller = angular.element(panels).controller();
+					controller.editTopbar=false;
+					controller.refresh();
+					
+					//remove listeners
+					angular.forEach(panels, function(panel, index){
+						angular.element(panel)[0].ondragover = null;
+						angular.element(panel)[0].ondrop = null;					
+			
+					});
+				};
+			};
+			
+			
 			el[0].ondrag = function(){
 				//only select panels in the main body (div page-content-wrapper)
 				var panels = document.getElementsByTagName('navbar')[0].getElementsByTagName('topbar-component');
