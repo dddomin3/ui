@@ -8,18 +8,6 @@ angular.module('myApp.utilityGraph', ['ngRoute'])
   });
 }])
 
-.run(['directiveService', function(directiveService){
-	directiveService.addFullComponent({
-		tag: function(){return 'utility-graph';},
-		configTag: function(){return 'utility-graph-config';},
-		tagHtml: function(){return "<utility-graph></utility-graph>";},
-		directiveName: function(){return 'utilityGraph';},
-		namespace: function(){return 'utility';},
-		paletteImage: function(){return 'hotcool.png';}
-		}
-	);
-}])
-
 .factory('utilityGraphDataService', ['$http', function($http){
 	var serviceObject = {};
 	
@@ -61,6 +49,7 @@ angular.module('myApp.utilityGraph', ['ngRoute'])
 
 	//after data is loaded, this callback assigns the dimension and group.
 	.finally(function(){
+		console.log('in finally?');
 		
 		vm.utilityDimension = crossfilter(vm.data).dimension(function(d){
 			return d3.time.month(new Date(d.timestamp));
@@ -81,14 +70,5 @@ angular.module('myApp.utilityGraph', ['ngRoute'])
 		scope: {},
 		controller: 'utilityGraphController as utility',
 		templateUrl: 'views/utilityGraph.html'
-	}
-}])
-
-.directive('utilityGraphConfig', [function() {
-	return {
-		restrict: 'E',
-		utility: '=utility',
-		controller: 'utilityConfigController as config',
-		templateUrl: 'views/configButton.html'
 	}
 }])
