@@ -1,6 +1,6 @@
 'use strict';
 
-angular.module('myApp.workOrderGrid', ['ngRoute', 'ui.grid'])
+angular.module('myApp.workOrderGrid', ['ngRoute', 'ui.grid', 'ui.grid.edit', 'ui.grid.autoResize'])
 
 .factory('workOrderGridService', ['$http', function($http){
 	console.log("Word up, homey");
@@ -30,6 +30,17 @@ angular.module('myApp.workOrderGrid', ['ngRoute', 'ui.grid'])
 
 .controller('workOrderGridCtrl', ['$scope', '$http', '$location', 'uiGridConstants', '$route', 'workOrderGridService', 
     function($scope, $http, $location, uiGridConstants, $route, workOrderGridService){
+		
+		$scope.test = {
+				showMessage: function(row){
+					console.log(row)
+				},
+				mouse: function(row){
+					//console.log(row);
+					
+				}
+		};
+	
 		workOrderGridService.getWorkOrders().then(function(response){
 			$scope.responseData = response.data.result;
 			var eventData = [];
@@ -49,7 +60,7 @@ angular.module('myApp.workOrderGrid', ['ngRoute', 'ui.grid'])
 					ticketClosingDate = "Pending";
 				}
 				
-				var eventRow = {organization: $scope.responseData[i].organization, facility: $scope.responseData[i].facility, asset: $scope.responseData[i].asset, anomaly: anomaly, eventID: $scope.responseData[i].eventID, createdTime: ticketCreationDate, closedTime: ticketClosingDate};
+				var eventRow = {organization: $scope.responseData[i].organization, facility: $scope.responseData[i].facility, asset: $scope.responseData[i].asset, anomaly: anomaly, eventID: $scope.responseData[i].eventID, createdTime: ticketCreationDate, closedTime: ticketClosingDate, exportEvent: null};
 				eventData.push(eventRow);
 			}
 			$scope.eventData = eventData;
@@ -59,15 +70,17 @@ angular.module('myApp.workOrderGrid', ['ngRoute', 'ui.grid'])
 			enableFiltering: true,
 			multiSelect: false,
 			data: 'eventData',
+			rowTemplate: '<div ng-click="getExternalScopes().showMessage(row.entity)"  ng-repeat="col in colContainer.renderedColumns track by col.colDef.name" class="ui-grid-cell" ui-grid-cell></div>',
 			columnDefs: [
-			             {field: 'organization', displayName: 'Organization', enableFiltering: true},
+			             {field: 'organization', displayName: 'Organization'},
 			             {field: 'facility', displayName: 'Facility'},
 			             {field: 'asset', displayName: 'Asset'},
 			             {field: 'anomaly', displayName: 'Anomaly'},
 			             {field: 'createdTime', displayName: 'Ticket Creation Date'},
 			             {field: 'closedTime', displayName: 'Ticket Closing Date'},
-			             {field: 'eventID', displayName: 'Event ID'}
+			             {field: 'eventID', displayName: 'Event ID'},
 			             ]
+	
 		};
 		
 		$scope.reset = function(){

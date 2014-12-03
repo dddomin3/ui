@@ -20,6 +20,7 @@
 	<center>
 	<button class="btn btn-default" ng-click="openConfig('lg');queryOrganizations()">Select Facility</button>
 	<button class="btn btn-default" ng-click="ok();refresh()" >Minimize</button>
+	
 	</center>
 	</div>
 	
@@ -43,7 +44,19 @@
 		</div>
 			<li ng-if="!isZero(siteCount)">This organization has a total of {{siteCount}} sites</li>
 			<li ng-if="!isBlank(_liveDate)">Went live on {{_liveDate}}</li>
-			<li ng-if="!isBlank(_facilityAddress)">Located at {{_facilityAddress}}, {{_city}}, {{_state}}</li>
+			<div ng-if="!isBlank(_facilityAddress)">
+			<div ng-if="!isBlank(_city)">
+			<div ng-if="!isBlank(_state)">
+			<li>Located at {{_facilityAddress}}, {{_city}}, {{_state}}</li>
+			</div>
+			<div ng-if="isBlank(_state)">
+			<li>Located at {{_facilityAddress}}, {{_city}}</li>
+			</div>
+			</div>
+			<div ng-if="isBlank(_city)">
+			<li>Located at {{_facilityAddress}}</li>
+			</div>
+			</div>
 			<li ng-if="!isBlank(_buildingType)">{{_buildingType}}</li>
 			<li ng-if="!isBlank(_squareFootage)">Total of {{_squareFootage}} sq ft.</li>
 			<li ng-if="!isZero(_assetCount)">Total key assets monitored: {{_assetCount}}</li>
