@@ -12,7 +12,6 @@ angular.module('myApp.ticketImpulse', ['ngRoute'])
 				}
 			}
 		}
-		console.log(flattenedData);
 		return _init(bar, flattenedData, userParameters);
 	}; 
 	var _init = function (bar, sortedData, userParameters) {
@@ -56,7 +55,6 @@ angular.module('myApp.ticketImpulse', ['ngRoute'])
 		};
 		
 		chartHelper.createDimensions = function () {
-			console.log("talk to me");
 			//creates, chooses and populates dimensions.
 			chartHelper._dimensions.hourDimension = chartHelper._ndx.dimension(function(d) {
 				var timeObj = _tfIso(new Date(d.createdTime));
@@ -80,10 +78,11 @@ angular.module('myApp.ticketImpulse', ['ngRoute'])
 		};
 		
 		chartHelper.createDomain = function (userParameters) {     
-			chartHelper._chartParameters.domainX = d3.scale.linear().domain([+userParameters.minDate, +userParameters.maxDate])
+			console.log([userParameters.lowDate, userParameters.highDate]);
+			chartHelper._chartParameters.domainX = d3.scale.linear().domain([+userParameters.lowDate, +userParameters.highDate])
 			chartHelper._chartParameters.xUnits = d3.time.days;
 			var displayDate = d3.time.format("%m-%Y"); // function to change the format of a date object to hour
-			chartHelper._chartParameters.tickFormat = function(v) { return displayDate(v);};
+			chartHelper._chartParameters.tickFormat = function(v) { return displayDate(new Date(v));};
 		};
 		
 		chartHelper.createGroups = function () {
@@ -94,8 +93,8 @@ angular.module('myApp.ticketImpulse', ['ngRoute'])
 				return v;
 			})
 			.reduce(
-				//groups a value for each entry in the dimension by finding the total aggregated savings
 				function (p,v) {
+					console.log(v.eventID);
 					return ++p;
 				},	
 				function (p,v) {
@@ -123,8 +122,8 @@ angular.module('myApp.ticketImpulse', ['ngRoute'])
 					// bottom: chartHelper._userParameters.marginBottom
 				// })
 				
-				//.renderHorizontalGridLines(true)
-				//.renderVerticalGridLines(true)
+				.renderHorizontalGridLines(true)
+				.renderVerticalGridLines(true)
 				
 				.xUnits(chartHelper._chartParameters.xUnits) // sets X axis units
 				.x(chartHelper._chartParameters.domainX)
@@ -133,19 +132,19 @@ angular.module('myApp.ticketImpulse', ['ngRoute'])
 				
 		        //.centerBar(true)
 		        //.barPadding(0.5)
-				
-				//.renderTitle(true)
+				.title(function(p,v) {return v.eventID; })
+				.renderTitle(true)
 				//.colors("rgba(229,63,0,.8)")
 				
 				//.elasticX(true)
 				//.elasticY(true)
-				//.legend(dc.legend().x(lX).y(lY).itemHeight(13).gap(5)) // legend position and add'l info
+				.legend(dc.legend().x(lX).y(lY).itemHeight(13).gap(5)) // legend position and add'l info
 				//.yAxisPadding("5%")	//WARNING: not in api, but xAxisScaling works. This was legit a stab in the dark.
 				
 				//.mouseZoomable(true)
 				.brushOn(false);
 			
-			//bar.xAxis().tickFormat(chartHelper._chartParameters.tickFormat); // sets the tick format to be the hour only
+			bar.xAxis().tickFormat(chartHelper._chartParameters.tickFormat); // sets the tick format to be the hour only
 			
 			dc.renderAll();
 			return bar;
@@ -325,7 +324,7 @@ angular.module('myApp.ticketImpulse', ['ngRoute'])
 		$scope.treatedData = response.data.treatedData;
 		$scope.chartHelper = chartService.initFlatten(
 			bar,
-			response.data.treatedData,
+			$scope.active,
 			$scope.userParameters
 		);
 		
