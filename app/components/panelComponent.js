@@ -55,7 +55,6 @@ angular.module('myApp.panelComponent', ['ngRoute'])
 
 	};
 	angular.extend(vm, directiveService);
-	console.log(vm.getTopBarMap());
 	
 	/*
 	//currently watching the namespace? Creates a dependency on the controller for the panel contents being namespaced....

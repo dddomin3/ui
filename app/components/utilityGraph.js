@@ -70,6 +70,36 @@ angular.module('myApp.utilityGraph', ['ngRoute'])
 		})
 	});
 	
+	vm.doSomething = function(){
+		var divs = angular.element(vm.html).find('div');
+		var removed = false;
+		var removedBody;
+		
+		angular.forEach(divs, function(value, key){
+			if(angular.element(value).hasClass('dc-chart')){
+				
+				if(removed){
+					var g= angular.element(value.getElementsByTagName('svg')[0])[0].children[0];
+					var gJquery = angular.element(g);
+					gJquery.append(removedBody);
+					
+					return;	
+				}
+				
+				var dcChart = angular.element(value);
+				
+				var chartBody = angular.element(dcChart[0].getElementsByClassName('chart-body')[0]);
+				removedBody = chartBody.clone();
+				chartBody.remove();
+				
+				console.log('I removed a y chart body!');
+				console.log(dcChart[0]);
+				
+				removed=true;
+			}
+		});
+	}
+	
 }])
 
 .controller('utilityConfigController', [ function(){
@@ -78,9 +108,12 @@ angular.module('myApp.utilityGraph', ['ngRoute'])
 .directive('utilityGraph', [function() {
 	return {
 		restrict: 'E',
-		scope: {},
 		controller: 'utilityGraphController as utility',
-		templateUrl: 'views/utilityGraph.html'
+		templateUrl: 'views/utilityGraph.html',
+		link: function(scope, el, attr){
+			scope.$parent.utility = scope.utility;
+			scope.utility.html = el[0];
+		}
 	}
 }])
 

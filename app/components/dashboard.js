@@ -224,7 +224,7 @@ angular.module('myApp.dashboard', ['ngRoute'])
 	vm.topbar.push(vm.getTopBarMap()['a-very-specific-button']);
 
 	vm.components = [];
-	vm.components.push([directiveService.getComponentMap()['empty-panel'],directiveService.getComponentMap()['empty-panel'],directiveService.getComponentMap()['empty-panel']]);
+	vm.components.push([directiveService.getComponentMap()['utility-graph'],directiveService.getComponentMap()['empty-panel'],directiveService.getComponentMap()['empty-panel']]);
 	vm.components.push([directiveService.getComponentMap()['empty-panel'],directiveService.getComponentMap()['empty-panel'],directiveService.getComponentMap()['empty-panel']]);
 	vm.components.push([directiveService.getComponentMap()['empty-panel'],directiveService.getComponentMap()['empty-panel'],directiveService.getComponentMap()['empty-panel']]);
 	
