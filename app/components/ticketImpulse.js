@@ -3,7 +3,19 @@ angular.module('myApp.ticketImpulse', ['ngRoute'])
 
 .factory('ticketImpulseChartService', ['$http', function($http){
 
-	var _init = function (composite, sortedData, userParameters) {
+	var _initFlatten = function (bar, unflattenedData, userParameters) {
+		var flattenedData = [];
+		for (var org in unflattenedData) {
+			for (var fac in unflattenedData[org]) {
+				for (var asset in unflattenedData[org][fac]) {
+					Array.prototype.push.apply(flattenedData, unflattenedData[org][fac][asset]); //adds an array to an array. like a super push
+				}
+			}
+		}
+		console.log(flattenedData);
+		return _init(bar, flattenedData, userParameters);
+	}; 
+	var _init = function (bar, sortedData, userParameters) {
 		var getDaysBetween = function(endDate, startDate){
 			var daysBetween = Math.round((endDate - startDate)/(1000*60*60*24));
 			
@@ -34,273 +46,109 @@ angular.module('myApp.ticketImpulse', ['ngRoute'])
 		var _dayStringArray = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
 			//Date.getDay returns a number, which this array translates into the day fo week
 		var _dayToColorMap = {
-				"Sun": "rgba(229,63,0,.8)",
-				"Mon": "rgba(222,172,0,.8)",
-				"Tue": "rgba(156, 216,0,.8)",
-				"Wed": "rgba(46, 210, 0, .8)",
-				"Thu": "rgba(0, 203, 56, .8)",
-				"Fri": "rgba(0, 197, 153, .8)",
-				"Sat": "rgba(0, 137, 191, .8)"
+			"Sun": "rgba(229,63,0,.8)",
+			"Mon": "rgba(222,172,0,.8)",
+			"Tue": "rgba(156, 216,0,.8)",
+			"Wed": "rgba(46, 210, 0, .8)",
+			"Thu": "rgba(0, 203, 56, .8)",
+			"Fri": "rgba(0, 197, 153, .8)",
+			"Sat": "rgba(0, 137, 191, .8)"
 		};
 		
 		chartHelper.createDimensions = function () {
+			console.log("talk to me");
 			//creates, chooses and populates dimensions.
 			chartHelper._dimensions.hourDimension = chartHelper._ndx.dimension(function(d) {
-				if(d.timestamp === undefined) { d.timestamp = d.date; }
-				var ret = d3.time.hour(_tfIso(d.timestamp));
-				ret.meterName = d.meterName;	//retains meter name on value. Since its a Date object, the toString function
-				//(or whatever dc decides is the important/common return) will be the same even if the datapoints
-				//have different 'name' keys
-				var displayDate = d3.time.format("%H");
-				var hour = displayDate(new Date(ret));
-				return +hour;
+				var timeObj = _tfIso(new Date(d.createdTime));
+				return timeObj;
 			}); // creates the x-axis components using their date as a guide
-			chartHelper._dimensions.quarterDimension = chartHelper._ndx.dimension(function(d) {
-				if(d.timestamp === undefined) { d.timestamp = d.date; } 
-				var ret = d3.time.minute(_tfIso(d.timestamp));
-				ret.meterName = d.meterName;
-				return ret;
-			});
-			chartHelper._dimensions.minuteDimension = chartHelper._ndx.dimension(function(d) {
-				if(d.timestamp === undefined) { d.timestamp = d.date; }
-				var ret = d3.time.minute(_tfIso(d.timestamp));
-				ret.meterName = d.meterName;
-				return ret;
-			});
+			// chartHelper._dimensions.quarterDimension = chartHelper._ndx.dimension(function(d) {
+				// if(d.timestamp === undefined) { d.timestamp = d.date; } 
+				// var ret = d3.time.minute(_tfIso(d.timestamp));
+				// ret.meterName = d.meterName;
+				// return ret;
+			// });
+			// chartHelper._dimensions.minuteDimension = chartHelper._ndx.dimension(function(d) {
+				// console.log(d);
+				// if(d.timestamp === undefined) { d.timestamp = d.date; }
+				// var ret = d3.time.minute(_tfIso(d.timestamp));
+				// ret.meterName = d.meterName;
+				// return ret;
+			// });
 			
 			chartHelper._dimensions.masterDimension = chartHelper._dimensions.hourDimension;
 		};
 		
-		chartHelper.createDomain = function () {     
-			chartHelper._chartParameters.domainX = d3.scale.linear().domain([1, 24]);
-			chartHelper._chartParameters.xUnits = dc.units.integers;
-			var displayDate = d3.time.format("%H"); // function to change the format of a date object to hour
-			chartHelper._chartParameters.tickFormat = function(v) {return +v;};
+		chartHelper.createDomain = function (userParameters) {     
+			chartHelper._chartParameters.domainX = d3.scale.linear().domain([+userParameters.minDate, +userParameters.maxDate])
+			chartHelper._chartParameters.xUnits = d3.time.days;
+			var displayDate = d3.time.format("%m-%Y"); // function to change the format of a date object to hour
+			chartHelper._chartParameters.tickFormat = function(v) { return displayDate(v);};
 		};
 		
 		chartHelper.createGroups = function () {
-			//Start: create cumulative groups
 			//these groups consider the entire dataset in question.
-			chartHelper._groups.cumulativeMaxGroup = chartHelper._dimensions.masterDimension.group(function(v) {
-				var displayDate = d3.time.format("%H"); // function to change the format of a date object to mm-yyyy
-				return displayDate(new Date(v));
-				})
-				.reduce(
-					//groups a value for each entry in the dimension by finding the total aggregated savings
-					function (p,v) {
-						return v.value > p ? v.value : p;	//returns the higher of the two values
-					},	
-					function (p,v) {
-						return p;
-						//how can we do this?
-						//make array, sort array, max is 0th index
-					},
-					function () {
-						return 0;
-					}	
-				);
-			//_groups.maxGroup.organization = "Total";
-			
-			chartHelper._groups.cumulativeAverageGroup = chartHelper._dimensions.masterDimension.group(function(v) {
-					return v+1;
-				})
-				.reduce(
-					//groups a value for each entry in the dimension by finding the total aggregated savings
-					function (p,v) {
-						p.cnt++;
-						p.total += +v.value;
-						return p;	
-					},	
-					function (p,v) {
-						p.cnt--;
-						p.total -= +v.value;
-						return p;
-					},
-					function () {
-						var init = {}
-						init.total = 0;
-						init.cnt = 0;
-						return init;
-				})
-				.order(function (p) { return p.total/p.cnt;});	//makes sure group is ordered by average
-			
-			var averageReduceAddGenerator = function (dayOfWeek) {
-				return function (p,v) {
-					var dataOfWeek = _tfIso(v.timestamp).getDay();
-					if(dataOfWeek === dayOfWeek) {	//compares inputed dayOfWeek to data's day of week
-						p.cnt++;
-						p.total += +v.value;	
-					}
-					return p;
-				}
-			};
-			var averageReduceRemoveGenerator = function (dayOfWeek) {
-				return function (p,v) {
-				var dataOfWeek = _tfIso(v.timestamp).getDay();
-				if(dataOfWeek === dayOfWeek) {
-						p.cnt--;
-						p.total -= +v.value;
-					}
-				return p;
-				}
-			};
-			var averageReduceInitGenerator = function () {
-				return function () {
-					var init = {}
-					init.total = 0;
-					init.cnt = 0;
-					return init;
-				}
-			};
-			var averageOrder = function (p) {
-				return p.total/p.cnt;
-			};
-			
-			//TODO:make array, sort array, max is 0th index
-			var maxReduceAddGenerator = function (dayOfWeek) {
-				return function (p,v) {
-					var dataOfWeek = _tfIso(v.timestamp).getDay();
-					if(dataOfWeek === dayOfWeek) {	//compares inputed dayOfWeek to data's day of week
-						p.push(v.value);
-						p.sort(function(a,b) {return b > a;});
-					}
-					return p;
-				};
-			};
-			var maxReduceRemoveGenerator = function (dayOfWeek) {
-				return function (p,v) {
-					var dataOfWeek = _tfIso(v.timestamp).getDay();
-					if(dataOfWeek === dayOfWeek) {
-						return p;
-						//this is broken without doing: TODO:make array, sort array, max is 0th index
-					}
-					else return p;
-				};
-			};
-			var maxReduceInitGenerator = function () {
-				return function () {
-					return [0];
-				};
-			};
-			var maxOrder = function (p) {
-				console.log(p);
-				return p[0];
-			};
-			
-			var daysBetween = chartHelper._chartParameters.daysBetween;
-			//Per Day Groups
-			chartHelper._groups.averageGroups = [];
-			chartHelper._groups.maxGroups = [];
-			while(daysBetween) {
-				var day = new Date( chartHelper._userParameters.highDate - (1000*60*60*24)*daysBetween );
-				var dayOfWeek = day.getDay();
-				
-				var averageGroup = chartHelper._dimensions.masterDimension.group(
-					function(v) {
-						return v+1;
-					})
-					.reduce(
-						averageReduceAddGenerator(dayOfWeek),	
-						averageReduceRemoveGenerator(dayOfWeek),
-						averageReduceInitGenerator()
-					)
-					.order( averageOrder );//makes sure group is ordered by average
-				averageGroup.day = _dayStringArray[dayOfWeek]+ " Average";
-				averageGroup.color = _dayToColorMap[_dayStringArray[dayOfWeek]];
-				chartHelper._groups.averageGroups.push(averageGroup);
-				
-				var maxGroup = chartHelper._dimensions.masterDimension.group(function(v) {
-						return v+1;
-					})
-					.reduce(
-							maxReduceAddGenerator(dayOfWeek),	
-							maxReduceRemoveGenerator(dayOfWeek),
-							maxReduceInitGenerator()
-					)
-					.order( maxOrder );	//makes sure group is ordered by max
-				maxGroup.day = _dayStringArray[dayOfWeek] + " Max";
-				maxGroup.color = _dayToColorMap[_dayStringArray[dayOfWeek]];
-				chartHelper._groups.maxGroups.push(maxGroup);
-				
-				
-				daysBetween--;
-			}
+			chartHelper._group = chartHelper._dimensions.masterDimension.group(function(v) {
+				var displayDate = d3.time.format("%m-%Y"); // function to change the format of a date object to mm-yyyy
+				//return displayDate(new Date(v));
+				return v;
+			})
+			.reduce(
+				//groups a value for each entry in the dimension by finding the total aggregated savings
+				function (p,v) {
+					return ++p;
+				},	
+				function (p,v) {
+					return --p;
+				},
+				function () {
+					return 0;
+				}	
+			);
 		};
 		
-		chartHelper.drawChart = function (average) {
+		chartHelper.drawChart = function () {
 			var lX = chartHelper._userParameters.width - chartHelper._userParameters.marginRight + 25,
 				lY = chartHelper._userParameters.height - 650;
 			//legend coords
-			chartHelper._charts.averageCharts = [];
-			for(var i = 0, len = chartHelper._groups.averageGroups.length; i < len; i++) {
-				var averageDemandChart = dc.lineChart(composite)
-					.dimension(chartHelper._dimensions.masterDimension)
-					.interpolate("cardinal")
-					.colors(chartHelper._groups.averageGroups[i].color)
-					.group(
-							chartHelper._groups.averageGroups[i], 
-							chartHelper._groups.averageGroups[i].day
-					)
-					.valueAccessor(function(p) {return (p.value.total/p.value.cnt); })
-					.title(function(p) {return (p.value.total/p.value.cnt)+" "+p.value.total+" "+p.value.cnt;})
-					.renderTitle(true)
-					.renderDataPoints({radius:2, fillOpacity: 1, strokeOpacity: 1})
-					.tension(0.5)
-					.defined(function (d) {if(d.data.value.total/d.data.value.cnt < 100) {return false;} else {return true;}});//doesn't draw values less than 100
-				chartHelper._charts.averageCharts.push(averageDemandChart)
-			}
-			
-			chartHelper._charts.maxCharts = [];
-			for(var i = 0, len = chartHelper._groups.maxGroups.length; i < len; i++) {
-				var maxDemandChart = dc.lineChart(composite)
-					.dimension(chartHelper._dimensions.masterDimension)
-					.interpolate("cardinal")
-					.colors(chartHelper._groups.maxGroups[i].color)
-					.group(
-							chartHelper._groups.maxGroups[i], 
-							chartHelper._groups.maxGroups[i].day
-					)
-					.valueAccessor(function(p) {return p.value[0]; })
-					.title(function(p) {return p.value[0]; })
-					.renderTitle(true)
-					.renderDataPoints({radius:2, fillOpacity: 1, strokeOpacity: 1})
-					.tension(0.5)
-					.defined(function (d) {if(d.data.value[0] < 100) {return false;} else {return true;}});//doesn't draw values less than 100
-				chartHelper._charts.maxCharts.push(maxDemandChart)
-			}
-			
-			composite.xAxis().tickFormat(chartHelper._chartParameters.tickFormat); // sets the tick format to be the hour only
-			var composedCharts = average ? chartHelper._charts.maxCharts : chartHelper._charts.averageCharts;
-			composite	//configure composite graph object
+			bar
 				.width(chartHelper._userParameters.width)
 				.height(chartHelper._userParameters.height)
 				.xAxisLabel("Hour")
 				.yAxisLabel("kW")
-				.margins({
-					left: chartHelper._userParameters.marginLeft,
-					right: chartHelper._userParameters.marginRight,
-					top: chartHelper._userParameters.marginTop,
-					bottom: chartHelper._userParameters.marginBottom
-				})
+				// .margins({
+					// left: chartHelper._userParameters.marginLeft,
+					// right: chartHelper._userParameters.marginRight,
+					// top: chartHelper._userParameters.marginTop,
+					// bottom: chartHelper._userParameters.marginBottom
+				// })
 				
-				.renderHorizontalGridLines(true)
-				.renderVerticalGridLines(true)
+				//.renderHorizontalGridLines(true)
+				//.renderVerticalGridLines(true)
 				
-				.x(chartHelper._chartParameters.domainX)
 				.xUnits(chartHelper._chartParameters.xUnits) // sets X axis units
-				.elasticX(true)
+				.x(chartHelper._chartParameters.domainX)
+		        .dimension(chartHelper._dimensions.masterDimension)
+		        .group(chartHelper._group)
+				
+		        //.centerBar(true)
+		        //.barPadding(0.5)
+				
+				//.renderTitle(true)
+				//.colors("rgba(229,63,0,.8)")
+				
+				//.elasticX(true)
 				//.elasticY(true)
-				.legend(dc.legend().x(lX).y(lY).itemHeight(13).gap(5)) // legend position and add'l info
-				.shareTitle(false)	//required so that each individual chart's titles are rendered, and composite doesnt try to get its grubby hands on it
-				.yAxisPadding("5%")	//WARNING: not in api, but xAxisScaling works. This was legit a stab in the dark.
+				//.legend(dc.legend().x(lX).y(lY).itemHeight(13).gap(5)) // legend position and add'l info
+				//.yAxisPadding("5%")	//WARNING: not in api, but xAxisScaling works. This was legit a stab in the dark.
 				
-				.mouseZoomable(true)
-				.brushOn(false)
-				
-				.compose(composedCharts);
+				//.mouseZoomable(true)
+				.brushOn(false);
+			
+			//bar.xAxis().tickFormat(chartHelper._chartParameters.tickFormat); // sets the tick format to be the hour only
 			
 			dc.renderAll();
-			return composite;
+			return bar;
 		};
 		
 		chartHelper.meterIsntConsumption = function (meterName) {
@@ -335,14 +183,15 @@ angular.module('myApp.ticketImpulse', ['ngRoute'])
 		};
 		
 		chartHelper.createDimensions();
-		chartHelper.createDomain();
+		chartHelper.createDomain(chartHelper._userParameters);
         chartHelper.createGroups();
 		
 		return chartHelper;
 	};
 	
 	return {
-		init : _init
+		init : _init,
+		initFlatten : _initFlatten
 	};
 	
 }])
@@ -364,7 +213,7 @@ angular.module('myApp.ticketImpulse', ['ngRoute'])
 			marginRight: 150,
 			marginTop: 25,
 			marginBottom: 40,
-			lowDate: new Date((new Date((new Date()) - (28*24*60*60*1000))).toDateString()),
+			lowDate: new Date((new Date((new Date()) - (6*28*24*60*60*1000))).toDateString()),
 			highDate: new Date( (new Date()).toDateString() )
 		};
 	};
@@ -379,7 +228,7 @@ angular.module('myApp.ticketImpulse', ['ngRoute'])
 			"Sat": "rgba(0, 137, 191, .8)"
 	};
 	
-	var _getData = function () {	//TODO: Singleton changes	
+	var _getData = function (userParameters) {	//TODO: Singleton changes	
 		//this function queries the server for all existing organizations
 		//it's messy since it technically grabs all information after the below hardcoded date,
 		//and strings together a key value pair of all organizations, but whatever.
@@ -389,8 +238,8 @@ angular.module('myApp.ticketImpulse', ['ngRoute'])
 		
 		var requestString = requestString = {
 			"createdTime": {
-				"$gt": {"$date": ""+firstOfMonth.toJSON()},
-				"$lt": {"$date": ""+today.toJSON() }
+				"$gt": {"$date": ""+userParameters.lowDate.toJSON()},
+				"$lt": {"$date": ""+userParameters.highDate.toJSON()}
 			}
 		};
 		
@@ -457,7 +306,7 @@ angular.module('myApp.ticketImpulse', ['ngRoute'])
 	$scope.active = {};
 	console.log($scope.activeOrganizations);
 	
-	var composite = dc	.compositeChart("#test_composed"); //variable that stores the composite chart generated by program
+	var bar = dc.barChart("#test_composed");
 		//populated by drawChart
 	
 	var populateScope = function () {
@@ -474,22 +323,23 @@ angular.module('myApp.ticketImpulse', ['ngRoute'])
 	
 	var http = function(response) {
 		$scope.treatedData = response.data.treatedData;
-		$scope.chartHelper = chartService.init(
-			composite,
+		$scope.chartHelper = chartService.initFlatten(
+			bar,
 			response.data.treatedData,
 			$scope.userParameters
 		);
+		
 		$scope.showButtons = false;
-		try {
+		//try {
 			//populateScope();
-			composite = $scope.chartHelper.drawChart(false);
-		}
-		catch (e) {
-			console.error(e); // pass exception object to error handler
-		}
-		finally {
+			$scope.chartHelper.drawChart();
+		// }
+		// catch (e) {
+			// console.error(e); // pass exception object to error handler
+		// }
+		// finally {
 			$scope.showButtons = true;
-		}
+		// }
     };
   
 	
@@ -498,11 +348,11 @@ angular.module('myApp.ticketImpulse', ['ngRoute'])
 		dataService.getData($scope.userParameters).then( http, function () {alert("epicfail");} );
 	};
 	$scope.redrawChart = function () {
-		composite = $scope.chartHelper.drawChart(false);
+		$scope.chartHelper.drawChart(false);
 	};
 	
 	$scope.queryData = function () {
-		dataService.getData().then( function (response) {
+		dataService.getData($scope.userParameters).then( function (response) {
 			$scope.treatedData = response.data.treatedData;
 		});
 	};
@@ -600,5 +450,5 @@ angular.module('myApp.ticketImpulse', ['ngRoute'])
 		console.log($scope);
 	};
 
-	$scope.queryData();
+	$scope.queryData($scope.userParameters);
 }]);
