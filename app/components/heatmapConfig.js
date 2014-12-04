@@ -2,25 +2,17 @@
  
 angular.module('myApp.heatmap')
  
-.controller('heatmapConfigController', ['$scope', '$modal', function($scope, $modal){	
+.controller('heatmapConfigController', ['$scope', '$modal', function($scope, $modal){
+				
 		$scope.open = function(size) {
 		
 		var modalInstance = $modal.open({
 			templateUrl: 'views/heatmapConfig.html',
 			controller: 'heatmapConfigInstance',
 			size: size,
-			scope: $scope
+			scope: $scope.$parent
 			});
 		};
-}])
-
-.directive('heatmapConfig', [ function() {
-	return {
-		restrict: 'E',
-		heat: '=heat',
-		controller: 'heatmapConfigController as config',
-		templateUrl : 'views/configButton.html'
-	}
 }])
 
 .controller('heatmapConfigInstance', ['$scope', '$modalInstance', function($scope, $modalInstance) {

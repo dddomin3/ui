@@ -1,0 +1,26 @@
+   	
+	<div class="container" >
+	
+	
+	<div class="jumbotron">
+	<center>
+	<h1>
+	Equipment In Faults
+	</h1>
+	</center>
+	<center>
+	<button class="btn btn-default" ng-click="open('lg');queryOrganizations()">Equipment Selection</button>
+	</center>
+	</div>
+	
+	
+	<li ng-repeat="(activeElement, param) in active | orderBy:'activeElement'">
+		<button class="btn btn-primary">Add</button>
+	</li>
+	
+	
+
+	
+	
+	</div>
+
