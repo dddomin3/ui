@@ -1,155 +1,52 @@
 <!DOCTYPE html>
-<html lang="en-US">
 
-<div class="container">
-	<!-- org -->
+<div ng-controller="facilityDetailsCtrl">
+<div class="container-fluid" style="background-color:lightgreyfloat:left" >
+	<div class="panel panel-default">
+	<div class= "panel-heading clearfix">
 	
-	
-	
-	
+	<button class="btn btn-default pull-right" ng-click="openConfig('lg');queryOrganizations()" >Config</button>
+	<button class="btn btn-default pull-right" ng-click="openDetailed('lg')" >+</button>
+	</div>
 	
 	<div>
-	<div class="jumbotron">
+	<div>
+	<div>
 	<center>
-	<h1>
-	Facility Details
-	</h1>
-	</center>
-	<center>
-	<button class="btn btn-default" ng-click="open('lg');queryOrganizations()">Facility Selection</button>
-	</center>
-	</div>
-	<h1>
+	<b>
 	<div ng-if="!isBlank(_clientName)">
 	{{_clientName}}
 	</div>
 	<div ng-if="!isBlank(_projectName)">
 	{{_projectName}}
 	</div>
-	</h1>
+	</b>
+	</center>
 	<div>
-	
-	<div ng-if="!isBlank(_image)">
-		<img ng-src= {{_image}}></img>
-		</div>
-		
+	<center>
+			<li ng-if="!isZero(siteCount)">This organization has a total of {{siteCount}} sites</li>
 			<li ng-if="!isBlank(_liveDate)">Went live on {{_liveDate}}</li>
-			<li ng-if="!isBlank(_facilityAddress)">Located at {{_facilityAddress}}</li>
+			<div ng-if="!isBlank(_facilityAddress)">
+			<div ng-if="!isBlank(_city)">
+			<div ng-if="!isBlank(_state)">
+			<li>Located at {{_facilityAddress}}, {{_city}}, {{_state}}</li>
+			</div>
+			<div ng-if="isBlank(_state)">
+			<li>Located at {{_facilityAddress}}, {{_city}}</li>
+			</div>
+			</div>
+			<div ng-if="isBlank(_city)">
+			<li>Located at {{_facilityAddress}}</li>
+			</div>
+			</div>
 			<li ng-if="!isBlank(_buildingType)">{{_buildingType}}</li>
 			<li ng-if="!isBlank(_squareFootage)">Total of {{_squareFootage}} sq ft.</li>
 			<li ng-if="!isZero(_assetCount)">Total key assets monitored: {{_assetCount}}</li>
+	</center>
 	</div>
 	</div>
-	<div ng-if="facilitySelected()">
-<table cellspacing="0" cellpadding="0" class="dataTable" >
-	<thead>
-		<tr>
-		<td class="taC" style="width: 21%;">{{day1Name}} </td>
-		<td class="taC" style="width: 21%;">{{day2Name}} </td>
-		<td class="taC" style="width: 21%;">{{day3Name}} </td>
-		<td class="taC" style="width: 21%;">{{day4Name}} </td>
-		<td class="taC" style="width: 21%;">{{day5Name}} </td>
-		</tr>
-	</thead>
-	<tbody>
-		<tr class="wHover noBorder">
-		<td class="taC" >
-		<div><img src="{{day1Image}}" alt="Clear" width="42" height="42" class="condIcon" /></div>
-		<div class="b nobr">
-		<span style="color: #900;">{{day1HighTemp}}; F</span>
-		<span style="font-weight: normal; color: #999;">|</span>
-		<span style="color: #009;">{{day1LowTemp}} ; F</span>
-		</div>
-		</td>
-		<td class="taC" >
-		<div><img src="{{day2Image}}" alt="Clear" width="42" height="42" class="condIcon" /></div>
-		<div class="b nobr">
-		<span style="color: #900;">{{day2HighTemp}} ; F</span>
-		<span style="font-weight: normal; color: #999;">|</span>
-		<span style="color: #009;">{{day2HighTemp}} ; F</span>
-		</div>
-		</td>
-		<td class="taC" >
-		<div><img src="{{day3Image}}" alt="Partly Cloudy" width="42" height="42" class="condIcon" /></div>
-		<div class="b nobr">
-		<span style="color: #900;">{{day3HighTemp}} ; F</span>
-		<span style="font-weight: normal; color: #999;">|</span>
-		<span style="color: #009;">{{day3HighTemp}} ; F</span>
-		</div>
-		</td>
-		<td class="taC" >
-		<div><img src="{{day4Image}}" alt="Chance of Rain" width="42" height="42" class="condIcon" /></div>
-		<div class="b nobr">
-		<span style="color: #900;">{{day4HighTemp}} ; F</span>
-		<span style="font-weight: normal; color: #999;">|</span>
-		<span style="color: #009;">{{day4HighTemp}} ; F</span>
-		</div>
-		</td>
-		<td class="taC" >
-		<div><img src="{{day5Image}}" alt="Clear" width="42" height="42" class="condIcon" /></div>
-		<div class="b nobr">
-		<span style="color: #900;">{{day5HighTemp}} ; F</span>
-		<span style="font-weight: normal; color: #999;">|</span>
-		<span style="color: #009;">{{day5HighTemp}} ; F</span>
-		</div>
-		</td>
-		</tr>
-		<tr class="wHover noBorder">
-		<td class="taC" >
-		{{day1Desc}}
-		<div ng-if="!isZero(day1Rain) && isZero(day1Snow)">
-		{{day1Rain}}% chance of rain
-		</div>
-		<div ng-if="!isZero(day1Snow)">
-		{{day1Snow}}% chance of snow
-		</div>
-		</td>
-		<td class="taC" >
-		{{day2Desc}}
-		<div ng-if="!isZero(day2Rain) && isZero(day2Snow)">
-		{{day2Rain}}% chance of rain
-		</div>
-		<div ng-if="!isZero(day2Snow)">
-		{{day2Snow}}% chance of snow
-		</div>
-		</td>
-		<td class="taC" >
-		{{day3Desc}}
-		<div ng-if="!isZero(day3Rain) && isZero(day3Snow)">
-		{{day3Rain}}% chance of rain
-		</div>
-		<div ng-if="!isZero(day3Snow)">
-		{{day3Snow}}% chance of snow
-		</div>
-		</td>
-		<td class="taC" >
-		{{day4Desc}}
-		<div ng-if="!isZero(day4Rain) &&isZero(day4Snow)">
-		{{day4Rain}}% chance of rain
-		</div>
-		<div ng-if="!isZero(day4Snow)">
-		{{day4Snow}}% chance of snow
-		</div>
-		</td>
-		<td class="taC" >
-		{{day5Desc}}
-		<div ng-if="!isZero(day5Rain)&&isZero(day5Snow)">
-		{{day5Rain}}% chance of rain
-		</div>
-		<div ng-if="!isZero(day5Snow)">
-		{{day5Snow}}% chance of snow
-		</div>
-		</td>
-		</tr>
-	</tbody>
-</table>
+
 </div>
 </div>
-
-			
-
-			
-			
-
-
+</div>
 

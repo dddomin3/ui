@@ -10,11 +10,13 @@ angular.module('myApp.heatmap', ['ngRoute'])
 
 .run(['directiveService', function(directiveService){
 	directiveService.addFullComponent({
-		tag: 'energy-spectrum',
-		controller: 'heatmapCtrl',
-		configController: 'heatmapConfigController',
-		namespace: 'heat'}
-		);
+		tag: function(){return 'energy-spectrum';},
+		configTag: function(){return 'heatmap-config';},
+		tagHtml: function(){return "<energy-spectrum></energy-spectrum>";},
+		directiveName: function(){return 'energySpectrum';},
+		namespace: function(){return 'heat'},
+		paletteImage: function(){return 'usa.png';}
+		});
 }])
 
 .factory('heatmapDataService', ['$http', function($http){
@@ -920,11 +922,9 @@ angular.module('myApp.heatmap', ['ngRoute'])
 	return _servObj;
 }])
  
-.controller('heatmapCtrl', ['$scope', '$location', '$route', 'zoomHeatmapService', 'persistHeatmapService', 'heatmapDataService', 'heatmapConfigService', '$sce', 'directiveService', function($scope, $location, $route, zoomHeatmapService, persistHeatmapService, heatmapDataService, heatmapConfigService, $sce, directiveService) {
+.controller('heatmapCtrl', ['$scope', '$location', '$route', 'zoomHeatmapService', 'persistHeatmapService', 'heatmapDataService', 'heatmapConfigService', '$sce', function($scope, $location, $route, zoomHeatmapService, persistHeatmapService, heatmapDataService, heatmapConfigService, $sce, directiveService) {
 	var vm = this;
-	
-	directiveService.addDirectiveByElementTag('energy-spectrum');
-	
+
 	//inject the zoomHeatmapService into the scope.
 	angular.extend(vm, zoomHeatmapService);	
 	angular.extend(vm, persistHeatmapService);
@@ -1086,22 +1086,6 @@ angular.module('myApp.heatmap', ['ngRoute'])
 		});
 	});
 	
-	//for testing popout using angular-ui modal
-	vm.getWidgetHtml = function(){
-		var energySpectrums = document.getElementsByTagName('energy-spectrum');
-		
-		for(var i = 0; i < energySpectrums.length; i++){
-			
-			//once we found the energy-spectrum directive whose controller matches the controller making the call, return the HTML
-			if(angular.element(energySpectrums[i]).controller('energySpectrum') === vm){
-				
-				//only return the panel-body, not the panel header (which contains config and + buttons
-				return $sce.trustAsHtml(angular.element(energySpectrums[i].getElementsByClassName("panel-body"))[0].innerHTML);
-				
-			}
-		}		
-	};
-	
 	//when we change event sets, load the event data into time cells
 	$scope.$watch('heat.eventSource', function(){
 		vm.addEvents();
@@ -1118,16 +1102,10 @@ angular.module('myApp.heatmap', ['ngRoute'])
 .directive('energySpectrum', [function() {
 	return {
 		restrict: 'E',
-		scope: {},
 		controller: 'heatmapCtrl as heat',
-		templateUrl: 'views/energySpectrum.html'
-	}
-}])
-
-.directive('heatmapConfig', [ function() {
-	return {
-		restrict: 'E',
-		heat: '=heat',
-		templateUrl : 'views/heatmapConfig.html'
+		templateUrl: 'views/energySpectrum.html',
+		link: function(scope, el, atr){
+			scope.$parent.heat = scope.heat;
+		}
 	}
 }])

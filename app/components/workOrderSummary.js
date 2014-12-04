@@ -510,4 +510,3 @@ angular.module('myApp.workOrderSummary', ['ngRoute', 'ui.grid', 'ui.grid.autoRes
 	};
 }]);
 	
-
