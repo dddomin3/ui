@@ -121,7 +121,7 @@ angular.module('myApp.workOrderSummary', ['ngRoute', 'ui.grid', 'ui.grid.autoRes
 	var _serviceObj = {};
 	var mongoUrl = "http://10.239.3.132:9763/MongoServlet-0.0.1-SNAPSHOT/send";
 	var today = new Date();
-	var firstOfMonth = new Date(today.getFullYear(), today.getMonth()-6, 1);
+	var firstOfMonth = new Date(today.getFullYear(), today.getMonth()-10, 1);
 	
 	var requestString = "{\"createdTime\" : {\"$gt\" : { \"$date\": \""+firstOfMonth.toJSON()+"\" }, \"$lt\": { \"$date\": \""+today.toJSON()+"\" }}}";	
 	
@@ -150,8 +150,11 @@ angular.module('myApp.workOrderSummary', ['ngRoute', 'ui.grid', 'ui.grid.autoRes
   function($modalInstance, $modal, $http, $scope, $location, uiGridConstants, $route, dataService, sharedProperties){
 	dataService.promise.then(function(response){
 		$scope.responseData = response.data.result;
-	
-		if($scope.responseData == null){alert("No event data was found for this month."); return;}
+		if($scope.responseData == null){
+			alert("No event data was found for this month."); 
+			$location.url('\workOrderSummaryModal'); 
+			$route.reload();
+		}
 		
 		var organizationNames = [];
 		for(var i=0;i<$scope.responseData.length;i++) {
@@ -218,6 +221,8 @@ angular.module('myApp.workOrderSummary', ['ngRoute', 'ui.grid', 'ui.grid.autoRes
 	var numClosedEvents = 0;
 	var totalTimeToClose = 0;
 	var numOpenTickets = 0;
+	var potentialSavings = 0;
+	var waste = 0;
 	
 	for(var i=0;i<$scope.responseData.length;i++){
 		if($scope.responseData[i].facility === $scope.facilityName){
@@ -227,12 +232,16 @@ angular.module('myApp.workOrderSummary', ['ngRoute', 'ui.grid', 'ui.grid.autoRes
 					numClosedEvents += 1;
 				}
 				totalTimeToClose = totalTimeToClose + $scope.calculateDays($scope.responseData[i]);
+				potentialSavings = potentialSavings + parseFloat($scope.responseData[i].potentialSaving);
+				waste = waste + parseInt($scope.responseData[i].waste);
 			}
 		}
 	}
 	for(var i=0;i<$scope.openTickets.length;i++){
-		if($scope.openTickets[i].asset === $scope.assetName){
-			numOpenTickets += 1;
+		if($scope.openTickets[i].facility === $scope.facilityName){
+			if($scope.openTickets[i].asset === $scope.assetName){
+				numOpenTickets += 1;
+			}
 		}
 	}
 		
@@ -260,7 +269,7 @@ angular.module('myApp.workOrderSummary', ['ngRoute', 'ui.grid', 'ui.grid.autoRes
 		$route.reload();
 	};
 	
-	var assetObject = [{asset: $scope.assetName, numberOfEvents: numEvents, numberOpenEvents: numOpenTickets, numberClosedEvents: numClosedEvents, averageTimeToClose: Math.round(totalTimeToClose/numEvents), value: Math.round(Math.random()*100000)/100}];
+	var assetObject = [{asset: $scope.assetName, numberOfEvents: numEvents, numberOpenEvents: numOpenTickets, numberClosedEvents: numClosedEvents, averageTimeToClose: Math.round(totalTimeToClose/numEvents), waste: waste, value: Math.round(potentialSavings*100)/100}];
 	$scope.assetView = assetObject;
 	$scope.gridOptions = {
 			enableSorting: true,
@@ -268,9 +277,10 @@ angular.module('myApp.workOrderSummary', ['ngRoute', 'ui.grid', 'ui.grid.autoRes
 			columnDefs: [
 			             {field: 'asset', displayName: 'Asset'},
 			             {field: 'numberOfEvents', displayName: 'Number Of Events Created This Month'},
-			             {field: 'numberOpenEvents', displayName: 'Total Number of Open Events'},
 			             {field: 'numberClosedEvents', displayName: 'Number of Events Closed This Month'},
-			             {field: 'averageTimeToClose', displayName: 'Average Days To Close Event(s)', aggregationType: uiGridConstants.aggregationTypes.avg},
+			             {field: 'numberOpenEvents', displayName: 'Total Number of Open Events'},
+			             {field: 'averageTimeToClose', displayName: 'Average Days To Close Event(s)'},
+			             {field: 'waste', displayName: 'Waste'},
 			             {field: 'value', displayName: 'Avoidable Cost'}
 			             ]
 	};
@@ -281,8 +291,6 @@ angular.module('myApp.workOrderSummary', ['ngRoute', 'ui.grid', 'ui.grid.autoRes
 	
 	$scope.test = {
 			showMessage: function(row){
-				console.log(row)
-				console.log($scope.organizationView);
 				$scope.assetView(row.asset);
 			}
 	};
@@ -291,8 +299,7 @@ angular.module('myApp.workOrderSummary', ['ngRoute', 'ui.grid', 'ui.grid.autoRes
 	$scope.responseData = sharedProperties.getResults();
 	$scope.facilityNames = sharedProperties.getFacilityNames();
 	$scope.openTickets = sharedProperties.getAllOpenTickets();
-	
-	
+		
 	if($scope.responseData == null){
 		$location.url('/workOrderSummaryModal');			
 		$route.reload();
@@ -329,21 +336,25 @@ angular.module('myApp.workOrderSummary', ['ngRoute', 'ui.grid', 'ui.grid.autoRes
 			var numClosedEvents = 0;
 			var totalTimeToClose = 0;
 			var numOpenTickets = 0;
+			var potentialSavings = 0;
+			var waste = 0;
 			for(var j=0;j<$scope.responseData.length;j++){
-				if($scope.responseData[j].asset === assetNames[i]){
+				if($scope.responseData[j].asset === assetNames[i] && $scope.responseData[j].facility === $scope.facilityName){
 					numEvents +=1;
 					if($scope.responseData[j].status === "Closed"){
 						numClosedEvents += 1;
 					}
 					totalTimeToClose = totalTimeToClose + $scope.calculateDays($scope.responseData[j]);
+					potentialSavings = potentialSavings + parseFloat($scope.responseData[j].potentialSaving);
+					waste = waste + parseInt($scope.responseData[j].waste);
 				}
 			}
 			for(var j=0;j<$scope.openTickets.length;j++){
-				if($scope.openTickets[j].asset === assetNames[i]){
+				if($scope.openTickets[j].facility === $scope.facilityName && $scope.openTickets[j].asset === assetNames[i]){
 					numOpenTickets += 1;
 				}
 			}
-			var facilityObject = {asset: assetNames[i], numberOfEvents: numEvents, numberOpenEvents: numOpenTickets, numberClosedEvents: numClosedEvents, averageTimeToClose: Math.round(totalTimeToClose/numEvents), value: Math.round(Math.random()*100000)/100};
+			var facilityObject = {asset: assetNames[i], numberOfEvents: numEvents, numberOpenEvents: numOpenTickets, numberClosedEvents: numClosedEvents, averageTimeToClose: Math.round(totalTimeToClose/numEvents), waste: waste, value: Math.round(potentialSavings*100)/100};
 			facilityArray.push(facilityObject)
 		}
 		$scope.facilityView = facilityArray;
@@ -378,15 +389,16 @@ angular.module('myApp.workOrderSummary', ['ngRoute', 'ui.grid', 'ui.grid.autoRes
 	
 	$scope.gridOptions = {
 			enableSorting: true,
-			rowTemplate: '<div ng-click="getExternalScopes().showMessage(row.entity)"  ng-repeat="col in colContainer.renderedColumns track by col.colDef.name" class="ui-grid-cell" ui-grid-cell></div>',
 			showFooter: true,
+			rowTemplate: '<div ng-click="getExternalScopes().showMessage(row.entity)"  ng-repeat="col in colContainer.renderedColumns track by col.colDef.name" class="ui-grid-cell" ui-grid-cell></div>',
 			data: 'facilityView',
 			columnDefs: [
 			             {field: 'asset', displayName: 'Asset'},
-			             {field: 'numberOfEvents', displayName: 'Number Of Events Created This Month', aggregationType: uiGridConstants.aggregationTypes.sum},
-			             {field: 'numberOpenEvents', displayName: 'Total Number of Open Events', aggregationType: uiGridConstants.aggregationTypes.sum},
+			             {field: 'numberOfEvents', displayName: 'Number Of Events Created This Month', aggregationType: uiGridConstants.aggregationTypes.sum},			             
 			             {field: 'numberClosedEvents', displayName: 'Number of Events Closed This Month', aggregationType: uiGridConstants.aggregationTypes.sum},
-			             {field: 'averageTimeToClose', displayName: 'Average Days To Close Event(s)', aggregationType: uiGridConstants.aggregationTypes.avg},
+			             {field: 'numberOpenEvents', displayName: 'Total Number of Open Events', aggregationType: uiGridConstants.aggregationTypes.sum},
+			             {field: 'averageTimeToClose', displayName: 'Average Days To Close Event(s)'},
+			             {field: 'waste', displayName: 'Waste', aggregationType: uiGridConstants.aggregationTypes.sum},
 			             {field: 'value', displayName: 'Avoidable Cost', aggregationType: uiGridConstants.aggregationTypes.sum}
 			             ]
 	};
@@ -394,11 +406,8 @@ angular.module('myApp.workOrderSummary', ['ngRoute', 'ui.grid', 'ui.grid.autoRes
 
 .controller('workOrderSummaryCtrl', ['$http', '$scope', '$location', 'uiGridConstants', '$route','workOrderSummaryService', 'sharedPropertyService',   
   function($http, $scope, $location, uiGridConstants, $route, dataService, sharedProperties){
-	
 	$scope.test = {
 			showMessage: function(row){
-				console.log(row)
-				console.log($scope.organizationView);
 				$scope.facilityView(row.facility);
 			}
 	};
@@ -406,7 +415,11 @@ angular.module('myApp.workOrderSummary', ['ngRoute', 'ui.grid', 'ui.grid.autoRes
 	$scope.organizationName = sharedProperties.getOrganization();
 	dataService.getFacilityData().then(function(response){
 		$scope.responseData = response.data.result;
-		if($scope.responseData == null){alert("No event data was found for this month."); return;}
+		if($scope.responseData == null){
+			alert("No event data was found for this month."); 
+			$location.url('\workOrderSummaryModal'); 
+			$route.reload();
+		}
 		var facilityNames = [];
 		for(var i=0;i<$scope.responseData.length;i++) {
 			if(facilityNames.indexOf($scope.responseData[i].facility) == -1) {
@@ -416,13 +429,17 @@ angular.module('myApp.workOrderSummary', ['ngRoute', 'ui.grid', 'ui.grid.autoRes
 		$scope.facilityNames = facilityNames;
 		
 		$scope.getOpenTickets().then(function(responseTwo){
-			$scope.openTickets = responseTwo.data.result;
+			$scope.openTickets = responseTwo.data.result;			
 			var organizationObject = [];
 			for(var i=0;i<$scope.facilityNames.length;i++){
+				
 				var numEvents = 0;
 				var numClosedEvents = 0;
 				var totalTimeToClose = 0;
 				var numOpenEvents = 0;
+				var potentialSavings = 0;
+				var waste = 0;
+				
 				for(var j=0;j<$scope.responseData.length;j++) {
 					if($scope.responseData[j].facility === $scope.facilityNames[i]) {
 						numEvents += 1;
@@ -430,14 +447,16 @@ angular.module('myApp.workOrderSummary', ['ngRoute', 'ui.grid', 'ui.grid.autoRes
 							numClosedEvents += 1;
 						}
 						totalTimeToClose = totalTimeToClose + $scope.calculateDays($scope.responseData[j]);
+						potentialSavings = potentialSavings + parseFloat($scope.responseData[j].potentialSaving);
+						waste = waste + parseInt($scope.responseData[j].waste);
 					}	
 				}
 				for(var j=0;j<$scope.openTickets.length;j++){
 					if($scope.openTickets[j].facility === $scope.facilityNames[i]){
-						numOpenEvents +=1;
+						numOpenEvents += 1;
 					}
 				}
-				var organizationViewObject = {facility: $scope.facilityNames[i], numberOfEvents: numEvents, numberOpenEvents: numOpenEvents , numberClosedEvents: numClosedEvents, averageTimeToClose: Math.round(totalTimeToClose/numEvents), value: Math.round(Math.random()*100000)/100};
+				var organizationViewObject = {facility: $scope.facilityNames[i], numberOfEvents: numEvents, numberOpenEvents: numOpenEvents, numberClosedEvents: numClosedEvents, averageTimeToClose: Math.round(totalTimeToClose/numEvents), waste: waste, value: Math.round(potentialSavings*100)/100};
 				organizationObject.push(organizationViewObject);
 			}
 			$scope.organizationView = organizationObject;
@@ -447,7 +466,7 @@ angular.module('myApp.workOrderSummary', ['ngRoute', 'ui.grid', 'ui.grid.autoRes
 	$scope.getOpenTickets = function(){
 		
 		var mongoUrl = "http://10.239.3.132:9763/MongoServlet-0.0.1-SNAPSHOT/send";
-		var requestString = "{\"status\" : \"Open\"}";
+		var requestString = "{\"status\": \"Open\"}";
 		var config = {
 				method: 'POST',
 				headers: {'Collection':'Event'},
@@ -480,7 +499,7 @@ angular.module('myApp.workOrderSummary', ['ngRoute', 'ui.grid', 'ui.grid.autoRes
 		return number;
 	}
 	
-	$scope.facilityView = function(facilityName){		
+	$scope.facilityView = function(facilityName){
 		sharedProperties.setFacility(facilityName);
 		sharedProperties.setResults($scope.responseData);
 		sharedProperties.setFacilityNames($scope.facilityNames);
@@ -501,10 +520,11 @@ angular.module('myApp.workOrderSummary', ['ngRoute', 'ui.grid', 'ui.grid.autoRes
 			data: 'organizationView',
 			columnDefs: [
 			             {field: 'facility', displayName: 'Facility'},
-			             {field: 'numberOfEvents', displayName: 'Number Of Events Created This Month', aggregationType: uiGridConstants.aggregationTypes.sum},
-			             {field: 'numberOpenEvents', displayName: 'Total Number of Open Events', aggregationType: uiGridConstants.aggregationTypes.sum},
+			             {field: 'numberOfEvents', displayName: 'Number Of Events Created This Month', aggregationType: uiGridConstants.aggregationTypes.sum},			             
 			             {field: 'numberClosedEvents', displayName: 'Number of Events Closed This Month', aggregationType: uiGridConstants.aggregationTypes.sum},
+			             {field: 'numberOpenEvents', displayName: 'Total Number of Open Events', aggregationType: uiGridConstants.aggregationTypes.sum},
 			             {field: 'averageTimeToClose', displayName: 'Average Days To Close Event(s)', aggregationType: uiGridConstants.aggregationTypes.avg},
+			             {field: 'waste', displayName: 'Waste', aggregationType: uiGridConstants.aggregationTypes.sum},
 			             {field: 'value', displayName: 'Avoidable Cost', aggregationType: uiGridConstants.aggregationTypes.sum}
 			             ]
 	};
