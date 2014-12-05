@@ -2,6 +2,18 @@
  
 angular.module('myApp.workOrderSummary', ['ngRoute', 'ui.grid', 'ui.grid.autoResize'])
 
+.run(['directiveService', function(directiveService){
+	directiveService.addSideBarComponent({
+		tag: function(){return 'work-order-summary';},
+		configTag: function(){return 'work-order-summary-config';},
+		tagHtml: function(){return "<work-order-summary></work-order-summary>";},
+		directiveName: function(){return 'workOrderSummary';},
+		namespace: function(){return 'workordersummary';},
+		paletteImage: function(){return 'smallChart.png';}
+		}
+	);
+}])
+
 .factory('workOrderSummaryService', ['$http','sharedPropertyService', function($http, sharedProperties){
 	
 	var _getFacilityData = function(){
@@ -528,5 +540,22 @@ angular.module('myApp.workOrderSummary', ['ngRoute', 'ui.grid', 'ui.grid.autoRes
 			             {field: 'value', displayName: 'Avoidable Cost', aggregationType: uiGridConstants.aggregationTypes.sum}
 			             ]
 	};
+}])
+
+.directive('workOrderSummaryConfig', [function() {
+	return {
+		restrict: 'E',
+		controller: 'workOrderSummaryModalCtrl',
+		templateUrl: 'views/workOrderSummaryModal.html'
+	}
+}])
+
+.directive('workOrderSummary', [function() {
+	return {
+		restrict: 'E',
+		scope: {},
+		controller: 'workOrderSummaryModalCtrl',
+		templateUrl: 'views/workOrderSummaryModal.html'
+	}
 }]);
 	

@@ -29,29 +29,30 @@ angular.module('myApp.ticketImpulse', ['ngRoute'])
 			//stores all groups connected to the chart. Is made from the masterDimension
 			//if the master dimension is changed, the groups should be recreated
 		chartHelper._charts = {};
-			//TODO: this is where i would put my charts... IF I HAD ONE
-		chartHelper._userParameters = userParameters;
+		
+		userParameters = userParameters;
 			//this variable stores all user customizable values.
 			//I envision that other services and controllers can also access these to either make the customization
 			//nice, or to preset certain values
 		chartHelper._chartParameters = {
-			"daysBetween": getDaysBetween(chartHelper._userParameters.highDate, chartHelper._userParameters.lowDate)
+			"daysBetween": getDaysBetween(userParameters.highDate, userParameters.lowDate)
 		};
 			//these are chart parameters that should be shared amongst generate charts
 			//stuff like xAxis 
 		var _tfMonthYear = d3.time.format("%m-%Y"); //format for x-axis labels USED BY CSV INIT
+		var _tfMonthDayYear = d3.time.format("%m-%d-%Y"); //format for x-axis labels USED BY CSV INIT
 		var _tfIso = d3.time.format.iso.parse; //TODO: maybe the service can populate the users scope with convienence values like this?
 			//this is a function that parses lots of timestamp formats, so its convenient 
 		var _dayStringArray = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
 			//Date.getDay returns a number, which this array translates into the day fo week
 		var _dayToColorMap = {
-			"Sun": "rgba(229,63,0,.8)",
-			"Mon": "rgba(222,172,0,.8)",
-			"Tue": "rgba(156, 216,0,.8)",
-			"Wed": "rgba(46, 210, 0, .8)",
-			"Thu": "rgba(0, 203, 56, .8)",
-			"Fri": "rgba(0, 197, 153, .8)",
-			"Sat": "rgba(0, 137, 191, .8)"
+			"Sun": "rgba(229,  63,   0, .8)",
+			"Mon": "rgba(222, 172,   0, .8)",
+			"Tue": "rgba(156, 216,   0, .8)",
+			"Wed": "rgba( 46, 210,   0, .8)",
+			"Thu": "rgba(  0, 203,  56, .8)",
+			"Fri": "rgba(  0, 197, 153, .8)",
+			"Sat": "rgba(  0, 137, 191, .8)"
 		};
 		
 		chartHelper.createDimensions = function () {
@@ -78,70 +79,83 @@ angular.module('myApp.ticketImpulse', ['ngRoute'])
 		};
 		
 		chartHelper.createDomain = function (userParameters) {     
-			console.log([userParameters.lowDate, userParameters.highDate]);
 			chartHelper._chartParameters.domainX = d3.scale.linear().domain([+userParameters.lowDate, +userParameters.highDate])
-			chartHelper._chartParameters.xUnits = d3.time.days;
-			var displayDate = d3.time.format("%m-%Y"); // function to change the format of a date object to hour
-			chartHelper._chartParameters.tickFormat = function(v) { return displayDate(new Date(v));};
+			chartHelper._chartParameters.xUnits = function (start, end) {
+				var barWidth = userParameters.barWidthPercentage;
+				barWidth = (barWidth > 100)||(barWidth <= 0)? 
+				1 :
+				parseInt(100/barWidth, 10);
+				var increment = (end - start)/barWidth;
+				
+				var domain = [];
+				var steps = Number(barWidth)+1;
+				while(steps--) {domain.push(end-steps*increment);}
+				
+				return domain;
+			};
+			chartHelper._chartParameters.tickFormat = function(v) { return _tfMonthYear(new Date(v));};
 		};
 		
 		chartHelper.createGroups = function () {
 			//these groups consider the entire dataset in question.
-			chartHelper._group = chartHelper._dimensions.masterDimension.group(function(v) {
-				var displayDate = d3.time.format("%m-%Y"); // function to change the format of a date object to mm-yyyy
-				//return displayDate(new Date(v));
-				return v;
-			})
+			chartHelper._group = chartHelper._dimensions.masterDimension.group()
 			.reduce(
 				function (p,v) {
-					console.log(v.eventID);
-					return ++p;
+					p.count++;
+					p.mouseoverInfo += v.eventID;
+					return p;
 				},	
 				function (p,v) {
-					return --p;
+					return --p.count;
 				},
 				function () {
-					return 0;
+					return {
+						'count': 0,
+						'mouseoverInfo': ''
+					};
 				}	
 			);
 		};
 		
 		chartHelper.drawChart = function () {
-			var lX = chartHelper._userParameters.width - chartHelper._userParameters.marginRight + 25,
-				lY = chartHelper._userParameters.height - 650;
+			var lX = userParameters.width - userParameters.marginRight + 25,
+				lY = userParameters.height - 650;
 			//legend coords
 			bar
-				.width(chartHelper._userParameters.width)
-				.height(chartHelper._userParameters.height)
-				.xAxisLabel("Hour")
-				.yAxisLabel("kW")
-				// .margins({
-					// left: chartHelper._userParameters.marginLeft,
-					// right: chartHelper._userParameters.marginRight,
-					// top: chartHelper._userParameters.marginTop,
-					// bottom: chartHelper._userParameters.marginBottom
-				// })
+				.width(userParameters.width)
+				.height(userParameters.height)
+				.xAxisLabel("Month-Year")
+				.yAxisLabel("Count")
+				.margins({
+					left: userParameters.marginLeft,
+					right: userParameters.marginRight,
+					top: userParameters.marginTop,
+					bottom: userParameters.marginBottom
+				})
 				
 				.renderHorizontalGridLines(true)
 				.renderVerticalGridLines(true)
 				
-				.xUnits(chartHelper._chartParameters.xUnits) // sets X axis units
+				//.xUnits(chartHelper._chartParameters.xUnits) // sets X axis units
+				.xUnits(chartHelper._chartParameters.xUnits)
 				.x(chartHelper._chartParameters.domainX)
 		        .dimension(chartHelper._dimensions.masterDimension)
 		        .group(chartHelper._group)
 				
-		        //.centerBar(true)
-		        //.barPadding(0.5)
-				.title(function(p,v) {return v.eventID; })
+		        .centerBar(true)
+		        .barPadding(0.5)
+				.title(function(p) {return p.value.mouseoverInfo; })
 				.renderTitle(true)
-				//.colors("rgba(229,63,0,.8)")
+				.valueAccessor(function(p) {return p.value.count; })
+				
+				.colors(userParameters.barColor)
 				
 				//.elasticX(true)
 				//.elasticY(true)
 				.legend(dc.legend().x(lX).y(lY).itemHeight(13).gap(5)) // legend position and add'l info
 				//.yAxisPadding("5%")	//WARNING: not in api, but xAxisScaling works. This was legit a stab in the dark.
 				
-				//.mouseZoomable(true)
+				.mouseZoomable(true)
 				.brushOn(false);
 			
 			bar.xAxis().tickFormat(chartHelper._chartParameters.tickFormat); // sets the tick format to be the hour only
@@ -158,7 +172,7 @@ angular.module('myApp.ticketImpulse', ['ngRoute'])
 			return !chartHelper._meterIsntConsumption(meterName);
 		};
 		chartHelper.getUserParameters = function () {
-			return chartHelper._userParameters;
+			return userParameters;
 		};
 		chartHelper.getChartParameters = function () {
 			return chartHelper._chartParameters;
@@ -182,7 +196,7 @@ angular.module('myApp.ticketImpulse', ['ngRoute'])
 		};
 		
 		chartHelper.createDimensions();
-		chartHelper.createDomain(chartHelper._userParameters);
+		chartHelper.createDomain(userParameters);
         chartHelper.createGroups();
 		
 		return chartHelper;
@@ -206,25 +220,27 @@ angular.module('myApp.ticketImpulse', ['ngRoute'])
 		//this is what is returned by this factory
 	var _getDefaultUserParameters = function () {
 		return {
-			width: 750,
-			height: 680,
-			marginLeft: 75,
-			marginRight: 150,
+			width: 600,
+			height: 200,
+			barWidthPercentage: 8,
+			marginLeft: 50,
+			marginRight: 25,
 			marginTop: 25,
-			marginBottom: 40,
+			marginBottom: 75,
 			lowDate: new Date((new Date((new Date()) - (6*28*24*60*60*1000))).toDateString()),
-			highDate: new Date( (new Date()).toDateString() )
+			highDate: new Date( (new Date()).toDateString() ),
+			barColor: "rgba(215,35,35,.6)"
 		};
 	};
 	
 	var _dayToColorMap = {
-			"Sun": "rgba(229,63,0,.8)",
-			"Mon": "rgba(222,172,0,.8)",
-			"Tue": "rgba(156, 216,0,.8)",
-			"Wed": "rgba(46, 210, 0, .8)",
-			"Thu": "rgba(0, 203, 56, .8)",
-			"Fri": "rgba(0, 197, 153, .8)",
-			"Sat": "rgba(0, 137, 191, .8)"
+			"Sun": "rgba(229,  63,   0, .8)",
+			"Mon": "rgba(222, 172,   0, .8)",
+			"Tue": "rgba(156, 216,   0, .8)",
+			"Wed": "rgba( 46, 210,   0, .8)",
+			"Thu": "rgba(  0, 203,  56, .8)",
+			"Fri": "rgba(  0, 197, 153, .8)",
+			"Sat": "rgba(  0, 137, 191, .8)"
 	};
 	
 	var _getData = function (userParameters) {	//TODO: Singleton changes	
@@ -294,160 +310,183 @@ angular.module('myApp.ticketImpulse', ['ngRoute'])
 	
 	return _servObj;
 }])
-.controller('ticketImpulseCtrl', ['$scope', '$location', 'ticketImpulseChartService', 'ticketImpulseDataService', 
+.directive('ticketImpulse', function () {
+	return {
+		restrict: "E",
+		scope: {
+			dom: "@" // allows the name of the chart to be assigned.  this name is the new scope variable created once a date is selected
+		},
+		templateUrl : "views/ticketImpulse.html",
+		controller: ['$scope', '$location', 'ticketImpulseChartService', 'ticketImpulseDataService', 
                     function($scope, $location, chartService, dataService) {
-	$scope.timeSeries = 'ticketImpulse';
-	$scope.showButtons = true;
-	$scope.chartInit = false;
-	$scope.userParameters = dataService.getDefaultUserParameters();
-	$scope.inactiveOrganizations = {};
-	$scope.treatedData = {};
-	$scope.active = {};
-	console.log($scope.activeOrganizations);
-	
-	var bar = dc.barChart("#test_composed");
-		//populated by drawChart
-	
-	var populateScope = function () {
-		//this function populates necessary variables onto the scope.
-		$scope.masterDimension  = $scope.chartHelper.getMasterDimension();
-        
-        $scope.cumulativeAverageGroup = $scope.chartHelper.getCumulativeAverageGroup();
-        $scope.cumulativeMaxGroup = $scope.chartHelper.getCumulativeMaxGroup();
-        $scope.averageGroups = $scope.chartHelper.getAverageGroups();
-        $scope.maxGroups = $scope.chartHelper.getMaxGroups();
-        
-        $scope.chartParameters = $scope.chartHelper.getChartParameters();
-	};
-	
-	var http = function(response) {
-		$scope.treatedData = response.data.treatedData;
-		$scope.chartHelper = chartService.initFlatten(
-			bar,
-			$scope.active,
-			$scope.userParameters
-		);
-		
-		$scope.showButtons = false;
-		//try {
-			//populateScope();
-			$scope.chartHelper.drawChart();
-		// }
-		// catch (e) {
-			// console.error(e); // pass exception object to error handler
-		// }
-		// finally {
+			$scope.timeSeries = 'ticketImpulse';
 			$scope.showButtons = true;
-		// }
-    };
-  
-	
-	$scope.drawHttpChart = function () {
-		$scope.chartInit = true;
-		dataService.getData($scope.userParameters).then( http, function () {alert("epicfail");} );
-	};
-	$scope.redrawChart = function () {
-		$scope.chartHelper.drawChart(false);
-	};
-	
-	$scope.queryData = function () {
-		dataService.getData($scope.userParameters).then( function (response) {
-			$scope.treatedData = response.data.treatedData;
-		});
-	};
-	$scope.deleteActive = function (org, fac, asset) {
-		delete $scope.active[org][fac][asset];
-		if( Object.keys($scope.active[org][fac]).length === 0) {	//deletes any empty entries
-			delete $scope.active[org][fac];	
-		}
-		if( Object.keys($scope.active[org]).length === 0) {
-			delete $scope.active[org];
-		}
-		$scope.redrawChart();
-	};
-	$scope.initAsset = function (org, fac, asset) {
-		if($scope.active[org]) {	//if organization entry exists
-			if($scope.active[org][fac]) {	//if facility entry exists
-				if($scope.active[org][fac][asset]) { //if asset entry exists
-					$scope.active[org][fac][asset].push($scope.treatedData[org][fac][asset]);	//add ticket to list
+			$scope.chartInit = false;
+			$scope.userParameters = dataService.getDefaultUserParameters();
+			$scope.inactiveOrganizations = {};
+			$scope.treatedData = {};
+			$scope.active = {};
+			
+			var bar;
+				//populated by drawChart
+			
+			var populateScope = function () {
+				//this function populates necessary variables onto the scope.
+				$scope.masterDimension  = $scope.chartHelper.getMasterDimension();
+				
+				$scope.cumulativeAverageGroup = $scope.chartHelper.getCumulativeAverageGroup();
+				$scope.cumulativeMaxGroup = $scope.chartHelper.getCumulativeMaxGroup();
+				$scope.averageGroups = $scope.chartHelper.getAverageGroups();
+				$scope.maxGroups = $scope.chartHelper.getMaxGroups();
+				
+				$scope.chartParameters = $scope.chartHelper.getChartParameters();
+			};
+			
+			var http = function(response) {
+				$scope.treatedData = response.data.treatedData;
+				
+				$scope.showButtons = false;
+				//try {
+					//populateScope();
+					$scope.redrawChart();
+					$scope.$watch('userParameters.barWidthPercentage', function(newVal, oldVal, scope) {
+						$scope.redrawChart();
+					});
+					$scope.$watch('userParameters.height', function(newVal, oldVal, scope) {
+						$scope.redrawChart();
+					});
+					$scope.$watch('userParameters.width', function(newVal, oldVal, scope) {
+						$scope.redrawChart();
+					});
+					$scope.$watch('userParameters', function(newVal, oldVal, scope) {
+						$scope.redrawChart();
+					});
+				// }
+				// catch (e) {
+					// console.error(e); // pass exception object to error handler
+				// }
+				// finally {
+					$scope.showButtons = true;
+				// }
+			};
+		  
+			
+			$scope.drawHttpChart = function () {
+				$scope.chartInit = true;
+				dataService.getData($scope.userParameters).then( http, function () {alert("epicfail");} );
+			};
+			$scope.redrawChart = function () {
+				bar = dc.barChart('#'+$scope.dom);
+				$scope.chartHelper = chartService.initFlatten(
+					bar,
+					$scope.active,
+					$scope.userParameters
+				);
+				$scope.chartHelper.drawChart();
+			};
+			
+			$scope.queryData = function () {
+				dataService.getData($scope.userParameters).then( function (response) {
+					$scope.treatedData = response.data.treatedData;
+				});
+			};
+			$scope.deleteActive = function (org, fac, asset) {
+				delete $scope.active[org][fac][asset];
+				if( Object.keys($scope.active[org][fac]).length === 0) {	//deletes any empty entries
+					delete $scope.active[org][fac];	
 				}
-				else {	//asset doesn't exist but org and fac do
+				if( Object.keys($scope.active[org]).length === 0) {
+					delete $scope.active[org];
+				}
+				$scope.redrawChart();
+			};
+			$scope.initAsset = function (org, fac, asset) {
+				if($scope.active[org]) {	//if organization entry exists
+					if($scope.active[org][fac]) {	//if facility entry exists
+						if($scope.active[org][fac][asset]) { //if asset entry exists
+							$scope.active[org][fac][asset].push($scope.treatedData[org][fac][asset]);	//add ticket to list
+						}
+						else {	//asset doesn't exist but org and fac do
+							$scope.active[org][fac][asset] = $scope.treatedData[org][fac][asset];	//init asset. save ticket under asset
+						}
+					}
+					else {	//facility doesn't exist, but org does
+						$scope.active[org][fac] =	{};							//init facility
+						$scope.active[org][fac][asset] = $scope.treatedData[org][fac][asset];	//init asset. save ticket under asset
+					}
+				}
+				else {
+					$scope.active[org] = {};								//init org
+					$scope.active[org][fac] = {};							//init facility
 					$scope.active[org][fac][asset] = $scope.treatedData[org][fac][asset];	//init asset. save ticket under asset
 				}
-			}
-			else {	//facility doesn't exist, but org does
-				$scope.active[org][fac] =	{};							//init facility
-				$scope.active[org][fac][asset] = $scope.treatedData[org][fac][asset];	//init asset. save ticket under asset
-			}
-		}
-		else {
-			$scope.active[org] = {};								//init org
-			$scope.active[org][fac] = {};							//init facility
-			$scope.active[org][fac][asset] = $scope.treatedData[org][fac][asset];	//init asset. save ticket under asset
-		}
-	};
-	$scope.countActiveOrganizations = function () {
-		return Object.keys($scope.activeOrganizations).length;
-	};
-	$scope.countInactiveOrganizations = function () {
-		return Object.keys($scope.inactiveOrganizations).length;
-	};
-	$scope.soloOrganization = function (soloOrg) {
-		for(var organization in $scope.activeOrganizations) {
-			if(soloOrg === organization) {continue;} //do not remove if it was the organization clicked
-			$scope.inactiveOrganizations[organization] = $scope.activeOrganizations[organization];
-			delete $scope.activeOrganizations[organization];
-		}
-		console.log({"active": $scope.activeOrganizations, "inactive": $scope.inactiveOrganizations});
-		$scope.redrawChart();
-	};
-	$scope.hideOrganization = function (hideOrg) {
-		$scope.inactiveOrganizations[hideOrg] = $scope.activeOrganizations[hideOrg];
-		delete $scope.activeOrganizations[hideOrg];
-		$scope.redrawChart();
-	};
-	$scope.unhideAllOrganizations = function () {
-		for(var organization in $scope.inactiveOrganizations) {
-			if(!(organization in $scope.activeOrganizations)) {
-				$scope.activeOrganizations[organization] = $scope.inactiveOrganizations[organization];
-			}
-			delete $scope.inactiveOrganizations[organization];
-		}
-		$scope.redrawChart();
-	};
-	$scope.showOrganization = function (showOrg) {
-		$scope.activeOrganizations[showOrg] = $scope.inactiveOrganizations[showOrg];
-		delete $scope.inactiveOrganizations[showOrg];
-		$scope.redrawChart();
-	};
-	
-	$scope.isColor = function (paramName) {
-		var regex = /color/ig;
-		return regex.test(paramName);
-	};
-	$scope.isDate = function (paramName) {
-		var regex = /date/ig;
-		return regex.test(paramName);
-	};
-	$scope.isArray = function (param) {
-		return typeof param === "object";
-	};
-	$scope.isntSpecial = function (param, paramName) {		//true when isn't a color, date or array, or something else
-		return !$scope.isColor(paramName)&&!$scope.isDate(paramName)&&!$scope.isArray(param);
-	};
-	$scope.addColor = function (param) {
-		param.push('cyan');
-	};
-	$scope.removeColor = function (param) {
-		param.pop();
-	};
-	
-	$scope.logScope = function () {
-		console.log($scope);
-	};
-	$scope.debug = function () {
-		console.log($scope);
-	};
+			};
+			$scope.countActiveOrganizations = function () {
+				return Object.keys($scope.activeOrganizations).length;
+			};
+			$scope.countInactiveOrganizations = function () {
+				return Object.keys($scope.inactiveOrganizations).length;
+			};
+			$scope.soloOrganization = function (soloOrg) {
+				for(var organization in $scope.activeOrganizations) {
+					if(soloOrg === organization) {continue;} //do not remove if it was the organization clicked
+					$scope.inactiveOrganizations[organization] = $scope.activeOrganizations[organization];
+					delete $scope.activeOrganizations[organization];
+				}
+				console.log({"active": $scope.activeOrganizations, "inactive": $scope.inactiveOrganizations});
+				$scope.redrawChart();
+			};
+			$scope.hideOrganization = function (hideOrg) {
+				$scope.inactiveOrganizations[hideOrg] = $scope.activeOrganizations[hideOrg];
+				delete $scope.activeOrganizations[hideOrg];
+				$scope.redrawChart();
+			};
+			$scope.unhideAllOrganizations = function () {
+				for(var organization in $scope.inactiveOrganizations) {
+					if(!(organization in $scope.activeOrganizations)) {
+						$scope.activeOrganizations[organization] = $scope.inactiveOrganizations[organization];
+					}
+					delete $scope.inactiveOrganizations[organization];
+				}
+				$scope.redrawChart();
+			};
+			$scope.showOrganization = function (showOrg) {
+				$scope.activeOrganizations[showOrg] = $scope.inactiveOrganizations[showOrg];
+				delete $scope.inactiveOrganizations[showOrg];
+				$scope.redrawChart();
+			};
+			
+			$scope.isColor = function (paramName) {
+				var regex = /color/ig;
+				return regex.test(paramName);
+			};
+			$scope.isDate = function (paramName) {
+				var regex = /date/ig;
+				return regex.test(paramName);
+			};
+			$scope.isArray = function (param) {
+				return typeof param === "object";
+			};
+			$scope.isntSpecial = function (param, paramName) {		//true when isn't a color, date or array, or something else
+				return !$scope.isColor(paramName)&&!$scope.isDate(paramName)&&!$scope.isArray(param);
+			};
+			$scope.addColor = function (param) {
+				param.push('cyan');
+			};
+			$scope.removeColor = function (param) {
+				param.pop();
+			};
+			
+			$scope.logScope = function () {
+				console.log($scope);
+			};
+			$scope.debug = function () {
+				console.log($scope);
+			};
 
-	$scope.queryData($scope.userParameters);
-}]);
+			$scope.queryData($scope.userParameters);
+		}]
+	}
+})
+;
+
