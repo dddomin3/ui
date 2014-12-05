@@ -82,5 +82,5 @@ config(['$routeProvider', function($routeProvider) {
 		templateUrl: 'views/eventPage.html',
 		controller: 'eventPageCtrl'
 	}).
-	otherwise({redirectTo: '/heatmap'});
+	otherwise({redirectTo: '/dashboard'});
 }]);
