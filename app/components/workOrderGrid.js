@@ -9,7 +9,7 @@ angular.module('myApp.workOrderGrid', ['ngRoute', 'ui.grid', 'ui.grid.edit', 'ui
 		tagHtml: function(){return "<work-order-grid></work-order-grid>";},
 		directiveName: function(){return 'workOrderGrid';},
 		namespace: function(){return 'workorders';},
-		paletteImage: function(){return 'hotcool.png';}
+		paletteImage: function(){return 'smallChart.png';}
 		}
 	);
 }])

@@ -9,7 +9,7 @@ angular.module('myApp.workOrderSummary', ['ngRoute', 'ui.grid', 'ui.grid.autoRes
 		tagHtml: function(){return "<work-order-summary></work-order-summary>";},
 		directiveName: function(){return 'workOrderSummary';},
 		namespace: function(){return 'workordersummary';},
-		paletteImage: function(){return 'hotcool.png';}
+		paletteImage: function(){return 'smallChart.png';}
 		}
 	);
 }])
