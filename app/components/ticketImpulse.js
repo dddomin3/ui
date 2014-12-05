@@ -79,14 +79,12 @@ angular.module('myApp.ticketImpulse', ['ngRoute'])
 		};
 		
 		chartHelper.createDomain = function (userParameters) {     
-			console.log([userParameters.lowDate, userParameters.highDate]);
 			chartHelper._chartParameters.domainX = d3.scale.linear().domain([+userParameters.lowDate, +userParameters.highDate])
 			chartHelper._chartParameters.xUnits = function (start, end) {
 				var barWidth = userParameters.barWidthPercentage;
 				barWidth = (barWidth > 100)||(barWidth <= 0)? 
 				1 :
-				100/barWidth;
-				
+				parseInt(100/barWidth, 10);
 				var increment = (end - start)/barWidth;
 				
 				var domain = [];
@@ -224,11 +222,11 @@ angular.module('myApp.ticketImpulse', ['ngRoute'])
 		return {
 			width: 600,
 			height: 200,
-			barWidthPercentage: 20,
-			marginLeft: 25,
+			barWidthPercentage: 8,
+			marginLeft: 50,
 			marginRight: 25,
 			marginTop: 25,
-			marginBottom: 25,
+			marginBottom: 75,
 			lowDate: new Date((new Date((new Date()) - (6*28*24*60*60*1000))).toDateString()),
 			highDate: new Date( (new Date()).toDateString() ),
 			barColor: "rgba(215,35,35,.6)"
