@@ -314,7 +314,7 @@ angular.module('myApp.ticketImpulse', ['ngRoute'])
 	return {
 		restrict: "E",
 		scope: {
-			name: "=" // allows the name of the chart to be assigned.  this name is the new scope variable created once a date is selected
+			dom: "@" // allows the name of the chart to be assigned.  this name is the new scope variable created once a date is selected
 		},
 		templateUrl : "views/ticketImpulse.html",
 		controller: ['$scope', '$location', 'ticketImpulseChartService', 'ticketImpulseDataService', 
@@ -326,6 +326,7 @@ angular.module('myApp.ticketImpulse', ['ngRoute'])
 			$scope.inactiveOrganizations = {};
 			$scope.treatedData = {};
 			$scope.active = {};
+			
 			var bar;
 				//populated by drawChart
 			
@@ -343,7 +344,6 @@ angular.module('myApp.ticketImpulse', ['ngRoute'])
 			
 			var http = function(response) {
 				$scope.treatedData = response.data.treatedData;
-				
 				
 				$scope.showButtons = false;
 				//try {
@@ -376,7 +376,7 @@ angular.module('myApp.ticketImpulse', ['ngRoute'])
 				dataService.getData($scope.userParameters).then( http, function () {alert("epicfail");} );
 			};
 			$scope.redrawChart = function () {
-				bar = dc.barChart("#test_composed");
+				bar = dc.barChart('#'+$scope.dom);
 				$scope.chartHelper = chartService.initFlatten(
 					bar,
 					$scope.active,
@@ -478,7 +478,6 @@ angular.module('myApp.ticketImpulse', ['ngRoute'])
 			};
 			
 			$scope.logScope = function () {
-				bar.redraw();
 				console.log($scope);
 			};
 			$scope.debug = function () {
