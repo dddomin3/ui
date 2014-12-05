@@ -2,6 +2,18 @@
 
 angular.module('myApp.workOrderGrid', ['ngRoute', 'ui.grid', 'ui.grid.edit', 'ui.grid.autoResize'])
 
+.run(['directiveService', function(directiveService){
+	directiveService.addFullComponent({
+		tag: function(){return 'work-order-grid';},
+		configTag: function(){return 'work-order-grid-config';},
+		tagHtml: function(){return "<work-order-grid></work-order-grid>";},
+		directiveName: function(){return 'workOrderGrid';},
+		namespace: function(){return 'workorders';},
+		paletteImage: function(){return 'hotcool.png';}
+		}
+	);
+}])
+
 .factory('workOrderGridService', ['$http', function($http){
 	console.log("Word up, homey");
 	var _getWorkOrders = function(){
@@ -40,7 +52,6 @@ angular.module('myApp.workOrderGrid', ['ngRoute', 'ui.grid', 'ui.grid.edit', 'ui
 					
 				}
 		};
-	
 		workOrderGridService.getWorkOrders().then(function(response){
 			$scope.responseData = response.data.result;
 			var eventData = [];
@@ -87,5 +98,24 @@ angular.module('myApp.workOrderGrid', ['ngRoute', 'ui.grid', 'ui.grid.edit', 'ui
 			$location.templateUrl = "/views/workOrderGrid";
 			$route.reload();
 		}
-		
+}])
+
+.controller('workOrderGridConfigCtrl', [ function(){
+}])
+
+.directive('workOrderGridConfig', [function() {
+	return {
+		restrict: 'E',
+		controller: 'workOrderGridConfigCtrl',
+		templateUrl: 'views/configButton.html'
+	}
+}])
+
+.directive('workOrderGrid', [function() {
+	return {
+		restrict: 'E',
+		scope: {},
+		controller: 'workOrderGridCtrl',
+		templateUrl: 'views/workOrderGrid.html'
+	}
 }]);
