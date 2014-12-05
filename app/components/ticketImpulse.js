@@ -29,7 +29,7 @@ angular.module('myApp.ticketImpulse', ['ngRoute'])
 			//stores all groups connected to the chart. Is made from the masterDimension
 			//if the master dimension is changed, the groups should be recreated
 		chartHelper._charts = {};
-			//TODO: this is where i would put my charts... IF I HAD ONE
+		
 		chartHelper._userParameters = userParameters;
 			//this variable stores all user customizable values.
 			//I envision that other services and controllers can also access these to either make the customization
@@ -40,18 +40,19 @@ angular.module('myApp.ticketImpulse', ['ngRoute'])
 			//these are chart parameters that should be shared amongst generate charts
 			//stuff like xAxis 
 		var _tfMonthYear = d3.time.format("%m-%Y"); //format for x-axis labels USED BY CSV INIT
+		var _tfMonthDayYear = d3.time.format("%m-%d-%Y"); //format for x-axis labels USED BY CSV INIT
 		var _tfIso = d3.time.format.iso.parse; //TODO: maybe the service can populate the users scope with convienence values like this?
 			//this is a function that parses lots of timestamp formats, so its convenient 
 		var _dayStringArray = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
 			//Date.getDay returns a number, which this array translates into the day fo week
 		var _dayToColorMap = {
-			"Sun": "rgba(229,63,0,.8)",
-			"Mon": "rgba(222,172,0,.8)",
-			"Tue": "rgba(156, 216,0,.8)",
-			"Wed": "rgba(46, 210, 0, .8)",
-			"Thu": "rgba(0, 203, 56, .8)",
-			"Fri": "rgba(0, 197, 153, .8)",
-			"Sat": "rgba(0, 137, 191, .8)"
+			"Sun": "rgba(229,  63,   0, .8)",
+			"Mon": "rgba(222, 172,   0, .8)",
+			"Tue": "rgba(156, 216,   0, .8)",
+			"Wed": "rgba( 46, 210,   0, .8)",
+			"Thu": "rgba(  0, 203,  56, .8)",
+			"Fri": "rgba(  0, 197, 153, .8)",
+			"Sat": "rgba(  0, 137, 191, .8)"
 		};
 		
 		chartHelper.createDimensions = function () {
@@ -79,29 +80,36 @@ angular.module('myApp.ticketImpulse', ['ngRoute'])
 		
 		chartHelper.createDomain = function (userParameters) {     
 			console.log([userParameters.lowDate, userParameters.highDate]);
-			chartHelper._chartParameters.domainX = d3.scale.linear().domain([+userParameters.lowDate, +userParameters.highDate])
-			chartHelper._chartParameters.xUnits = d3.time.days;
-			var displayDate = d3.time.format("%m-%Y"); // function to change the format of a date object to hour
-			chartHelper._chartParameters.tickFormat = function(v) { return displayDate(new Date(v));};
+			chartHelper._chartParameters.domainX = d3.scale.linear().domain([+chartHelper._userParameters.lowDate, +chartHelper._userParameters.highDate])
+			chartHelper._chartParameters.xUnits = function (start, end) {
+				var increment = (end - start)/chartHelper._userParameters.barWidth;
+				
+				var domain = [];
+				var steps = Number(chartHelper._userParameters.barWidth)+1;
+				while(steps--) {domain.push(end-steps*increment);}
+				
+				return domain;
+			};
+			chartHelper._chartParameters.tickFormat = function(v) { return _tfMonthYear(new Date(v));};
 		};
 		
 		chartHelper.createGroups = function () {
 			//these groups consider the entire dataset in question.
-			chartHelper._group = chartHelper._dimensions.masterDimension.group(function(v) {
-				var displayDate = d3.time.format("%m-%Y"); // function to change the format of a date object to mm-yyyy
-				//return displayDate(new Date(v));
-				return v;
-			})
+			chartHelper._group = chartHelper._dimensions.masterDimension.group()
 			.reduce(
 				function (p,v) {
-					console.log(v.eventID);
-					return ++p;
+					p.count++;
+					p.mouseoverInfo += v.eventID;
+					return p;
 				},	
 				function (p,v) {
-					return --p;
+					return --p.count;
 				},
 				function () {
-					return 0;
+					return {
+						'count': 0,
+						'mouseoverInfo': ''
+					};
 				}	
 			);
 		};
@@ -113,8 +121,8 @@ angular.module('myApp.ticketImpulse', ['ngRoute'])
 			bar
 				.width(chartHelper._userParameters.width)
 				.height(chartHelper._userParameters.height)
-				.xAxisLabel("Hour")
-				.yAxisLabel("kW")
+				.xAxisLabel("Month-Year")
+				.yAxisLabel("Count")
 				// .margins({
 					// left: chartHelper._userParameters.marginLeft,
 					// right: chartHelper._userParameters.marginRight,
@@ -125,23 +133,26 @@ angular.module('myApp.ticketImpulse', ['ngRoute'])
 				.renderHorizontalGridLines(true)
 				.renderVerticalGridLines(true)
 				
-				.xUnits(chartHelper._chartParameters.xUnits) // sets X axis units
+				//.xUnits(chartHelper._chartParameters.xUnits) // sets X axis units
+				.xUnits(chartHelper._chartParameters.xUnits)
 				.x(chartHelper._chartParameters.domainX)
 		        .dimension(chartHelper._dimensions.masterDimension)
 		        .group(chartHelper._group)
 				
-		        //.centerBar(true)
-		        //.barPadding(0.5)
-				.title(function(p,v) {return v.eventID; })
+		        .centerBar(true)
+		        .barPadding(0.5)
+				.title(function(p) {return p.value.mouseoverInfo; })
 				.renderTitle(true)
-				//.colors("rgba(229,63,0,.8)")
+				.valueAccessor(function(p) {return p.value.count; })
+				
+				.colors("rgba(215,35,35,.6)")
 				
 				//.elasticX(true)
 				//.elasticY(true)
 				.legend(dc.legend().x(lX).y(lY).itemHeight(13).gap(5)) // legend position and add'l info
 				//.yAxisPadding("5%")	//WARNING: not in api, but xAxisScaling works. This was legit a stab in the dark.
 				
-				//.mouseZoomable(true)
+				.mouseZoomable(true)
 				.brushOn(false);
 			
 			bar.xAxis().tickFormat(chartHelper._chartParameters.tickFormat); // sets the tick format to be the hour only
@@ -206,8 +217,9 @@ angular.module('myApp.ticketImpulse', ['ngRoute'])
 		//this is what is returned by this factory
 	var _getDefaultUserParameters = function () {
 		return {
-			width: 750,
-			height: 680,
+			width: 600,
+			height: 200,
+			barWidth: 20,
 			marginLeft: 75,
 			marginRight: 150,
 			marginTop: 25,
@@ -303,9 +315,7 @@ angular.module('myApp.ticketImpulse', ['ngRoute'])
 	$scope.inactiveOrganizations = {};
 	$scope.treatedData = {};
 	$scope.active = {};
-	console.log($scope.activeOrganizations);
-	
-	var bar = dc.barChart("#test_composed");
+	var bar;
 		//populated by drawChart
 	
 	var populateScope = function () {
@@ -322,16 +332,24 @@ angular.module('myApp.ticketImpulse', ['ngRoute'])
 	
 	var http = function(response) {
 		$scope.treatedData = response.data.treatedData;
-		$scope.chartHelper = chartService.initFlatten(
-			bar,
-			$scope.active,
-			$scope.userParameters
-		);
+		
 		
 		$scope.showButtons = false;
 		//try {
 			//populateScope();
-			$scope.chartHelper.drawChart();
+			$scope.redrawChart();
+			$scope.$watch('userParameters.barWidth', function(newVal, oldVal, scope) {
+				$scope.redrawChart();
+			});
+			$scope.$watch('userParameters.height', function(newVal, oldVal, scope) {
+				$scope.redrawChart();
+			});
+			$scope.$watch('userParameters.width', function(newVal, oldVal, scope) {
+				$scope.redrawChart();
+			});
+			$scope.$watch('userParameters', function(newVal, oldVal, scope) {
+				$scope.redrawChart();
+			});
 		// }
 		// catch (e) {
 			// console.error(e); // pass exception object to error handler
@@ -347,7 +365,13 @@ angular.module('myApp.ticketImpulse', ['ngRoute'])
 		dataService.getData($scope.userParameters).then( http, function () {alert("epicfail");} );
 	};
 	$scope.redrawChart = function () {
-		$scope.chartHelper.drawChart(false);
+		bar = dc.barChart("#test_composed");
+		$scope.chartHelper = chartService.initFlatten(
+			bar,
+			$scope.active,
+			$scope.userParameters
+		);
+		$scope.chartHelper.drawChart();
 	};
 	
 	$scope.queryData = function () {
@@ -443,6 +467,7 @@ angular.module('myApp.ticketImpulse', ['ngRoute'])
 	};
 	
 	$scope.logScope = function () {
+		bar.redraw();
 		console.log($scope);
 	};
 	$scope.debug = function () {
