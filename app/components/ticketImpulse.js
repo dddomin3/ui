@@ -160,7 +160,7 @@ angular.module('myApp.ticketImpulse', ['ngRoute'])
 			
 			bar.xAxis().tickFormat(chartHelper._chartParameters.tickFormat); // sets the tick format to be the hour only
 			
-			dc.renderAll();
+			bar.render();
 			return bar;
 		};
 		
@@ -211,7 +211,7 @@ angular.module('myApp.ticketImpulse', ['ngRoute'])
 .factory('chartIdService', ['$http', function($http){
 	var _count = 0;
 	var _getNewId = function () {
-		return "selfgen_chartID_"+_count++;
+		return "selfgen_chartid_"+_count++;
 	};
 	return {
 		getNewId : _getNewId
@@ -331,16 +331,15 @@ angular.module('myApp.ticketImpulse', ['ngRoute'])
 			}
 		},
 		templateUrl : "views/ticketImpulse.html",
-		controller: ['$scope', '$location', 'ticketImpulseChartService', 'ticketImpulseDataService', 'chartIdService',
-                    function($scope, $location, chartService, dataService, chartIdService) {
-			$scope.timeSeries = 'ticketImpulse';
+		controller: ['$scope', '$location', 'ticketImpulseChartService', 'ticketImpulseDataService',
+                    function($scope, $location, chartService, dataService) {
+			$scope.timeSeries = 'ticketImpulse: '+$scope.dom;
 			$scope.showButtons = true;
 			$scope.chartInit = false;
 			$scope.userParameters = dataService.getDefaultUserParameters();
 			$scope.inactiveOrganizations = {};
 			$scope.treatedData = {};
 			$scope.active = {};
-			console.log($scope.dom);
 			
 			var bar;
 				//populated by drawChart
