@@ -68,8 +68,7 @@ config(['$routeProvider', function($routeProvider) {
 		controller: 'workOrderSummaryFacilityCtrl'
 	}).
 	when('/ticketImpulse', {
-		templateUrl: 'views/ticketImpulse.html',
-		controller: 'ticketImpulseCtrl'
+		templateUrl: 'views/ticketImpulseTest.html'
 	}).
 	when('/workOrderSummaryAsset', {
 		templateUrl: 'views/workOrderSummaryAsset.html',

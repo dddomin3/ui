@@ -316,8 +316,8 @@ angular.module('myApp.heatmap', ['ngRoute'])
 			return '';
 		};
 		//start = new Date(new Date(1388675960000-6*24*3600*1000).setHours(0));
-		dfault.start = new Date(new Date(new Date().setHours(0,0,0,0)).getTime()-31*24*60*60*1000);
-		dfault.end = new Date();
+		dfault.start = new Date('Mon, Sep 1 2014');
+		dfault.end = new Date('Sat, Nov 1 2014');
 		dfault.range= dfault.rangeCalc();
 
 		dfault.domainLabelFormat= function(date) {//format of each domain label. "x axis" labels
