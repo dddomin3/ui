@@ -1,6 +1,6 @@
 'use strict';
 
-angular.module('myApp.workOrderGrid', ['ngRoute', 'ui.grid', 'ui.grid.edit', 'ui.grid.autoResize'])
+angular.module('myApp.workOrderGrid', ['ngRoute', 'ui.grid', 'ui.grid.edit', 'ui.grid.autoResize', 'ui.grid.exporter', 'ui.grid.selection'])
 
 .run(['directiveService', function(directiveService){
 	directiveService.addFullComponent({
@@ -82,7 +82,26 @@ angular.module('myApp.workOrderGrid', ['ngRoute', 'ui.grid', 'ui.grid.edit', 'ui
 				$scope.gridApi = gridApi;
 			},
 			enableFiltering: true,
+			enableRowHeaderSelection: false,
 			multiSelect: false,
+			enableGridMenu: true,
+			exporterLinkLabel: 'click to download file',
+			/*exporterPdfDefaultStyle: {fontSize: 9},
+			exporterPdfTableStyle: {margin: [30, 30, 30, 30]},
+			exporterPdfTableHeaderStyle: {fontSize: 10, bold: true, italics: true, color: 'red'},
+			exporterPdfHeader: { text: "My Header", style: 'headerStyle' },
+			exporterPdfFooter: function ( currentPage, pageCount ) {
+			return { text: currentPage.toString() + ' of ' + pageCount.toString(), style: 'footerStyle' };
+			},
+			exporterPdfCustomFormatter: function ( docDefinition ) {
+			docDefinition.styles.headerStyle = { fontSize: 22, bold: true };
+			docDefinition.styles.footerStyle = { fontSize: 10, bold: true };
+			return docDefinition;
+			},
+			exporterPdfOrientation: 'portrait',
+			exporterPdfPageSize: 'LETTER',
+			exporterPdfMaxGridWidth: 500,*/
+			exporterCsvLinkElement: angular.element(document.querySelectorAll(".custom-csv-link-location")),
 			data: 'eventData',
 			rowTemplate: '<div ng-click="getExternalScopes().showMessage(row.entity)"  ng-repeat="col in colContainer.renderedColumns track by col.colDef.name" class="ui-grid-cell" ui-grid-cell></div>',
 			columnDefs: [
