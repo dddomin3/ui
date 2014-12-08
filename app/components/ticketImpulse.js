@@ -208,6 +208,15 @@ angular.module('myApp.ticketImpulse', ['ngRoute'])
 	};
 	
 }])
+.factory('chartIdService', ['$http', function($http){
+	var _count = 0;
+	var _getNewId = function () {
+		return "selfgen_chartID_"+_count++;
+	};
+	return {
+		getNewId : _getNewId
+	};
+}])
 .factory('ticketImpulseDataService', ['$http', function($http) {
 	var print_filter = function (filter){
 		var f=eval(filter);
@@ -310,15 +319,20 @@ angular.module('myApp.ticketImpulse', ['ngRoute'])
 	
 	return _servObj;
 }])
-.directive('ticketImpulse', function () {
+.directive('ticketImpulse', ['chartIdService', function (chartIdService) {
 	return {
 		restrict: "E",
 		scope: {
 			dom: "@" // allows the name of the chart to be assigned.  this name is the new scope variable created once a date is selected
 		},
+		compile : function (element, attrs) {
+			if (!attrs.hasOwnProperty('dom') ) {
+				attrs.dom = chartIdService.getNewId();
+			}
+		},
 		templateUrl : "views/ticketImpulse.html",
-		controller: ['$scope', '$location', 'ticketImpulseChartService', 'ticketImpulseDataService', 
-                    function($scope, $location, chartService, dataService) {
+		controller: ['$scope', '$location', 'ticketImpulseChartService', 'ticketImpulseDataService', 'chartIdService',
+                    function($scope, $location, chartService, dataService, chartIdService) {
 			$scope.timeSeries = 'ticketImpulse';
 			$scope.showButtons = true;
 			$scope.chartInit = false;
@@ -326,6 +340,7 @@ angular.module('myApp.ticketImpulse', ['ngRoute'])
 			$scope.inactiveOrganizations = {};
 			$scope.treatedData = {};
 			$scope.active = {};
+			console.log($scope.dom);
 			
 			var bar;
 				//populated by drawChart
@@ -487,6 +502,6 @@ angular.module('myApp.ticketImpulse', ['ngRoute'])
 			$scope.queryData($scope.userParameters);
 		}]
 	}
-})
+}])
 ;
 
