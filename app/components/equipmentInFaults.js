@@ -17,6 +17,9 @@ angular.module('myApp.equipmentInFaults', ['ngRoute'])
 	var _clientQuery = {};
 	var _assetQuery = {};
 	
+	var _location={};
+	
+
 	
 	
 	
@@ -95,22 +98,10 @@ angular.module('myApp.equipmentInFaults', ['ngRoute'])
 	
 		var _getAssets = function (org,client) {	
 		//this function queries the server for all existing Assets
-		var message = {
-				"date": {
-					"$gt": {
-						"$date": "2014-10-22T22:02:48.488Z"
-					}
-				},
-				
-				"clientName": client,
-				
-				"stationName":org
-				
-				
-		};
+
 
 		var Url  = "http://10.239.3.132:9763/MongoServlet-0.0.1-SNAPSHOT/send";
-		var requestString = "{}";
+		var requestString = "{\"clientName\":\"" +client +"\","+"\"stationName\":\""+org+"\"}";
 		var config = {
 				method:'POST',
 				headers: {'Collection': 'Facility'},
@@ -123,14 +114,14 @@ angular.module('myApp.equipmentInFaults', ['ngRoute'])
 					for(var i = 0, ilen = data.result.length; i < ilen; i++) {
 					
 						angular.forEach(data.result[i].asset,function(value,key){
-							angular.forEach(value,function(value,key){
-								_assetQuery[value]='';
-							});
+							
+								_assetQuery[key]=value;
+								
+								
 					
 						});
-					
-
 						
+							
 
 						
 					}
@@ -138,6 +129,46 @@ angular.module('myApp.equipmentInFaults', ['ngRoute'])
 		)
 		.error( function () { alert('fail to query data'); } );
 	};
+	
+	
+	// query location 
+	
+	
+	var _getLocation = function (org,client) {	
+		//this function queries the server for all existing Assets
+
+
+		var Url  = "http://10.239.3.132:9763/MongoServlet-0.0.1-SNAPSHOT/send";
+		var requestString = "{\"clientName\":\"" +client +"\","+"\"stationName\":\""+org+"\"}";
+		var config = {
+				method:'POST',
+				headers: {'Collection': 'Facility'},
+				url:Url,
+				data:requestString
+		}
+		return $http(config)
+		.success(
+				function (data) {
+					for(var i = 0, ilen = data.result.length; i < ilen; i++) {
+						
+						_location=data.result[i].facilityAddress+","+data.result[i].city+","+data.result[i].state+","+data.result[i].country+","+data.result[i].zipCode;
+					
+						};				
+							
+				
+					
+						}
+						
+						
+					
+				
+		)
+		.error( function () { alert('fail to query data'); } );
+	};
+	
+	
+
+	
 	
 	
 
@@ -203,6 +234,61 @@ angular.module('myApp.equipmentInFaults', ['ngRoute'])
 
 	};
 	
+	
+	//location query
+	
+	var _getAddress = function(){
+		return _location;
+	};
+	
+	//split string
+	
+	
+	var _stringParts= function(tar,del){
+		var m=0;
+		while(tar.charAt(m)==del){
+			tar=tar.slice(1,tar.length);
+			
+		};
+		
+		var  start=0;
+		var  end;
+		var result=[];
+		for(var i=0 ; i<tar.length;i++){
+			if(tar.charAt(i)==del){
+				end=i;
+				
+				result.push(tar.slice(start,end));
+				start=i+1;
+			}
+			
+
+			
+		}
+		
+		if(start<tar.length){
+			result.push(tar.slice(start,tar.length));
+		}
+		return result;
+	}
+	
+	
+	
+	//query Event Data
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
+	
 
 // clientQuery is hashmap and getClients is method
 	_servObj = {
@@ -225,8 +311,14 @@ angular.module('myApp.equipmentInFaults', ['ngRoute'])
 			getActiveAssets : _getActiveAssets,
 			initActiveAsset : _initActiveAsset,
 			getAssetQuery : _getAssetQuery,
-			deleteActiveAsset : _deleteActiveAsset 
+			deleteActiveAsset : _deleteActiveAsset,
 			
+			
+			stringParts : _stringParts,
+			
+			getLocation : _getLocation,
+			
+			getAddress : _getAddress
 			
 	};
 
@@ -278,8 +370,8 @@ angular.module('myApp.equipmentInFaults', ['ngRoute'])
 	$scope.activeOrganization = "";
 	$scope.activeClient="";
 	$scope.activeAsset="";
-	
-	
+	$scope.active={};
+	$scope.activeInfo={};
 	
 
 	
@@ -304,6 +396,9 @@ angular.module('myApp.equipmentInFaults', ['ngRoute'])
 			$scope.assetQuery = dataService.getAssetQuery();
 		});
 	};
+	
+
+	
 	
 	
 
@@ -354,32 +449,22 @@ angular.module('myApp.equipmentInFaults', ['ngRoute'])
 
 
 
-	$scope.isLink = function(string){
-		//var regex = /^[a-z](?:[-a-z0-9\+\.])*:(?:\/\/(?:(?:%[0-9a-f][0-9a-f]|[-a-z0-9\._~\x{A0}-\x{D7FF}\x{F900}-\x{FDCF}\x{FDF0}-\x{FFEF}\x{10000}-\x{1FFFD}\x{20000}-\x{2FFFD}\x{30000}-\x{3FFFD}\x{40000}-\x{4FFFD}\x{50000}-\x{5FFFD}\x{60000}-\x{6FFFD}\x{70000}-\x{7FFFD}\x{80000}-\x{8FFFD}\x{90000}-\x{9FFFD}\x{A0000}-\x{AFFFD}\x{B0000}-\x{BFFFD}\x{C0000}-\x{CFFFD}\x{D0000}-\x{DFFFD}\x{E1000}-\x{EFFFD}!\$&'\(\)\*\+,;=:])*@)?(?:\[(?:(?:(?:[0-9a-f]{1,4}:){6}(?:[0-9a-f]{1,4}:[0-9a-f]{1,4}|(?:[0-9]|[1-9][0-9]|1[0-9][0-9]|2[0-4][0-9]|25[0-5])(?:\.(?:[0-9]|[1-9][0-9]|1[0-9][0-9]|2[0-4][0-9]|25[0-5])){3})|::(?:[0-9a-f]{1,4}:){5}(?:[0-9a-f]{1,4}:[0-9a-f]{1,4}|(?:[0-9]|[1-9][0-9]|1[0-9][0-9]|2[0-4][0-9]|25[0-5])(?:\.(?:[0-9]|[1-9][0-9]|1[0-9][0-9]|2[0-4][0-9]|25[0-5])){3})|(?:[0-9a-f]{1,4})?::(?:[0-9a-f]{1,4}:){4}(?:[0-9a-f]{1,4}:[0-9a-f]{1,4}|(?:[0-9]|[1-9][0-9]|1[0-9][0-9]|2[0-4][0-9]|25[0-5])(?:\.(?:[0-9]|[1-9][0-9]|1[0-9][0-9]|2[0-4][0-9]|25[0-5])){3})|(?:[0-9a-f]{1,4}:[0-9a-f]{1,4})?::(?:[0-9a-f]{1,4}:){3}(?:[0-9a-f]{1,4}:[0-9a-f]{1,4}|(?:[0-9]|[1-9][0-9]|1[0-9][0-9]|2[0-4][0-9]|25[0-5])(?:\.(?:[0-9]|[1-9][0-9]|1[0-9][0-9]|2[0-4][0-9]|25[0-5])){3})|(?:(?:[0-9a-f]{1,4}:){0,2}[0-9a-f]{1,4})?::(?:[0-9a-f]{1,4}:){2}(?:[0-9a-f]{1,4}:[0-9a-f]{1,4}|(?:[0-9]|[1-9][0-9]|1[0-9][0-9]|2[0-4][0-9]|25[0-5])(?:\.(?:[0-9]|[1-9][0-9]|1[0-9][0-9]|2[0-4][0-9]|25[0-5])){3})|(?:(?:[0-9a-f]{1,4}:){0,3}[0-9a-f]{1,4})?::[0-9a-f]{1,4}:(?:[0-9a-f]{1,4}:[0-9a-f]{1,4}|(?:[0-9]|[1-9][0-9]|1[0-9][0-9]|2[0-4][0-9]|25[0-5])(?:\.(?:[0-9]|[1-9][0-9]|1[0-9][0-9]|2[0-4][0-9]|25[0-5])){3})|(?:(?:[0-9a-f]{1,4}:){0,4}[0-9a-f]{1,4})?::(?:[0-9a-f]{1,4}:[0-9a-f]{1,4}|(?:[0-9]|[1-9][0-9]|1[0-9][0-9]|2[0-4][0-9]|25[0-5])(?:\.(?:[0-9]|[1-9][0-9]|1[0-9][0-9]|2[0-4][0-9]|25[0-5])){3})|(?:(?:[0-9a-f]{1,4}:){0,5}[0-9a-f]{1,4})?::[0-9a-f]{1,4}|(?:(?:[0-9a-f]{1,4}:){0,6}[0-9a-f]{1,4})?::)|v[0-9a-f]+[-a-z0-9\._~!\$&'\(\)\*\+,;=:]+)\]|(?:[0-9]|[1-9][0-9]|1[0-9][0-9]|2[0-4][0-9]|25[0-5])(?:\.(?:[0-9]|[1-9][0-9]|1[0-9][0-9]|2[0-4][0-9]|25[0-5])){3}|(?:%[0-9a-f][0-9a-f]|[-a-z0-9\._~\x{A0}-\x{D7FF}\x{F900}-\x{FDCF}\x{FDF0}-\x{FFEF}\x{10000}-\x{1FFFD}\x{20000}-\x{2FFFD}\x{30000}-\x{3FFFD}\x{40000}-\x{4FFFD}\x{50000}-\x{5FFFD}\x{60000}-\x{6FFFD}\x{70000}-\x{7FFFD}\x{80000}-\x{8FFFD}\x{90000}-\x{9FFFD}\x{A0000}-\x{AFFFD}\x{B0000}-\x{BFFFD}\x{C0000}-\x{CFFFD}\x{D0000}-\x{DFFFD}\x{E1000}-\x{EFFFD}!\$&'\(\)\*\+,;=@])*)(?::[0-9]*)?(?:\/(?:(?:%[0-9a-f][0-9a-f]|[-a-z0-9\._~\x{A0}-\x{D7FF}\x{F900}-\x{FDCF}\x{FDF0}-\x{FFEF}\x{10000}-\x{1FFFD}\x{20000}-\x{2FFFD}\x{30000}-\x{3FFFD}\x{40000}-\x{4FFFD}\x{50000}-\x{5FFFD}\x{60000}-\x{6FFFD}\x{70000}-\x{7FFFD}\x{80000}-\x{8FFFD}\x{90000}-\x{9FFFD}\x{A0000}-\x{AFFFD}\x{B0000}-\x{BFFFD}\x{C0000}-\x{CFFFD}\x{D0000}-\x{DFFFD}\x{E1000}-\x{EFFFD}!\$&'\(\)\*\+,;=:@]))*)*|\/(?:(?:(?:(?:%[0-9a-f][0-9a-f]|[-a-z0-9\._~\x{A0}-\x{D7FF}\x{F900}-\x{FDCF}\x{FDF0}-\x{FFEF}\x{10000}-\x{1FFFD}\x{20000}-\x{2FFFD}\x{30000}-\x{3FFFD}\x{40000}-\x{4FFFD}\x{50000}-\x{5FFFD}\x{60000}-\x{6FFFD}\x{70000}-\x{7FFFD}\x{80000}-\x{8FFFD}\x{90000}-\x{9FFFD}\x{A0000}-\x{AFFFD}\x{B0000}-\x{BFFFD}\x{C0000}-\x{CFFFD}\x{D0000}-\x{DFFFD}\x{E1000}-\x{EFFFD}!\$&'\(\)\*\+,;=:@]))+)(?:\/(?:(?:%[0-9a-f][0-9a-f]|[-a-z0-9\._~\x{A0}-\x{D7FF}\x{F900}-\x{FDCF}\x{FDF0}-\x{FFEF}\x{10000}-\x{1FFFD}\x{20000}-\x{2FFFD}\x{30000}-\x{3FFFD}\x{40000}-\x{4FFFD}\x{50000}-\x{5FFFD}\x{60000}-\x{6FFFD}\x{70000}-\x{7FFFD}\x{80000}-\x{8FFFD}\x{90000}-\x{9FFFD}\x{A0000}-\x{AFFFD}\x{B0000}-\x{BFFFD}\x{C0000}-\x{CFFFD}\x{D0000}-\x{DFFFD}\x{E1000}-\x{EFFFD}!\$&'\(\)\*\+,;=:@]))*)*)?|(?:(?:(?:%[0-9a-f][0-9a-f]|[-a-z0-9\._~\x{A0}-\x{D7FF}\x{F900}-\x{FDCF}\x{FDF0}-\x{FFEF}\x{10000}-\x{1FFFD}\x{20000}-\x{2FFFD}\x{30000}-\x{3FFFD}\x{40000}-\x{4FFFD}\x{50000}-\x{5FFFD}\x{60000}-\x{6FFFD}\x{70000}-\x{7FFFD}\x{80000}-\x{8FFFD}\x{90000}-\x{9FFFD}\x{A0000}-\x{AFFFD}\x{B0000}-\x{BFFFD}\x{C0000}-\x{CFFFD}\x{D0000}-\x{DFFFD}\x{E1000}-\x{EFFFD}!\$&'\(\)\*\+,;=:@]))+)(?:\/(?:(?:%[0-9a-f][0-9a-f]|[-a-z0-9\._~\x{A0}-\x{D7FF}\x{F900}-\x{FDCF}\x{FDF0}-\x{FFEF}\x{10000}-\x{1FFFD}\x{20000}-\x{2FFFD}\x{30000}-\x{3FFFD}\x{40000}-\x{4FFFD}\x{50000}-\x{5FFFD}\x{60000}-\x{6FFFD}\x{70000}-\x{7FFFD}\x{80000}-\x{8FFFD}\x{90000}-\x{9FFFD}\x{A0000}-\x{AFFFD}\x{B0000}-\x{BFFFD}\x{C0000}-\x{CFFFD}\x{D0000}-\x{DFFFD}\x{E1000}-\x{EFFFD}!\$&'\(\)\*\+,;=:@]))*)*|(?!(?:%[0-9a-f][0-9a-f]|[-a-z0-9\._~\x{A0}-\x{D7FF}\x{F900}-\x{FDCF}\x{FDF0}-\x{FFEF}\x{10000}-\x{1FFFD}\x{20000}-\x{2FFFD}\x{30000}-\x{3FFFD}\x{40000}-\x{4FFFD}\x{50000}-\x{5FFFD}\x{60000}-\x{6FFFD}\x{70000}-\x{7FFFD}\x{80000}-\x{8FFFD}\x{90000}-\x{9FFFD}\x{A0000}-\x{AFFFD}\x{B0000}-\x{BFFFD}\x{C0000}-\x{CFFFD}\x{D0000}-\x{DFFFD}\x{E1000}-\x{EFFFD}!\$&'\(\)\*\+,;=:@])))(?:\?(?:(?:%[0-9a-f][0-9a-f]|[-a-z0-9\._~\x{A0}-\x{D7FF}\x{F900}-\x{FDCF}\x{FDF0}-\x{FFEF}\x{10000}-\x{1FFFD}\x{20000}-\x{2FFFD}\x{30000}-\x{3FFFD}\x{40000}-\x{4FFFD}\x{50000}-\x{5FFFD}\x{60000}-\x{6FFFD}\x{70000}-\x{7FFFD}\x{80000}-\x{8FFFD}\x{90000}-\x{9FFFD}\x{A0000}-\x{AFFFD}\x{B0000}-\x{BFFFD}\x{C0000}-\x{CFFFD}\x{D0000}-\x{DFFFD}\x{E1000}-\x{EFFFD}!\$&'\(\)\*\+,;=:@])|[\x{E000}-\x{F8FF}\x{F0000}-\x{FFFFD}|\x{100000}-\x{10FFFD}\/\?])*)?(?:\#(?:(?:%[0-9a-f][0-9a-f]|[-a-z0-9\._~\x{A0}-\x{D7FF}\x{F900}-\x{FDCF}\x{FDF0}-\x{FFEF}\x{10000}-\x{1FFFD}\x{20000}-\x{2FFFD}\x{30000}-\x{3FFFD}\x{40000}-\x{4FFFD}\x{50000}-\x{5FFFD}\x{60000}-\x{6FFFD}\x{70000}-\x{7FFFD}\x{80000}-\x{8FFFD}\x{90000}-\x{9FFFD}\x{A0000}-\x{AFFFD}\x{B0000}-\x{BFFFD}\x{C0000}-\x{CFFFD}\x{D0000}-\x{DFFFD}\x{E1000}-\x{EFFFD}!\$&'\(\)\*\+,;=:@])|[\/\?])*)?$/i
-		var regex = /^(ht|f)tps?:\/\/[a-z0-9-\.]+\.[a-z]{2,4}\/?([^\s<>\#%"\,\{\}\\|\\\^\[\]`]+)?$/
-			return regex.test(string);
-	};
-
-	$scope.urlify = function(string){
-		//var regex = /^(ht|f)tps?:\/\/[a-z0-9-\.]+\.[a-z]{2,4}\/?([^\s<>\#%"\,\{\}\\|\\\^\[\]`]+)?$/
-		return "'+string+'";
-	}
 
 	$scope.debug = function () {
+		$scope.modalInstance.close();
 		console.log($scope);
 
 	};
 
 
-
+	
 
 
 	$scope.open = function(size) {
-		$scope.activeOrg = "";
 		
-		var modalInstance = $modal.open({
+		$scope.modalInstance = $modal.open({
 			templateUrl: 'views/equipmentInFaultsConfig.html',
-			controller: 'equipmentInFaultsConfigInstance',
+			controller: 'equipmentInFaultsCtrl',
 			size: size,
 			scope: $scope
 		});
@@ -388,7 +473,16 @@ angular.module('myApp.equipmentInFaults', ['ngRoute'])
 	
 	// function to display  selected asset to a list 
 	$scope.add = function( ) {
-		$scope.active [ $scope.activeClient + "_"+$scope.activeOrganization + "_"+$scope.activeAsset ] ="";
+		
+		var x=document.getElementsByName("activeList");
+		
+		for(var i =0 ; i<x.length;i++){
+			if(x[i].checked==true){
+				$scope.active [ $scope.activeClient + "_"+$scope.activeOrganization + "_"+x[i].value +"_"+ x[i].placeholder] ="";
+			}
+		}
+
+		
 		
 	};
 	
@@ -414,16 +508,115 @@ angular.module('myApp.equipmentInFaults', ['ngRoute'])
 			return false;
 		}
 	}
+	
+	
 
 	$scope.isZero = function(thisNumber){
 		if(thisNumber===0 || thisNumber===undefined){return true;}
 		else{return false;}
 	}
+	
+	
+	
+	$scope.ok = function() {
+		sharedProperties.setActives($scope.active);
+		sharedProperties.set
+		
+		$scope.modalInstance.close();
+		
+	};
 
 	$scope.queryOrganizations();
 	$scope.queryClients();
-	$scope.apply;
+	
+	
+	
+	// put the select asset info into active map
+	$scope.apply=function(){
+		$scope.active=sharedProperties.getActives();
+		
+		
+		angular.forEach($scope.active,function(value,key){
+			var del='_';
+			var tempArray = dataService.stringParts(key,del);
+			
+			var info=[];
+			info.push(tempArray[0]);
+			info.push(tempArray[1]);
+			info.push(tempArray[2]);
+			
+			dataService.getLocation(tempArray[1],tempArray[0]).then(function(){
+				info.push( dataService.getAddress() );
+				
+			});
+			
+			info.push(tempArray[3]);
+			// be careful , the sequence of the array doesnot follow the the sequence of pushing action, in this case, info[4] is address and info[3] is tempArray[3]			
+			console.log(tempArray[3]);
+			$scope.activeInfo[key]=info;
+			
+			
+		});
+		
+		
+		
+		
+
+		
+	};
+	
+	$scope.j=0;
+	
+	//function to select / unselect all assets under one asset type
+	$scope.selectChildren=function(placeholder){
+		var y=document.getElementsByName("activeList");
+		
+		
+		if($scope.j%2==0){
+			
+			for(var i =0 ; i<y.length;i++){
+				
+				if(y[i].placeholder==placeholder){
+					y[i].checked=true;
+				}
+			}
+
+		}
+		
+		else{
+			for(var i =0 ; i<y.length;i++){
+				
+				if(y[i].placeholder==placeholder){
+					y[i].checked=false;
+				}
+			}
+			
+			
+		}
+		$scope.j=$scope.j+1;
+		console.log($scope);
+		
+	}
+
+	
+	
+	
 }])
+
+.service('sharedPropertiesService', function () {
+	var actives = "";
+
+
+	return {
+		getActives: function () {
+			return actives;
+		},
+		
+		setActives: function(value) {
+			actives = value;
+		}
+	};
+})
 
 
 .directive('equipmentInFaultsConfig', [ function() {

@@ -22,7 +22,8 @@ angular.module('myApp', [
   'myApp.panelComponent',
   'myApp.dashboard',
   'myApp.ticketImpulse',
-  'myApp.eventPage'
+  'myApp.eventPage',
+  'myApp.equipmentInFaults'
 ]).
 
 config(['$routeProvider', function($routeProvider) {
@@ -81,6 +82,11 @@ config(['$routeProvider', function($routeProvider) {
 	when('/eventPage',{
 		templateUrl: 'views/eventPage.html',
 		controller: 'eventPageCtrl'
+	}).
+	
+	when('/equipmentInFaults',{
+		templateUrl: 'views/equipmentInFaults.html',
+		controller: 'equipmentInFaultsCtrl'
 	}).
 	otherwise({redirectTo: '/heatmap'});
 }]);

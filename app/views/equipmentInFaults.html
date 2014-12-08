@@ -1,5 +1,5 @@
    	
-	<div class="container" >
+	
 	
 	
 	<div class="jumbotron">
@@ -11,16 +11,52 @@
 	<center>
 	<button class="btn btn-default" ng-click="open('lg');queryOrganizations()">Equipment Selection</button>
 	</center>
+	
+	
+	<div class="modal-footer">
+	<button class="btn btn-primary" ng-click="apply()">Apply</button>
 	</div>
 	
 	
-	<li ng-repeat="(activeElement, param) in active | orderBy:'activeElement'">
-		<button class="btn btn-primary">Add</button>
-	</li>
+	</div>
 	
 	
+	<div ng-repeat="(activeElement, param) in activeInfo "  >
+		
+		
+		
+		
+			<table style="width:100%">
+  <tr>
+    <td>Client : {{param[0]}}</td>
+    <td>Station : {{param[1]}}</td> 
+   <td>Asset : {{param[2]}}</td> 
+  </tr>
+  
+  
+  
+  
+  <tr>
+    <td>Asset Type : {{param[3]}}</td>
+    <td> Location : {{param[4]}}</td>
+    
+   
+  </tr>
+</table>
+		
+
+		
+
+		
+	
+	
+	</div>
+	
+	
+		
+
 
 	
 	
-	</div>
+	
 
