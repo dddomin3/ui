@@ -252,18 +252,28 @@ angular.module('myApp.ticketImpulse', ['ngRoute'])
 			"Sat": "rgba(  0, 137, 191, .8)"
 	};
 	
-	var _getData = function (userParameters) {	//TODO: Singleton changes	
-		//this function queries the server for all existing organizations
+	var _getData = function (userParameters, query) {	//TODO: Singleton changes	
+		//this function queries the server for all existing organizations(if query argument is undefined)
 		//it's messy since it technically grabs all information after the below hardcoded date,
 		//and strings together a key value pair of all organizations, but whatever.
+		//if query is defined, this function the information in the query
 		var mongoUrl = "http://10.239.3.132:9763/MongoServlet-0.0.1-SNAPSHOT/send";
-		var today = new Date();
-		var firstOfMonth = new Date(today.getFullYear(), today.getMonth()-6, 1);
 		
-		var requestString = requestString = {
+		var requestString = query ?
+		{	//if query is specified
 			"createdTime": {
-				"$gt": {"$date": ""+userParameters.lowDate.toJSON()},
-				"$lt": {"$date": ""+userParameters.highDate.toJSON()}
+				"$gt": {"$date": ""+query.lowDate ? query.lowDate.toJSON() : userParameters.lowDate.toJSON()},
+				"$lt": {"$date": ""+query.highDate ? query.highDate.toJSON(): userParameters.highDate.toJSON()}
+			},
+			"asset": query.asset ? query.asset : undefined,
+			"facility" : query.facility ? query.facility : undefined,
+			"organization" : query.organization ? query.organization : undefined
+		}
+		: 
+		{
+			"createdTime": {
+				"$gt": {"$date": ""+ userParameters.lowDate.toJSON()},
+				"$lt": {"$date": ""+ userParameters.highDate.toJSON()}
 			}
 		};
 		
@@ -282,8 +292,8 @@ angular.module('myApp.ticketImpulse', ['ngRoute'])
 	};
 	
 	var _successData = function(data, status, headers, config){
-		console.log(data);
 		var treatedData = {};
+		console.log(data);
 		for(var i = 0, ilen = data.result.length; i < ilen; i++) {
 			var org = data.result[i].organization;
 			var fac = data.result[i].facility;
@@ -323,11 +333,20 @@ angular.module('myApp.ticketImpulse', ['ngRoute'])
 	return {
 		restrict: "E",
 		scope: {
-			dom: "@" // allows the name of the chart to be assigned.  this name is the new scope variable created once a date is selected
+			dom: "@", // allows the name of the chart to be assigned.  this name is the new scope variable created once a date is selected
+			userParamSidebar: "@",	//bool: true to show, false to hide. default true
+			organizationSidebar: "@"
 		},
 		compile : function (element, attrs) {
+			console.log(attrs);
 			if (!attrs.hasOwnProperty('dom') ) {
 				attrs.dom = chartIdService.getNewId();
+			}
+			if ( !attrs.hasOwnProperty('userParamSidebar') ) {
+				attrs.userParamSidebar = 'true';
+			}
+			if ( !attrs.hasOwnProperty('organizationSidebar') ) {
+				attrs.organizationSidebar = 'true';
 			}
 		},
 		templateUrl : "views/ticketImpulse.html",
@@ -343,6 +362,13 @@ angular.module('myApp.ticketImpulse', ['ngRoute'])
 			
 			var bar;
 				//populated by drawChart
+			var query = {
+				asset : "AHU3",
+				facility : "60 Wall Street",
+				organization : "DEU",
+				lowDate: new Date((new Date((new Date()) - (6*28*24*60*60*1000))).toDateString()),
+				highDate: new Date( (new Date()).toDateString() )
+			};
 			
 			var populateScope = function () {
 				//this function populates necessary variables onto the scope.
@@ -356,9 +382,11 @@ angular.module('myApp.ticketImpulse', ['ngRoute'])
 				$scope.chartParameters = $scope.chartHelper.getChartParameters();
 			};
 			
-			var http = function(response) {
+			var httpCallback = function(response) {
 				$scope.treatedData = response.data.treatedData;
-				
+				http();
+			};
+			var http = function() {
 				$scope.showButtons = false;
 				//try {
 					//populateScope();
@@ -383,11 +411,10 @@ angular.module('myApp.ticketImpulse', ['ngRoute'])
 					$scope.showButtons = true;
 				// }
 			};
-		  
 			
 			$scope.drawHttpChart = function () {
 				$scope.chartInit = true;
-				dataService.getData($scope.userParameters).then( http, function () {alert("epicfail");} );
+				dataService.getData($scope.userParameters).then( httpCallback, function () {alert("epicfail");} );
 			};
 			$scope.redrawChart = function () {
 				bar = dc.barChart('#'+$scope.dom);
