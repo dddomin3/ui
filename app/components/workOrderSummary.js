@@ -158,8 +158,12 @@ angular.module('myApp.workOrderSummary', ['ngRoute', 'ui.grid', 'ui.grid.autoRes
 	return _serviceObj;
 }])
 
-.controller('workOrderSummaryConfigCtrl', ['$modalInstance','$modal', '$http', '$scope', '$location', 'uiGridConstants', '$route','findOrganizationService', 'sharedPropertyService',   
-  function($modalInstance, $modal, $http, $scope, $location, uiGridConstants, $route, dataService, sharedProperties){
+.controller('workOrderSummaryConfigCtrl', ['$modalInstance','$modal', '$http', '$scope', '$location', 'uiGridConstants', '$route','findOrganizationService', 'sharedPropertyService', 'workOrderSummaryService',  
+  function($modalInstance, $modal, $http, $scope, $location, uiGridConstants, $route, dataService, sharedProperties, workOrderService){
+	
+	$scope.drawChartNow = false;
+	$scope.drawChartNowFacility = false;
+	
 	dataService.promise.then(function(response){
 		$scope.responseData = response.data.result;
 		if($scope.responseData == null){
@@ -175,6 +179,7 @@ angular.module('myApp.workOrderSummary', ['ngRoute', 'ui.grid', 'ui.grid.autoRes
 			}
 		}
 		$scope.organizationNames = organizationNames;
+		$scope.organizationView(organizationNames[0]);
 	});	
 	
 	$scope.closeWindow = function(){
@@ -183,10 +188,188 @@ angular.module('myApp.workOrderSummary', ['ngRoute', 'ui.grid', 'ui.grid.autoRes
 	
 	$scope.organizationView = function(organizationName){
 		sharedProperties.setOrganization(organizationName);
-		$modalInstance.close();
+		$scope.drawChartNowFacility = false;
+		
+		/*$modalInstance.close();
 		$location.url('/workOrderSummary');
-		$route.reload();
+		$route.reload();*/
+		
+		//TODO New logic starts here
+		
+		workOrderService.getFacilityData().then(function(response){
+			$scope.workOrderData = response.data.result;
+			var facilityNames = [];
+			for(var i=0;i<$scope.workOrderData.length;i++) {
+				if(facilityNames.indexOf($scope.workOrderData[i].facility) == -1) {
+					facilityNames.push($scope.workOrderData[i].facility);
+				}
+			}
+			$scope.facilityNames = facilityNames;
+			$scope.getOpenTickets().then(function(ticketData){
+				$scope.ticketData = ticketData.data.result;				
+				var organizationObject = [];
+				for(var i=0;i<$scope.facilityNames.length;i++){
+					
+					var numEvents = 0;
+					var numClosedEvents = 0;
+					var totalTimeToClose = 0;
+					var numOpenEvents = 0;
+					var potentialSavings = 0;
+					var waste = 0;
+					
+					for(var j=0;j<$scope.workOrderData.length;j++){
+						if($scope.workOrderData[j].facility === $scope.facilityNames[i]){
+							numEvents +=1;
+							if($scope.workOrderData[j].status === "Closed"){
+								numClosedEvents += 1;
+							}
+							totalTimeToClose = totalTimeToClose + $scope.calculateDays($scope.workOrderData[j]);
+							potentialSavings = potentialSavings + parseFloat($scope.workOrderData[j].potentialSaving);
+							waste = waste + parseInt($scope.workOrderData[j].waste);
+						}
+					}
+					for(var j=0;j<$scope.ticketData.length;j++){
+						if($scope.ticketData[j].facility === $scope.facilityNames[i]){
+							numOpenEvents += 1;
+						}
+					}
+					var organizationViewObject = {facility: $scope.facilityNames[i], numberOfEvents: numEvents, numberOpenEvents: numOpenEvents, numberClosedEvents: numClosedEvents, averageTimeToClose: Math.round(totalTimeToClose/numEvents), waste: waste, value: Math.round(potentialSavings*100)/100};
+					organizationObject.push(organizationViewObject);
+				}
+				$scope.chartData = organizationObject;
+				$scope.drawChartNow = true;
+				$scope.organizationName = organizationName;
+			})	
+		})
+		
+		
+		$scope.test = {
+				showFacility: function(row){
+				$scope.facilityView(row);
+				},
+				showAsset: function(row){
+				}
+		};
+		
+		
+		//put outside of then stuff here....
+		
+		$scope.facilityView = function(row){
+			$scope.facilityName = row.facility;
+			var assetNames = [];
+			var facilityWorkOrders = [];
+			var facilityViewObject = [];
+			for(var i=0;i<$scope.workOrderData.length;i++){
+				if($scope.workOrderData[i].facility === row.facility){
+					facilityWorkOrders.push($scope.workOrderData[i]);
+					if(assetNames.indexOf($scope.workOrderData[i].asset) == -1){
+						assetNames.push($scope.workOrderData[i].asset)
+					}
+				}
+			}
+			for(var i=0;i<assetNames.length;i++){
+				var numOpenEvents = 0;
+				var totalTimeToClose = 0;
+				var numEvents = 0;
+				var numClosedEvents = 0;
+				var waste = 0;
+				var potentialSavings = 0;
+				for(var j=0;j<facilityWorkOrders.length;j++){
+					if(facilityWorkOrders[j].asset === assetNames[i]){
+						numEvents += 1;
+						if(facilityWorkOrders[j].status === "Closed"){
+							numClosedEvents += 1;
+						}
+						totalTimeToClose = totalTimeToClose + $scope.calculateDays(facilityWorkOrders[j]);
+						waste = waste + parseFloat(facilityWorkOrders[j].waste);
+						potentialSavings = potentialSavings + parseFloat(facilityWorkOrders[j].potentialSaving);
+					}
+				}
+				for(var j=0;j<$scope.ticketData.length;j++){
+					if($scope.ticketData[j].facility === row.facility){
+						if($scope.ticketData[j].asset === assetNames[i]){
+							numOpenEvents += 1;
+						}
+					}
+				}
+					
+				var chartRow = {asset: assetNames[i], numberOfEvents: numEvents, numberEventsClosed : numClosedEvents, numberEventsOpen : numOpenEvents, averageTimeToClose: Math.round(totalTimeToClose/numEvents), waste: waste, value: Math.round(potentialSavings*100)/100}; 
+				facilityViewObject.push(chartRow);
+			}
+			$scope.facilityData = facilityViewObject;
+			$scope.chartDataFacility = $scope.facilityData;
+			$scope.drawChartNowFacility = true;
+		}
+		
+		$scope.getOpenTickets = function(){
+			
+			var mongoUrl = "http://10.239.3.132:9763/MongoServlet-0.0.1-SNAPSHOT/send";
+			var requestString = "{\"status\": \"Open\"}";
+			var config = {
+					method: 'POST',
+					headers: {'Collection':'Event'},
+					url: mongoUrl,
+					data: requestString
+			};
+			
+			var ticketPromise =  $http(config).success(function(data, status, headers, config){
+							
+				}).
+				error(function(data, status, headers, config){
+					
+				});
+			return ticketPromise;
+		};
+		
+		$scope.calculateDays = function(event){
+			var number;
+			var createdDate = new Date(event.createdTime);
+			var closedDate;		
+				if(event.status === "Closed"){
+					closedDate = new Date(event.closedTime);
+				}
+				else{
+					closedDate = new Date();
+				}
+			
+			number = (closedDate - createdDate)/(1000*60*60*24) //get the time difference between the two date objects in days.
+		
+			return number;
+		};
 	};
+	$scope.gridOptions = {
+			enableSorting: true,
+			onRegisterApi: function(gridApi){
+				$scope.gridApi = gridApi;
+			},
+			rowTemplate: '<div ng-click="getExternalScopes().showFacility(row.entity)"  ng-repeat="col in colContainer.renderedColumns track by col.colDef.name" class="ui-grid-cell" ui-grid-cell></div>',
+			showFooter: true,
+			data: 'chartData',
+			columnDefs: [
+			             {field: 'facility', displayName: 'Facility'},
+			             {field: 'numberOfEvents', displayName: 'Number Of Events Created This Month', aggregationType: uiGridConstants.aggregationTypes.sum},			             
+			             {field: 'numberClosedEvents', displayName: 'Number of Events Closed This Month', aggregationType: uiGridConstants.aggregationTypes.sum},
+			             {field: 'numberOpenEvents', displayName: 'Total Number of Open Events', aggregationType: uiGridConstants.aggregationTypes.sum},
+			             {field: 'averageTimeToClose', displayName: 'Average Days To Close Event(s)', aggregationType: uiGridConstants.aggregationTypes.avg},
+			             {field: 'waste', displayName: 'Waste', aggregationType: uiGridConstants.aggregationTypes.sum},
+			             {field: 'value', displayName: 'Avoidable Cost', aggregationType: uiGridConstants.aggregationTypes.sum}
+			             ]
+		};
+	$scope.gridOptionsFacility = {
+			enableSorting: true,
+			rowTemplate: '<div ng-click="getExternalScopes().showAsset(row.entity)"  ng-repeat="col in colContainer.renderedColumns track by col.colDef.name" class="ui-grid-cell" ui-grid-cell></div>',
+			showFooter: true,
+			data: 'chartDataFacility',
+			columnDefs: [
+			             {field: 'asset', displayName: 'Asset'},
+			             {field: 'numberOfEvents', displayName: 'Number Of Events Created This Month', aggregationType: uiGridConstants.aggregationTypes.sum},			             
+			             {field: 'numberEventsClosed', displayName: 'Number of Events Closed This Month', aggregationType: uiGridConstants.aggregationTypes.sum},
+			             {field: 'numberEventsOpen', displayName: 'Total Number of Open Events', aggregationType: uiGridConstants.aggregationTypes.sum},
+			             {field: 'averageTimeToClose', displayName: 'Average Days To Close Event(s)'},
+			             {field: 'waste', displayName: 'Waste', aggregationType: uiGridConstants.aggregationTypes.sum},
+			             {field: 'value', displayName: 'Avoidable Cost', aggregationType: uiGridConstants.aggregationTypes.sum}
+			             ]
+		};
 }])
 
 .controller('workOrderSummaryModalCtrl', ['$scope', '$modal', 'sharedPropertyService', function($scope, $modal, sharedProperties){
