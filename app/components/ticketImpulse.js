@@ -350,7 +350,6 @@ angular.module('myApp.ticketImpulse', ['ngRoute'])
 			query: "="
 		},
 		compile : function (element, attrs) {
-			console.log(attrs);
 			if (!attrs.hasOwnProperty('dom') ) {
 				attrs.dom = chartIdService.getNewId();
 			}
@@ -379,7 +378,7 @@ angular.module('myApp.ticketImpulse', ['ngRoute'])
 			
 			var bar;
 				//populated by drawChart
-			console.log($scope.query);
+			
 			$scope.active = $scope.query ? $scope.query
 			:	{
 					assets : [{
@@ -390,6 +389,7 @@ angular.module('myApp.ticketImpulse', ['ngRoute'])
 					lowDate: new Date((new Date((new Date()) - (6*28*24*60*60*1000))).toDateString()),
 					highDate: new Date( (new Date()).toDateString() )
 				};
+				
 			var populateScope = function () {
 				//this function populates necessary variables onto the scope.
 				$scope.masterDimension  = $scope.chartHelper.getMasterDimension();
@@ -516,7 +516,9 @@ angular.module('myApp.ticketImpulse', ['ngRoute'])
 				console.log($scope);
 			};
 
-			$scope.queryData($scope.userParameters);
+			
+			if($scope.active !== undefined) { $scope.drawHttpChart(); }
+			else { $scope.queryData($scope.userParameters); }
 		}]
 	}
 }])
