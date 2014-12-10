@@ -34,7 +34,8 @@ angular.module('myApp.workOrderSummary', ['ngRoute', 'ui.grid', 'ui.grid.autoRes
 		var organization = sharedProperties.getOrganization();
 		
 		var _serviceObject = {};
-		var mongoUrl = "http://10.239.3.132:9763/MongoServlet-0.0.1-SNAPSHOT/send";
+		//var mongoUrl = "http://10.239.3.132:9763/MongoServlet-0.0.1-SNAPSHOT/send";
+		var mongoUrl = "http://1.239.3.132:9763/MongoServlet-0.0.1-SNAPSHOT/send";
 		var today = new Date();
 		var firstOfMonth = new Date(today.getFullYear(), today.getMonth()-6, 1);
 		
@@ -147,7 +148,7 @@ angular.module('myApp.workOrderSummary', ['ngRoute', 'ui.grid', 'ui.grid.autoRes
 		
 	var _serviceObj = {};
 	//var mongoUrl = "http://10.239.3.132:9763/MongoServlet-0.0.1-SNAPSHOT/send";
-	var mongoUrl = "http://10.239.3.132:9763/MongoServlet-0.0.1-SNAPSHOT/send";
+	var mongoUrl = "http://1.239.3.132:9763/MongoServlet-0.0.1-SNAPSHOT/send";
 	var today = new Date();
 	var firstOfMonth = new Date(today.getFullYear(), today.getMonth()-10, 1);
 	
@@ -164,8 +165,7 @@ angular.module('myApp.workOrderSummary', ['ngRoute', 'ui.grid', 'ui.grid.autoRes
 				
 	}).
 	error(function(data, status, headers, config){
-		console.log("ended up in error");
-		console.log(data);
+		
 	});
 		
 	_serviceObj = {
@@ -182,7 +182,6 @@ angular.module('myApp.workOrderSummary', ['ngRoute', 'ui.grid', 'ui.grid.autoRes
 	$scope.drawChartNowFacility = false;
 	
 	dataService.promise.then(function(response){
-		console.log(response);
 		$scope.responseData = response.data.result;
 		
 		if($scope.responseData == null){
@@ -201,8 +200,10 @@ angular.module('myApp.workOrderSummary', ['ngRoute', 'ui.grid', 'ui.grid.autoRes
 		$scope.organizationNames = organizationNames;
 		$scope.organizationView(organizationNames[0]);
 		
+	}, function(error){ 
+		$scope.organizationNames = ["DEU", "MER"];
+		$scope.organizationView($scope.organizationNames[0]);
 	});	
-	
 	$scope.closeWindow = function(){
 		$modalInstance.dismiss('cancel');
 	}
@@ -214,7 +215,7 @@ angular.module('myApp.workOrderSummary', ['ngRoute', 'ui.grid', 'ui.grid.autoRes
 		workOrderService.getFacilityData().then(function(response){
 			$scope.workOrderData = response.data.result;
 			if($scope.workOrderData == null){
-				
+				alert("No event data was found");
 			}
 			var facilityNames = [];
 			for(var i=0;i<$scope.workOrderData.length;i++) {
@@ -258,6 +259,72 @@ angular.module('myApp.workOrderSummary', ['ngRoute', 'ui.grid', 'ui.grid.autoRes
 				$scope.drawChartNow = true;
 				$scope.organizationName = organizationName;
 			})	
+		}, function(error){
+			var facilityNames = [];
+			if(organizationName === "DEU"){
+				facilityNames = ["Piscataway", "60 Wall Street", "Jacksonville"];
+			}
+			else{
+				facilityNames = ["Upper Gwynedd", "Merck Research Lab"]				
+			}
+			$scope.facilityNames = facilityNames;
+			var fakeWorkOrders = [];
+			var openWorkOrders = [];
+			var assetNames = ["AHU1", "AHU2", "AHU3"];
+			var statusNames = ["Open", "Closed"];
+			for(var i=0;i<20;i++){
+				var asset = assetNames[Math.floor(Math.random()*(2-0+1))];
+				var facilityName = facilityNames[Math.floor(Math.random()*facilityNames.length)];
+				var status = statusNames[Math.floor(Math.random()*statusNames.length)];
+				var waste = Math.floor(Math.random()*100);
+				var potentialSaving = Math.round(Math.random()*1000);
+				var createdTime = new Date(2014,11,1,0,0,0);
+				var closedTime = null;
+				if(status === "Closed"){
+					closedTime = new Date(2014,11,createdTime.getDate()+Math.floor(Math.random()*20),0,0,0).toString();
+				}
+				var workOrder = {asset:asset, facility:facilityName, status:status, waste:waste, potentialSaving:potentialSaving, createdTime:createdTime.toString(), closedTime:closedTime};
+				fakeWorkOrders.push(workOrder);
+				if(workOrder.closedTime === null){
+					openWorkOrders.push(workOrder);
+				}
+			}
+			$scope.workOrderData = fakeWorkOrders;
+			$scope.ticketData = openWorkOrders;
+			$scope.facilityNames = facilityNames;
+			//yolo
+			var organizationObject = [];
+			for(var i=0;i<$scope.facilityNames.length;i++){
+				
+				var numEvents = 0;
+				var numClosedEvents = 0;
+				var totalTimeToClose = 0;
+				var numOpenEvents = 0;
+				var potentialSavings = 0;
+				var waste = 0;
+				
+				for(var j=0;j<$scope.workOrderData.length;j++){
+					if($scope.workOrderData[j].facility === $scope.facilityNames[i]){
+						numEvents +=1;
+						if($scope.workOrderData[j].status === "Closed"){
+							numClosedEvents += 1;
+						}
+						totalTimeToClose = totalTimeToClose + $scope.calculateDays($scope.workOrderData[j]);
+						potentialSavings = potentialSavings + parseFloat($scope.workOrderData[j].potentialSaving);
+						waste = waste + parseInt($scope.workOrderData[j].waste);
+					}
+				}
+				for(var j=0;j<$scope.ticketData.length;j++){
+					if($scope.ticketData[j].facility === $scope.facilityNames[i]){
+						numOpenEvents += 1;
+					}
+				}
+				var organizationViewObject = {facility: $scope.facilityNames[i], numberOfEvents: numEvents, numberOpenEvents: numOpenEvents, numberClosedEvents: numClosedEvents, averageTimeToClose: Math.round(totalTimeToClose/numEvents), waste: waste, value: Math.round(potentialSavings*100)/100};
+				organizationObject.push(organizationViewObject);
+			}
+			$scope.chartData = organizationObject;
+			$scope.drawChartNow = true;
+			$scope.organizationName = organizationName;
 		})
 		
 		
@@ -412,6 +479,9 @@ angular.module('myApp.workOrderSummary', ['ngRoute', 'ui.grid', 'ui.grid.autoRes
 		}
 		$scope.organizationNames = organizationNames;
 		$scope.organizationView(organizationNames[0]);
+	}, function(error){
+		$scope.organizationNames = ["DEU", "MER"];
+		$scope.organizationView($scope.organizationNames[0]);
 	});	
 	
 	$scope.closeWindow = function(){
@@ -472,6 +542,72 @@ angular.module('myApp.workOrderSummary', ['ngRoute', 'ui.grid', 'ui.grid.autoRes
 				$scope.drawChartNow = true;
 				$scope.organizationName = organizationName;
 			})	
+		},function(error){
+			var facilityNames = [];
+			if(organizationName === "DEU"){
+				facilityNames = ["Piscataway", "60 Wall Street", "Jacksonville"];
+			}
+			else{
+				facilityNames = ["Upper Gwynedd", "Merck Research Lab"]				
+			}
+			$scope.facilityNames = facilityNames;
+			var fakeWorkOrders = [];
+			var openWorkOrders = [];
+			var assetNames = ["AHU1", "AHU2", "AHU3"];
+			var statusNames = ["Open", "Closed"];
+			for(var i=0;i<20;i++){
+				var asset = assetNames[Math.floor(Math.random()*(2-0+1))];
+				var facilityName = facilityNames[Math.floor(Math.random()*facilityNames.length)];
+				var status = statusNames[Math.floor(Math.random()*statusNames.length)];
+				var waste = Math.floor(Math.random()*100);
+				var potentialSaving = Math.round(Math.random()*1000);
+				var createdTime = new Date(2014,11,1,0,0,0);
+				var closedTime = null;
+				if(status === "Closed"){
+					closedTime = new Date(2014,11,createdTime.getDate()+Math.floor(Math.random()*20),0,0,0).toString();
+				}
+				var workOrder = {asset:asset, facility:facilityName, status:status, waste:waste, potentialSaving:potentialSaving, createdTime:createdTime.toString(), closedTime:closedTime};
+				fakeWorkOrders.push(workOrder);
+				if(workOrder.closedTime === null){
+					openWorkOrders.push(workOrder);
+				}
+			}
+			$scope.workOrderData = fakeWorkOrders;
+			$scope.ticketData = openWorkOrders;
+			$scope.facilityNames = facilityNames;
+			//yolo
+			var organizationObject = [];
+			for(var i=0;i<$scope.facilityNames.length;i++){
+				
+				var numEvents = 0;
+				var numClosedEvents = 0;
+				var totalTimeToClose = 0;
+				var numOpenEvents = 0;
+				var potentialSavings = 0;
+				var waste = 0;
+				
+				for(var j=0;j<$scope.workOrderData.length;j++){
+					if($scope.workOrderData[j].facility === $scope.facilityNames[i]){
+						numEvents +=1;
+						if($scope.workOrderData[j].status === "Closed"){
+							numClosedEvents += 1;
+						}
+						totalTimeToClose = totalTimeToClose + $scope.calculateDays($scope.workOrderData[j]);
+						potentialSavings = potentialSavings + parseFloat($scope.workOrderData[j].potentialSaving);
+						waste = waste + parseInt($scope.workOrderData[j].waste);
+					}
+				}
+				for(var j=0;j<$scope.ticketData.length;j++){
+					if($scope.ticketData[j].facility === $scope.facilityNames[i]){
+						numOpenEvents += 1;
+					}
+				}
+				var organizationViewObject = {facility: $scope.facilityNames[i], numberOfEvents: numEvents, numberOpenEvents: numOpenEvents, numberClosedEvents: numClosedEvents, averageTimeToClose: Math.round(totalTimeToClose/numEvents), waste: waste, value: Math.round(potentialSavings*100)/100};
+				organizationObject.push(organizationViewObject);
+			}
+			$scope.chartData = organizationObject;
+			$scope.drawChartNow = true;
+			$scope.organizationName = organizationName;
 		})
 		
 		
