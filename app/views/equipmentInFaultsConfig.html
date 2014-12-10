@@ -14,7 +14,6 @@
 			<span class="caret"></span>
 		</button>
 		<ul class="dropdown-menu" role="menu">
-			<button class="btn btn-default" ng-click='setAssetAll()'>All</button>
 			<li ng-repeat="(assetType, assetName) in assetQuery | orderBy:'assetType'">
 			
 			
@@ -67,7 +66,6 @@
 			<span class="caret"></span>
 		</button>
 		<ul class="dropdown-menu" role="menu">
-			<button class="btn btn-default" ng-click='setClientAll()'>All</button>
 			<li ng-repeat="(client, param) in clientQuery | orderBy:'client'">
 				<button class="btn btn-default" ng-click='initSingleClient(client)'>{{client}}</button>
 			</li>

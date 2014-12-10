@@ -161,9 +161,6 @@ angular.module('myApp.equipmentInFaults', ['ngRoute'])
 				
 					
 						}
-						
-						
-					
 				
 		)
 		.error( function () { alert('fail to query data'); } );
@@ -172,8 +169,6 @@ angular.module('myApp.equipmentInFaults', ['ngRoute'])
 	
 	
 
-	
-	
 	
 
 	// organization query
@@ -309,19 +304,17 @@ angular.module('myApp.equipmentInFaults', ['ngRoute'])
 							_subEvent.push(data.result[i].waste);
 							_subEvent.push(data.result[i].potentialSaving)
 							
-							
 							_event.push(_subEvent);
-							
 							
 							caller.data._event=_event;	
 							
 							
-													
-	
-							
 							};	
-					};
-					
+					}
+					else{
+						_event.push("empty");
+						caller.data._event=_event;
+					}
 					
 					
 				})
@@ -332,21 +325,7 @@ angular.module('myApp.equipmentInFaults', ['ngRoute'])
 		
 	};
 	
-	// get events
-	var _getEvents = function(){
-		return _event;
-	};
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
-	
+
 	
 
 // clientQuery is hashmap and getClients is method
@@ -379,7 +358,6 @@ angular.module('myApp.equipmentInFaults', ['ngRoute'])
 			
 			getAddress : _getAddress,
 			
-			getEvents: _getEvents,
 			
 			queryEvents: _queryEvents
 			
@@ -390,43 +368,8 @@ angular.module('myApp.equipmentInFaults', ['ngRoute'])
 
 
 
-
-.factory('facilityQueryService', ['$http', function($http){
-
-
-	var Url  = "http://10.239.3.132:9763/MongoServlet-0.0.1-SNAPSHOT/send";
-	var _queryData = [];
-
-	// $httpProvider.defaults.headers.get = { 'Collections' : 'Facility' }
-
-	var requestString = "{}";
-	var config = {
-			method:'POST',
-			headers: {'Collection': 'Facility'},
-			url:Url,
-			data:requestString
-	}
-
-
-
-
-	var _promise = $http(config).success(function(response,status,headers,config){
-
-		_queryData = response;
-	});
-
-
-
-	var _servObj = {
-			promise :  _promise,
-			queryData: function(){return _queryData}
-	};
-
-	return _servObj;
-}])
-
-.controller('equipmentInFaultsCtrl', ['$scope', '$modal', '$location', '$route', 'equipmentInFaultsService', 'facilityQueryService','sharedPropertiesService','$q','$http',
-                                    function($scope, $modal, $location, $route, dataService,queryData,sharedProperties,$q,$http) {
+.controller('equipmentInFaultsCtrl', ['$scope', '$modal', '$location', '$route', 'equipmentInFaultsService','sharedPropertiesService','$q','$http',
+                                    function($scope, $modal, $location, $route, dataService,sharedProperties,$q,$http) {
 
 	$scope.activeOrganization = "";
 	$scope.activeClient="";
@@ -466,29 +409,6 @@ angular.module('myApp.equipmentInFaults', ['ngRoute'])
 		});
 	};
 	
-	//get events data
-
-/*	$scope.queryEvents = function (activeOrganization,activeAsset){
-		promised = dataService.queryEvents(activeOrganization,activeAsset).then(function(){
-			$scope.eventsTemp=dataService.getEvents();
-			
-		});
-	
-	};*/
-	
-
-	
-	
-	
-
-	queryData.promise.then( function (d) {
-		$scope.thisQueryData = queryData.queryData();
-	});
-
-
-
-
-
 
 
 
@@ -588,14 +508,7 @@ angular.module('myApp.equipmentInFaults', ['ngRoute'])
 		}
 	}
 	
-	
 
-	$scope.isZero = function(thisNumber){
-		if(thisNumber===0 || thisNumber===undefined){return true;}
-		else{return false;}
-	}
-	
-	
 	
 	$scope.ok = function() {
 		sharedProperties.setActives($scope.active);
@@ -619,12 +532,110 @@ angular.module('myApp.equipmentInFaults', ['ngRoute'])
 			var del='_';
 			var tempArray = dataService.stringParts(key,del);
 			
+			
+		// query the events based on station name and asset name
+			vm.queryEvents(tempArray[1],tempArray[2]).then().finally(function(){
+			var eventsInfo=[];
 			var info=[];
+			console.log(vm.data._event);
+			if(vm.data._event[0]=="empty"){
+					eventsInfo.push(0);
+					eventsInfo.push("Nan");
+					eventsInfo.push("Nan");
+					eventsInfo.push(0);
+					eventsInfo.push(0);
+					eventsInfo.push(0);
+			}
+			else{
+				console.log(vm.data._event);
+				
+				var anomaly=0;
+				var anomalyMap={};
+				var firstOcc="";
+				var lastOcc="";
+				var createdTime=[];
+				var occ=0;
+				var waste=0;
+				var potentialSaving=0;
+				
+				
+				
+				angular.forEach(vm.data._event,function(value,key){
+					//write the source into the map
+					anomalyMap[value[0]]="";
+					
+					// write the created time into an array
+					
+					createdTime.push(new Date ( value[2] ) );
+					
+		
+					
+					
+					
+				
+				// calculate the total number of ticket occurrences
+				occ++;
+				
+				//calculate the total waste and saving
+				
+				waste= waste + parseFloat(value[3]);
+				potentialSaving=potentialSaving + parseFloat(value[4]);
+			});
+			
+			// get the lenght of the anomalyMap to get the total number of anomaly types 
+			angular.forEach(anomalyMap,function(value,key){
+				anomaly++;
+			});
+			
+			
+			//get the first and last occ ticket time
+			
+		
+			var minArray=function(tar){
+				var min=tar[0];
+				for(var i =1;i<tar.length;i++){
+					if(min>tar[i]){
+						min=tar[i];
+					}
+				}
+				return min;
+			}
+			
+			var maxArray=function(tar){
+				var max=tar[0];
+				for(var i =1;i<tar.length;i++){
+					if(max<tar[i]){
+						max=tar[i];
+					}
+				}
+				return max;
+			}
+			
+			
+			
+			firstOcc=minArray(createdTime);
+			lastOcc=maxArray(createdTime);
+			
+			console.log(anomaly);
+			console.log(createdTime);
+			console.log(occ);
+			console.log(waste);
+			console.log(potentialSaving);
+			
+			eventsInfo.push(anomaly);
+			eventsInfo.push(firstOcc.toString());
+			eventsInfo.push(lastOcc.toString());
+			eventsInfo.push(occ);
+			eventsInfo.push(waste.toFixed(2));
+			eventsInfo.push(potentialSaving.toFixed(2));
+			
+			}
+			
+			
 			info.push(tempArray[0]);
 			info.push(tempArray[1]);
 			info.push(tempArray[2]);
 			
-			var deferred= $q.defer();
 			
 			dataService.getLocation(tempArray[1],tempArray[0]).then(function(){
 				info.push( dataService.getAddress() );
@@ -634,15 +645,21 @@ angular.module('myApp.equipmentInFaults', ['ngRoute'])
 			info.push(tempArray[3]);
 			// be careful , the sequence of the array doesnot follow the the sequence of pushing action, in this case, info[4] is address and info[3] is tempArray[3]			
 			
+			info.push(eventsInfo);
 			
 			
 			
-			
-			info.push($scope.reduce(tempArray[1],tempArray[2]));
 			
 			$scope.activeInfo[key]=info;
 			
-			console.log($scope);
+			console.log(info);
+			
+
+				
+			});
+			
+			
+			
 			
 		});
 		
@@ -689,90 +706,18 @@ angular.module('myApp.equipmentInFaults', ['ngRoute'])
 	// Reduce function that takes evnets data from database and output total data for each AHU and put it into activeinfo map
 	
 
-	$scope.reduce = function(activeOrganization,activeAsset){
-		var anomaly=0;
-		var anomalyMap={};
-		var firstOcc="";
-		var lastOcc="";
-		var createdTime=[];
-		var occ=0;
-		var waste=0;
-		var potentialSaving=0;
-		var eventsInfo=[];
-		
-
-		
-
-		console.log(vm);
-		
-		vm.queryEvents(activeOrganization,activeAsset).then().finally(function(){
-			console.log(vm.data._event);
-			
-			
-			angular.forEach(vm.data._event,function(value,key){
-				//write the source into the map
-				anomalyMap[value[0]]="";
-				
-				// write the created time into an array
-				
-				createdTime.push(new Date ( value[2] ) );
-				
 	
+	$scope.imBoolean=true;
+	$scope.faultyEquipment=function(){
+		if($scope.imBoolean==false){
+			$scope.imBoolean=true;
+		}
+		else{
+			$scope.imBoolean=false;
+		}
+		console.log($scope.imBoolean);
 				
-				
-				
-			
-			// calculate the total number of ticket occurrences
-			occ++;
-			
-			//calculate the total waste and saving
-			
-			waste= waste + parseFloat(value[3]);
-			potentialSaving=potentialSaving + parseFloat(value[4]);
-		});
-		
-		// get the lenght of the anomalyMap to get the total number of anomaly types 
-		angular.forEach(anomalyMap,function(value,key){
-			anomaly++;
-		});
-		
-		
-		//sort the creaed time array and get the first and last occ ticket time
-		
-		createdTime=createdTime.sort();
-		firstOcc=createdTime[0];
-		lastOcc=createdTime[createdTime.length-1];
-		
-		console.log(anomaly);
-		console.log(createdTime);
-		console.log(occ);
-		console.log(waste);
-		console.log(potentialSaving);
-		
-		eventsInfo.push(anomaly);
-		eventsInfo.push(firstOcc);
-		eventsInfo.push(lastOcc);
-		eventsInfo.push(occ);
-		eventsInfo.push(waste);
-		eventsInfo.push(potentialSaving);
-		
-		
-
-		return eventsInfo;
-			
-		});
-		
-	
-
-
-		 
-		
-		
-	
 	}
-	
-	
-
 	
 	
 }])

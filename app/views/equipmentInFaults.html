@@ -14,6 +14,7 @@
 	
 	
 	<div class="modal-footer">
+	<button class="btn btn-primary" ng-click="faultyEquipment()">Faulty Equipment</button>
 	<button class="btn btn-primary" ng-click="apply()">Apply</button>
 	</div>
 	
@@ -23,6 +24,7 @@
 	
 	<div ng-repeat="(activeElement, param) in activeInfo "  >
 	
+	<div ng-if='imBoolean || param[4][3] > 0'>
 	<div>	
 		
 		
@@ -40,7 +42,6 @@
   <tr>
     <td>Asset Type : {{param[3]}}</td>
     <td> Location : {{param[5]}}</td>
-    <td> test:{{param[4][]}}</td>
    
   </tr>
 </table>
@@ -49,7 +50,64 @@
 		
 
 	</div>
+	<div>
+	<table>
+	<th>
+	Number of Anomalies
+	</th>
 	
+	<th>
+	First Occurrence
+	</th>
+	
+	<th>
+	Last Occurrence
+	</th>
+	
+	<th>
+	Number of Occurrence
+	</th>
+	
+	<th>
+	Waste
+	</th>
+	
+	<th>
+	Potential Saving
+	</th>
+	
+	<tr>
+	<td>
+	{{param[4][0]}}			
+	</td>
+	
+		<td>
+	{{param[4][1]}}
+	</td>
+	
+		<td>
+	{{param[4][2]}}
+	</td>
+	
+		<td>
+	{{param[4][3]}}
+	</td>
+	
+		<td>
+	{{param[4][4]}}
+	</td>
+	
+		<td>
+	{{param[4][5]}}
+	</td>
+	
+	</tr>
+	
+	
+	
+	</table>
+	</div>
+	</div>
 	</div>
 	
 	
