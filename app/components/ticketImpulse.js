@@ -224,14 +224,15 @@ angular.module('myApp.ticketImpulse', ['ngRoute'])
 		if (typeof(f.top) != "undefined") {f=f.top(Infinity);}else{}
 		if (typeof(f.dimension) != "undefined") {f=f.dimension(function(d) { return "";}).top(Infinity);}else{}
 		console.log(filter+"("+f.length+") = "+JSON.stringify(f).replace("[","[\n\t").replace(/}\,/g,"},\n\t").replace("]","\n]"));
-	} 
+	};
+	var _tfIso = d3.time.format.iso.parse;
 	var _servObj = {};
 		//this is what is returned by this factory
 	var _getDefaultUserParameters = function () {
 		return {
 			width: 600,
 			height: 200,
-			barWidthPercentage: 8,
+			barWidthPercentage: 1,
 			marginLeft: 50,
 			marginRight: 25,
 			marginTop: 25,
@@ -258,32 +259,43 @@ angular.module('myApp.ticketImpulse', ['ngRoute'])
 		//and strings together a key value pair of all organizations, but whatever.
 		//if query is defined, this function the information in the query
 		var mongoUrl = "http://10.239.3.132:9763/MongoServlet-0.0.1-SNAPSHOT/send";
-		
-		var requestString = query ?
-		{	//if query is specified
-			"createdTime": {
-				"$gt": {"$date": ""+query.lowDate ? query.lowDate.toJSON() : userParameters.lowDate.toJSON()},
-				"$lt": {"$date": ""+query.highDate ? query.highDate.toJSON(): userParameters.highDate.toJSON()}
-			},
-			"asset": query.asset ? query.asset : undefined,
-			"facility" : query.facility ? query.facility : undefined,
-			"organization" : query.organization ? query.organization : undefined
-		}
-		: 
-		{
-			"createdTime": {
-				"$gt": {"$date": ""+ userParameters.lowDate.toJSON()},
-				"$lt": {"$date": ""+ userParameters.highDate.toJSON()}
+		var requestString;
+		if (query === undefined) {
+			requestString = {
+				"createdTime": {
+					"$gt": {"$date": "" + (new Date(userParameters.lowDate)).toJSON() },
+					"$lt": {"$date": "" + (new Date(userParameters.highDate)).toJSON() }
+				}
 			}
-		};
-		
+		}
+		else { //if query is specified
+			console.log(['type', (typeof query), query]);
+			if (typeof query === "string") { query = JSON.parse(query); }
+			var or = [];
+			for (var i = 0, len = query.assets.length; i < len; i++) {
+				or.push(
+					{
+						"asset" : query.assets[i].asset,
+						"facility" : query.assets[i].facility,
+						"organization": query.assets[i].organization
+					}
+				);
+			}
+			var requestString = {
+				"createdTime": {
+					"$gt": {"$date": ""+( query.lowDate ? (new Date(query.lowDate)).toJSON() : (new Date(userParameters.lowDate)).toJSON() )},
+					"$lt": {"$date": ""+( query.highDate ? (new Date(query.highDate)).toJSON() : (new Date(userParameters.highDate)).toJSON() )}
+				},
+				"$or": or
+			};
+		}
+		console.log('reqStr', requestString);
 		var config = {
 				method: 'POST',
-				headers: {'Collection':'Event'},
+				headers: {'Collection': 'Event'},
 				url: mongoUrl,
 				data: JSON.stringify(requestString)
 		};
-			
 		var promise = $http(config).success(_successData)
 		.error ( 
 			function(e){console.error(e); return false;}
@@ -293,7 +305,6 @@ angular.module('myApp.ticketImpulse', ['ngRoute'])
 	
 	var _successData = function(data, status, headers, config){
 		var treatedData = {};
-		console.log(data);
 		for(var i = 0, ilen = data.result.length; i < ilen; i++) {
 			var org = data.result[i].organization;
 			var fac = data.result[i].facility;
@@ -335,7 +346,8 @@ angular.module('myApp.ticketImpulse', ['ngRoute'])
 		scope: {
 			dom: "@", // allows the name of the chart to be assigned.  this name is the new scope variable created once a date is selected
 			userParamSidebar: "@",	//bool: true to show, false to hide. default true
-			organizationSidebar: "@"
+			organizationSidebar: "@",
+			query: "="
 		},
 		compile : function (element, attrs) {
 			console.log(attrs);
@@ -347,6 +359,11 @@ angular.module('myApp.ticketImpulse', ['ngRoute'])
 			}
 			if ( !attrs.hasOwnProperty('organizationSidebar') ) {
 				attrs.organizationSidebar = 'true';
+			}
+			if ( !attrs.hasOwnProperty('query') ) {
+				attrs.query = undefined;	//TODO: give dataService a getDefaultQuery option?
+											//this can fetch user permissions, and return the best default query for user.
+											//something like the first asset on the first facility the user has access to
 			}
 		},
 		templateUrl : "views/ticketImpulse.html",
@@ -362,14 +379,17 @@ angular.module('myApp.ticketImpulse', ['ngRoute'])
 			
 			var bar;
 				//populated by drawChart
-			var query = {
-				asset : "AHU3",
-				facility : "60 Wall Street",
-				organization : "DEU",
-				lowDate: new Date((new Date((new Date()) - (6*28*24*60*60*1000))).toDateString()),
-				highDate: new Date( (new Date()).toDateString() )
-			};
-			
+			console.log($scope.query);
+			$scope.active = $scope.query ? $scope.query
+			:	{
+					assets : [{
+						asset : "AHU1",
+						facility : "60 Wall Street",
+						organization : "DEU",
+					}],
+					lowDate: new Date((new Date((new Date()) - (6*28*24*60*60*1000))).toDateString()),
+					highDate: new Date( (new Date()).toDateString() )
+				};
 			var populateScope = function () {
 				//this function populates necessary variables onto the scope.
 				$scope.masterDimension  = $scope.chartHelper.getMasterDimension();
@@ -384,13 +404,11 @@ angular.module('myApp.ticketImpulse', ['ngRoute'])
 			
 			var httpCallback = function(response) {
 				$scope.treatedData = response.data.treatedData;
-				http();
-			};
-			var http = function() {
+				$scope.rawData = response.data.result;
 				$scope.showButtons = false;
 				//try {
-					//populateScope();
 					$scope.redrawChart();
+					
 					$scope.$watch('userParameters.barWidthPercentage', function(newVal, oldVal, scope) {
 						$scope.redrawChart();
 					});
@@ -400,9 +418,7 @@ angular.module('myApp.ticketImpulse', ['ngRoute'])
 					$scope.$watch('userParameters.width', function(newVal, oldVal, scope) {
 						$scope.redrawChart();
 					});
-					$scope.$watch('userParameters', function(newVal, oldVal, scope) {
-						$scope.redrawChart();
-					});
+					
 				// }
 				// catch (e) {
 					// console.error(e); // pass exception object to error handler
@@ -414,87 +430,62 @@ angular.module('myApp.ticketImpulse', ['ngRoute'])
 			
 			$scope.drawHttpChart = function () {
 				$scope.chartInit = true;
-				dataService.getData($scope.userParameters).then( httpCallback, function () {alert("epicfail");} );
+				dataService.getData($scope.userParameters, $scope.active).then( httpCallback, function () {alert("epicfail");} );
 			};
 			$scope.redrawChart = function () {
 				bar = dc.barChart('#'+$scope.dom);
-				$scope.chartHelper = chartService.initFlatten(
+				$scope.chartHelper = chartService.init(
 					bar,
-					$scope.active,
+					$scope.rawData,
 					$scope.userParameters
 				);
+				
 				$scope.chartHelper.drawChart();
 			};
 			
 			$scope.queryData = function () {
-				dataService.getData($scope.userParameters).then( function (response) {
+				dataService.getData($scope.userParameters, $scope.active).then( function (response) {
+					$scope.treatedData = response.data.treatedData;
+					$scope.rawData = response.data.result;
+				});
+			};
+			$scope.queryAllData = function () {
+				dataService.getData($scope.userParameters, undefined).then( function (response) {
 					$scope.treatedData = response.data.treatedData;
 				});
 			};
 			$scope.deleteActive = function (org, fac, asset) {
-				delete $scope.active[org][fac][asset];
-				if( Object.keys($scope.active[org][fac]).length === 0) {	//deletes any empty entries
-					delete $scope.active[org][fac];	
+				for(var i = 0, len = $scope.active.assets.length; i < len; i++)
+				{
+					if( ($scope.active.assets[i].organization === org)
+					&&($scope.active.assets[i].facility === fac)
+					&&($scope.active.assets[i].asset === asset) ) {
+					
+						$scope.active.assets.splice(i,1);
+						if($scope.active.assets.length > 0) {$scope.drawHttpChart();}	//redraw if there is data to redraw
+						return true;
+					}
 				}
-				if( Object.keys($scope.active[org]).length === 0) {
-					delete $scope.active[org];
-				}
-				$scope.redrawChart();
+				return false;
 			};
 			$scope.initAsset = function (org, fac, asset) {
-				if($scope.active[org]) {	//if organization entry exists
-					if($scope.active[org][fac]) {	//if facility entry exists
-						if($scope.active[org][fac][asset]) { //if asset entry exists
-							$scope.active[org][fac][asset].push($scope.treatedData[org][fac][asset]);	//add ticket to list
-						}
-						else {	//asset doesn't exist but org and fac do
-							$scope.active[org][fac][asset] = $scope.treatedData[org][fac][asset];	//init asset. save ticket under asset
-						}
-					}
-					else {	//facility doesn't exist, but org does
-						$scope.active[org][fac] =	{};							//init facility
-						$scope.active[org][fac][asset] = $scope.treatedData[org][fac][asset];	//init asset. save ticket under asset
+				for(var i = 0, len = $scope.active.assets.length; i < len; i++)
+				{
+					if( ($scope.active.assets[i].organization === org)
+					&&($scope.active.assets[i].facility === fac)
+					&&($scope.active.assets[i].asset === asset) ) {
+						alert("Already Exists!");
+						$scope.drawHttpChart();
+						return false;	//Don't do anything if it already exists
 					}
 				}
-				else {
-					$scope.active[org] = {};								//init org
-					$scope.active[org][fac] = {};							//init facility
-					$scope.active[org][fac][asset] = $scope.treatedData[org][fac][asset];	//init asset. save ticket under asset
-				}
-			};
-			$scope.countActiveOrganizations = function () {
-				return Object.keys($scope.activeOrganizations).length;
-			};
-			$scope.countInactiveOrganizations = function () {
-				return Object.keys($scope.inactiveOrganizations).length;
-			};
-			$scope.soloOrganization = function (soloOrg) {
-				for(var organization in $scope.activeOrganizations) {
-					if(soloOrg === organization) {continue;} //do not remove if it was the organization clicked
-					$scope.inactiveOrganizations[organization] = $scope.activeOrganizations[organization];
-					delete $scope.activeOrganizations[organization];
-				}
-				console.log({"active": $scope.activeOrganizations, "inactive": $scope.inactiveOrganizations});
-				$scope.redrawChart();
-			};
-			$scope.hideOrganization = function (hideOrg) {
-				$scope.inactiveOrganizations[hideOrg] = $scope.activeOrganizations[hideOrg];
-				delete $scope.activeOrganizations[hideOrg];
-				$scope.redrawChart();
-			};
-			$scope.unhideAllOrganizations = function () {
-				for(var organization in $scope.inactiveOrganizations) {
-					if(!(organization in $scope.activeOrganizations)) {
-						$scope.activeOrganizations[organization] = $scope.inactiveOrganizations[organization];
-					}
-					delete $scope.inactiveOrganizations[organization];
-				}
-				$scope.redrawChart();
-			};
-			$scope.showOrganization = function (showOrg) {
-				$scope.activeOrganizations[showOrg] = $scope.inactiveOrganizations[showOrg];
-				delete $scope.inactiveOrganizations[showOrg];
-				$scope.redrawChart();
+				$scope.active.assets.push({
+					asset : asset,
+					facility : fac,
+					organization : org,
+				});
+				if($scope.active.assets.length > 0) {$scope.drawHttpChart();}//redraw if there is data to redraw
+				return true;
 			};
 			
 			$scope.isColor = function (paramName) {

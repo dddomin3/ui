@@ -44,7 +44,7 @@
 <!-- dropdowns -->
 <div class="col-md-3" ng-if="organizationSidebar">
 	<!-- org -->
-	<div class="btn-group" dropdown is-open="poo">
+	<div class="btn-group" dropdown ng-click="queryAllData()">
 		<button type="button" class="btn btn-primary dropdown-toggle">
 			Organization List<span class="caret"></span>
 		</button>
@@ -64,17 +64,14 @@
 	<hr>
 	<strong>Organizations</strong>
 	<hr>
-	<ul><li ng-repeat="(organization, value) in active | orderBy:'organization'">
-		{{organization}}
-		<ul><li ng-repeat="(facility, value) in active[organization] | orderBy:'facility'">
-			{{facility}}
-			<ul><li ng-repeat="(asset, value) in active[organization][facility] | orderBy:'asset'">
-				<strong>{{asset}}</strong> 
-				<button class="btn btn-danger" ng-click="deleteActive(organization, facility, asset)">Delete!</button>
-				<hr>
-			</li></ul>
-		</li></ul>
-	</li></ul>
+	<ul>
+		<hr>
+		<li ng-repeat="(index, value) in active.assets | orderBy:['organization', 'facility', 'asset']">
+			{{value.organization}}, {{value.facility}}, {{value.asset}}
+			<button class="btn btn-danger" ng-click="deleteActive(value.organization, value.facility, value.asset)">Delete!</button>
+		<hr>
+		</li>
+	</ul>
 	
 	<hr>
 </div>

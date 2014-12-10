@@ -23,7 +23,8 @@ angular.module('myApp', [
   'myApp.dashboard',
   'myApp.ticketImpulse',
   'myApp.eventPage',
-  'myApp.equipmentInFaults'
+  'myApp.equipmentInFaults',
+  'myApp.ticketImpulseTest'
 ]).
 
 config(['$routeProvider', function($routeProvider) {
