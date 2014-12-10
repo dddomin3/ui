@@ -1,7 +1,7 @@
 'use strict';
 angular.module('myApp.equipmentInFaults', ['ngRoute'])
 
-.factory('equipmentInFaultsService', ['$http', function($http){
+.factory('equipmentInFaultsService', ['$http', '$q',function($http,$q){
 	var print_filter = function (filter){
 		var f=eval(filter);
 		if (typeof(f.length) != "undefined") {}else{}
@@ -18,6 +18,9 @@ angular.module('myApp.equipmentInFaults', ['ngRoute'])
 	var _assetQuery = {};
 	
 	var _location={};
+	
+
+
 	
 
 	
@@ -158,18 +161,14 @@ angular.module('myApp.equipmentInFaults', ['ngRoute'])
 				
 					
 						}
-						
-						
-					
 				
 		)
 		.error( function () { alert('fail to query data'); } );
+		
 	};
 	
 	
 
-	
-	
 	
 
 	// organization query
@@ -277,17 +276,56 @@ angular.module('myApp.equipmentInFaults', ['ngRoute'])
 	//query Event Data
 	
 	
+	var _queryEvents = function (org,asset) {	
+		//this function queries the server for all existing Assets
+		var _event=[];
+		var caller =this;
+		var Url  = "http://10.239.3.132:9763/MongoServlet-0.0.1-SNAPSHOT/send";
+		var requestString = "{\"asset\":\"" +asset +"\","+"\"stationName\":\""+org+"\"}";
+		var config = {
+				method:'POST',
+				headers: {'Collection': 'Event'},
+				url:Url,
+				data:requestString
+		}
+		
+		return $http(config)
+		.success(
+				function (data) {
+
+					if(data.result!=null){
+						for(var i = 0, ilen = data.result.length; i < ilen; i++) { 
+							
+							var _subEvent=[];
+				
+							_subEvent.push(data.result[i].source);
+							_subEvent.push(data.result[i].asset);
+							_subEvent.push(data.result[i].createdTime);
+							_subEvent.push(data.result[i].waste);
+							_subEvent.push(data.result[i].potentialSaving)
+							
+							_event.push(_subEvent);
+							
+							caller.data._event=_event;	
+							
+							
+							};	
+					}
+					else{
+						_event.push("empty");
+						caller.data._event=_event;
+					}
+					
+					
+				})
+		.error( function () { alert('fail to query data');
+		
+		} );
 	
+		
+	};
 	
-	
-	
-	
-	
-	
-	
-	
-	
-	
+
 	
 
 // clientQuery is hashmap and getClients is method
@@ -318,7 +356,10 @@ angular.module('myApp.equipmentInFaults', ['ngRoute'])
 			
 			getLocation : _getLocation,
 			
-			getAddress : _getAddress
+			getAddress : _getAddress,
+			
+			
+			queryEvents: _queryEvents
 			
 	};
 
@@ -327,54 +368,25 @@ angular.module('myApp.equipmentInFaults', ['ngRoute'])
 
 
 
-
-.factory('facilityQueryService', ['$http', function($http){
-
-
-	var Url  = "http://10.239.3.132:9763/MongoServlet-0.0.1-SNAPSHOT/send";
-	var _queryData = [];
-
-	// $httpProvider.defaults.headers.get = { 'Collections' : 'Facility' }
-
-	var requestString = "{}";
-	var config = {
-			method:'POST',
-			headers: {'Collection': 'Facility'},
-			url:Url,
-			data:requestString
-	}
-
-
-
-
-	var _promise = $http(config).success(function(response,status,headers,config){
-
-		//_csvArray = CSVToArray(response,",");
-		_queryData = response;
-	});
-	//console.log(promise);
-
-
-
-	var _servObj = {
-			promise :  _promise,
-			queryData: function(){return _queryData}
-	};
-
-	return _servObj;
-}])
-
-.controller('equipmentInFaultsCtrl', ['$scope', '$modal', '$location', '$route', 'equipmentInFaultsService', 'facilityQueryService','sharedPropertiesService',
-                                    function($scope, $modal, $location, $route, dataService,queryData,sharedProperties) {
+.controller('equipmentInFaultsCtrl', ['$scope', '$modal', '$location', '$route', 'equipmentInFaultsService','sharedPropertiesService','$q','$http',
+                                    function($scope, $modal, $location, $route, dataService,sharedProperties,$q,$http) {
 
 	$scope.activeOrganization = "";
 	$scope.activeClient="";
 	$scope.activeAsset="";
 	$scope.active={};
 	$scope.activeInfo={};
+	$scope.events=[];
 	
+	
+	var _events=[];
+	
+	var vm=this;
+	
+	vm.data={};
+	
+	angular.extend(vm,dataService);
 
-	
 	
 	
 	$scope.queryOrganizations = function () {
@@ -397,19 +409,6 @@ angular.module('myApp.equipmentInFaults', ['ngRoute'])
 		});
 	};
 	
-
-	
-	
-	
-
-	queryData.promise.then( function (d) {
-		$scope.thisQueryData = queryData.queryData();
-	});
-
-
-
-
-
 
 
 
@@ -509,14 +508,7 @@ angular.module('myApp.equipmentInFaults', ['ngRoute'])
 		}
 	}
 	
-	
 
-	$scope.isZero = function(thisNumber){
-		if(thisNumber===0 || thisNumber===undefined){return true;}
-		else{return false;}
-	}
-	
-	
 	
 	$scope.ok = function() {
 		sharedProperties.setActives($scope.active);
@@ -531,7 +523,7 @@ angular.module('myApp.equipmentInFaults', ['ngRoute'])
 	
 	
 	
-	// put the select asset info into active map
+	// put the select asset info into active map, query data happens in this step and store the queried data for all assets in specific place
 	$scope.apply=function(){
 		$scope.active=sharedProperties.getActives();
 		
@@ -540,10 +532,118 @@ angular.module('myApp.equipmentInFaults', ['ngRoute'])
 			var del='_';
 			var tempArray = dataService.stringParts(key,del);
 			
+			
+		// query the events based on station name and asset name
+			vm.queryEvents(tempArray[1],tempArray[2]).then().finally(function(){
+			var eventsInfo=[];
 			var info=[];
+			console.log(vm.data._event);
+			if(vm.data._event[0]=="empty"){
+					eventsInfo.push(0);
+					eventsInfo.push("Nan");
+					eventsInfo.push("Nan");
+					eventsInfo.push(0);
+					eventsInfo.push(0);
+					eventsInfo.push(0);
+					eventsInfo.push(0);
+			}
+			else{
+				
+				var anomaly=0;
+				var anomalyMap={};
+				var firstOcc="";
+				var lastOcc="";
+				var createdTime=[];
+				var occ=0;
+				var waste=0;
+				var potentialSaving=0;
+				var mtbf;
+				
+				
+				
+				angular.forEach(vm.data._event,function(value,key){
+					//write the source into the map
+					anomalyMap[value[0]]="";
+					
+					// write the created time into an array
+					
+					createdTime.push(new Date ( value[2] ) );
+					
+		
+					
+					
+					
+				
+				// calculate the total number of ticket occurrences
+				occ++;
+				
+				//calculate the total waste and saving
+				
+				waste= waste + parseFloat(value[3]);
+				potentialSaving=potentialSaving + parseFloat(value[4]);
+			});
+			
+			// get the lenght of the anomalyMap to get the total number of anomaly types 
+			angular.forEach(anomalyMap,function(value,key){
+				anomaly++;
+			});
+			
+			
+			//get the first and last occ ticket time
+			
+		
+			var minArray=function(tar){
+				var min=tar[0];
+				for(var i =1;i<tar.length;i++){
+					if(min>tar[i]){
+						min=tar[i];
+					}
+				}
+				return min;
+			}
+			
+			var maxArray=function(tar){
+				var max=tar[0];
+				for(var i =1;i<tar.length;i++){
+					if(max<tar[i]){
+						max=tar[i];
+					}
+				}
+				return max;
+			}
+			
+			firstOcc=minArray(createdTime);
+			lastOcc=maxArray(createdTime);
+			
+			// calculate the mean time between failure
+			mtbf = (lastOcc.getTime()-firstOcc.getTime())/(occ*1000*60*60*24);
+		
+			
+			console.log(mtbf);
+
+			
+			console.log(anomaly);
+			console.log(createdTime);
+			console.log(occ);
+			console.log(waste);
+			console.log(potentialSaving);
+			
+			eventsInfo.push(anomaly);
+			eventsInfo.push(firstOcc.toString());
+			eventsInfo.push(lastOcc.toString());
+			eventsInfo.push(occ);
+			eventsInfo.push(waste.toFixed(2));
+			eventsInfo.push(potentialSaving.toFixed(2));
+			eventsInfo.push(mtbf.toFixed(1));
+			
+			
+			}
+			
+			
 			info.push(tempArray[0]);
 			info.push(tempArray[1]);
 			info.push(tempArray[2]);
+			
 			
 			dataService.getLocation(tempArray[1],tempArray[0]).then(function(){
 				info.push( dataService.getAddress() );
@@ -552,13 +652,24 @@ angular.module('myApp.equipmentInFaults', ['ngRoute'])
 			
 			info.push(tempArray[3]);
 			// be careful , the sequence of the array doesnot follow the the sequence of pushing action, in this case, info[4] is address and info[3] is tempArray[3]			
-			console.log(tempArray[3]);
+			
+			info.push(eventsInfo);
+			
+			
+			
+			
 			$scope.activeInfo[key]=info;
+			
+			console.log(info);
+			
+
+				
+			});
+			
+			
 			
 			
 		});
-		
-		
 		
 		
 
@@ -567,7 +678,7 @@ angular.module('myApp.equipmentInFaults', ['ngRoute'])
 	
 	$scope.j=0;
 	
-	//function to select / unselect all assets under one asset type
+	//function to select/unselect all assets under one asset type
 	$scope.selectChildren=function(placeholder){
 		var y=document.getElementsByName("activeList");
 		
@@ -594,11 +705,27 @@ angular.module('myApp.equipmentInFaults', ['ngRoute'])
 			
 		}
 		$scope.j=$scope.j+1;
-		console.log($scope);
 		
 	}
+	
+	
 
 	
+	// Reduce function that takes evnets data from database and output total data for each AHU and put it into activeinfo map
+	
+
+	
+	$scope.imBoolean=true;
+	$scope.faultyEquipment=function(){
+		if($scope.imBoolean==false){
+			$scope.imBoolean=true;
+		}
+		else{
+			$scope.imBoolean=false;
+		}
+		console.log($scope.imBoolean);
+				
+	}
 	
 	
 }])

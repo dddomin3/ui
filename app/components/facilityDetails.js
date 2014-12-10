@@ -26,6 +26,7 @@ angular.module('myApp.facilityDetails', ['ngRoute'])
 	var _organizationQuery = {};
 	var _weatherQuery = {};
 	var _clientQuery = {};
+	var _secondClientQuery = {};
 
 	var _getWeather = function(city,state){
 	if(state==="null"){state="";}
@@ -49,6 +50,7 @@ angular.module('myApp.facilityDetails', ['ngRoute'])
 		};
 
 		var Url  = "http://10.239.3.132:9763/MongoServlet-0.0.1-SNAPSHOT/send";
+		
 		var requestString = "{}";
 		var config = {
 				method:'POST',
@@ -63,7 +65,7 @@ angular.module('myApp.facilityDetails', ['ngRoute'])
 
 					for(var i = 0, ilen = data.result.length; i < ilen; i++) {
 
-
+						
 						if(client===""){
 							_organizationQuery[data.result[i].stationName] = '';	//keeps track of all meters in query
 						}
@@ -76,7 +78,24 @@ angular.module('myApp.facilityDetails', ['ngRoute'])
 					}
 				}
 		)
-		.error( function () { alert('fail to query data'); } );
+		.error( function () 
+		{
+		_organizationQuery["WLST"] = '';
+						_organizationQuery["PLAN"] = '';
+						_organizationQuery["BGTC"] = '';
+						if(client===""){}
+						else{
+						if(client!=="Deutsche Bank"){
+								delete _organizationQuery["WLST"];
+							}
+							if(client!=="P&G"){
+								delete _organizationQuery["BGTC"];
+							}
+							if(client!=="Intuit"){
+								delete _organizationQuery["PLAN"];
+							}
+							}
+		} );
 	};
 
 	var _getClients = function () {	
@@ -90,6 +109,7 @@ angular.module('myApp.facilityDetails', ['ngRoute'])
 		};
 
 		var Url  = "http://10.239.3.132:9763/MongoServlet-0.0.1-SNAPSHOT/send";
+		
 		var requestString = "{}";
 		var config = {
 				method:'POST',
@@ -104,10 +124,19 @@ angular.module('myApp.facilityDetails', ['ngRoute'])
 					for(var i = 0, ilen = data.result.length; i < ilen; i++) {
 
 						_clientQuery[data.result[i].clientName] = '';	//keeps track of all meters in query
+						
+						
 					}
+					
+		
 				}
 		)
-		.error( function () { alert('fail to query data'); } );
+		.error( function () {
+		
+		_clientQuery["Deutsche Bank"] = '';
+					_clientQuery["P&G"] = '';
+					_clientQuery["Intuit"] = '';
+		} );
 	};
 
 
@@ -185,6 +214,7 @@ angular.module('myApp.facilityDetails', ['ngRoute'])
 
 
 	var Url  = "http://10.239.3.132:9763/MongoServlet-0.0.1-SNAPSHOT/send";
+	
 	var _queryData = [];
 
 	// $httpProvider.defaults.headers.get = { 'Collections' : 'Facility' }
@@ -200,13 +230,75 @@ angular.module('myApp.facilityDetails', ['ngRoute'])
 
 
 
-	var _promise = $http(config).success(function(response,status,headers,config){
+	var _promise = $http(config)
+	.success(function(response,status,headers,config){
 
 		//_csvArray = CSVToArray(response,",");
 		_queryData = response;
-	});
-	//console.log(promise);
+		
 
+		
+	})
+	//console.log(promise);
+	.error( function () {
+	
+	_queryData = {"result":[
+{"clientName" :"Deutsche Bank",
+"projectName" :"60 Wall Street",
+"projectStage" : "Monitoring / Reporting",
+"qNumber" : "Q-JLL-0015",
+"oCNumber" : "1103",
+"facilityAddress" : "60 Wall Street",
+"squareFootage" : "1625683" ,
+"meetingDay":"Thursday",
+"meetingTime" : "11:30:00 AM",
+"stationName" :"WLST",
+"image" :"https://encrypted-tbn2.gstatic.com/images?q=tbn:ANd9GcRZAJlcP_SYgri0nogjFqTa6lcF-1RmNFygkjMPLPWJ-_oY2Y3O",
+"asset":{"ahus":["AHU1","AHU2","AHU3"],"vavs":["VAV1","VAV2","VAV3"],"plants":["Plant1"],"compressors":["Compressor"],"heatExchangers":["HeatExchanger"],"coolingTowers":["CoolingTower"],"pumps":["Pump1","Pump2","Pump3"],"meters":["Meter"]},
+"city" :"New York",
+"state" :"NY",
+"zipCode" :"10005",
+"country" :"US",
+"liveDate" :"Aug 18 2014 05:01:09 EDT",
+"buildingType" :"Commercial"},
+{"clientName" :"Intuit",
+"projectName" :"Plano",
+"projectStage" : "Monitoring / Reporting",
+"qNumber" : "24",
+"oCNumber" : "1110",
+"facilityAddress" : "5601 Headquarters Drive",
+"squareFootage" : "165000" ,
+"meetingDay":"N/A",
+"meetingTime" : "null",
+"stationName" :"PLAN",
+"image" :"https://encrypted-tbn2.gstatic.com/images?q=tbn:ANd9GcRZAJlcP_SYgri0nogjFqTa6lcF-1RmNFygkjMPLPWJ-_oY2Y3O",
+"asset":{"ahus":["AHU1","AHU2","AHU3"],"vavs":["VAV1","VAV2","VAV3"],"plants":["Plant1"],"compressors":["Compressor"],"heatExchangers":["HeatExchanger"],"coolingTowers":["CoolingTower"],"pumps":["Pump1","Pump2","Pump3"],"meters":["Meter"]},
+"city" :"Plano",
+"state" :"TX",
+"zipCode" :"75024",
+"country" :"US",
+"liveDate" :"Aug 18 2014 05:01:09 EDT",
+"buildingType" :"Commercial"},
+{"clientName" :"P&G",
+"projectName" :"Bethel Global Technical Center",
+"projectStage" : "Monitoring / Reporting",
+"qNumber" : "Q-JLL-0003",
+"oCNumber" : "1008",
+"facilityAddress" : "14 Research Drive",
+"squareFootage" : "312931" ,
+"meetingDay":"Wednesday",
+"meetingTime" : "2:00:00 PM",
+"stationName" :"BGTC",
+"image" :"https://encrypted-tbn1.gstatic.com/images?q=tbn:ANd9GcR29ucO-lC93uDtdxlfu2Zz7q-EVDv5_haFspFFloUBrGvY6V2a",
+"asset":{"ahus":["AHU1","AHU2","AHU3"],"vavs":["VAV1","VAV2","VAV3"],"plants":["Plant1"],"compressors":["Compressor"],"heatExchangers":["HeatExchanger"],"coolingTowers":["CoolingTower"],"pumps":["Pump1","Pump2","Pump3"],"meters":["Meter"]},
+"city" :"Bethel",
+"state" :"CT",
+"zipCode" :"6801",
+"country" :"US",
+"liveDate" :"Aug 18 2014 05:01:09 EDT",
+"buildingType" :"Commercial"}]
+};
+	} );
 
 
 	var _servObj = {
@@ -223,17 +315,36 @@ angular.module('myApp.facilityDetails', ['ngRoute'])
 	$scope.activeOrganizations = dataService.getActiveOrganizations();
 	$scope.activeClient="";
 	$scope.queryOrganizations = function () {
-		dataService.getOrganizations($scope.activeClient).then( function () {
+		dataService.getOrganizations($scope.activeClient)
+		.then( function () {
 			$scope.organizationQuery = dataService.getOrganizationQuery();
-		});
+		}, function(error) {
+	                // promise rejected, could log the error with: console.log('error', error);
+	                $scope.organizationQuery={};
+					$scope.organizationQuery["WLST"] = '';
+						$scope.organizationQuery["PLAN"] = '';
+						$scope.organizationQuery["BGTC"] = '';
+						if($scope.activeClient===""){}
+						else{
+						if($scope.activeClient!=="Deutsche Bank"){
+								delete $scope.organizationQuery["WLST"];
+							}
+							if($scope.activeClient!=="P&G"){
+								delete $scope.organizationQuery["BGTC"];
+							}
+							if($scope.activeClient!=="Intuit"){
+								delete $scope.organizationQuery["PLAN"];
+							}
+							}
+	    });
+		
 	};
 
 	//console.log(dataService.getWeather("Somerset"));
 	$scope.initWeather = function () {
 if($scope.$parent.$parent._city==="null"){return;}
 		dataService.getWeather($scope.$parent.$parent._city,$scope.$parent.$parent._state).then( function () {
-			console.log($scope.$parent.$parent);
-			console.log(dataService.getWeatherQuery());
+			
 			if(dataService.getWeatherQuery().cod==="200" && dataService.getWeatherQuery().cnt>=5){
 			$scope.$parent.$parent.weatherQuery = dataService.getWeatherQuery();
 			$scope.testing = "testing";
@@ -362,12 +473,76 @@ if($scope.$parent.$parent._city==="null"){return;}
 	$scope.queryClients = function () {
 		dataService.getClients().then( function () {
 			$scope.clientQuery = dataService.getClientQuery();
+		},
+		function(error){
+		$scope.clientQuery={};
+		$scope.clientQuery["Deutsche Bank"] = '';
+					$scope.clientQuery["P&G"] = '';
+					$scope.clientQuery["Intuit"] = '';
 		});
 	};
 
 	queryData.promise.then( function (d) {
 		$scope.thisQueryData = queryData.queryData();
-	});
+	},
+		function(error){
+		$scope.thisQueryData = {"result":[
+{"clientName" :"Deutsche Bank",
+"projectName" :"60 Wall Street",
+"projectStage" : "Monitoring / Reporting",
+"qNumber" : "Q-JLL-0015",
+"oCNumber" : "1103",
+"facilityAddress" : "60 Wall Street",
+"squareFootage" : "1625683" ,
+"meetingDay":"Thursday",
+"meetingTime" : "11:30:00 AM",
+"stationName" :"WLST",
+"image" :"https://encrypted-tbn2.gstatic.com/images?q=tbn:ANd9GcRZAJlcP_SYgri0nogjFqTa6lcF-1RmNFygkjMPLPWJ-_oY2Y3O",
+"asset":{"ahus":["AHU1","AHU2","AHU3"],"vavs":["VAV1","VAV2","VAV3"],"plants":["Plant1"],"compressors":["Compressor"],"heatExchangers":["HeatExchanger"],"coolingTowers":["CoolingTower"],"pumps":["Pump1","Pump2","Pump3"],"meters":["Meter"]},
+"city" :"New York",
+"state" :"NY",
+"zipCode" :"10005",
+"country" :"US",
+"liveDate" :"Aug 18 2014 05:01:09 EDT",
+"buildingType" :"Commercial"},
+{"clientName" :"Intuit",
+"projectName" :"Plano",
+"projectStage" : "Monitoring / Reporting",
+"qNumber" : "24",
+"oCNumber" : "1110",
+"facilityAddress" : "5601 Headquarters Drive",
+"squareFootage" : "165000" ,
+"meetingDay":"N/A",
+"meetingTime" : "null",
+"stationName" :"PLAN",
+"image" :"https://encrypted-tbn2.gstatic.com/images?q=tbn:ANd9GcRZAJlcP_SYgri0nogjFqTa6lcF-1RmNFygkjMPLPWJ-_oY2Y3O",
+"asset":{"ahus":["AHU1","AHU2","AHU3"],"vavs":["VAV1","VAV2","VAV3"],"plants":["Plant1"],"compressors":["Compressor"],"heatExchangers":["HeatExchanger"],"coolingTowers":["CoolingTower"],"pumps":["Pump1","Pump2","Pump3"],"meters":["Meter"]},
+"city" :"Plano",
+"state" :"TX",
+"zipCode" :"75024",
+"country" :"US",
+"liveDate" :"Aug 18 2014 05:01:09 EDT",
+"buildingType" :"Commercial"},
+{"clientName" :"P&G",
+"projectName" :"Bethel Global Technical Center",
+"projectStage" : "Monitoring / Reporting",
+"qNumber" : "Q-JLL-0003",
+"oCNumber" : "1008",
+"facilityAddress" : "14 Research Drive",
+"squareFootage" : "312931" ,
+"meetingDay":"Wednesday",
+"meetingTime" : "2:00:00 PM",
+"stationName" :"BGTC",
+"image" :"https://encrypted-tbn1.gstatic.com/images?q=tbn:ANd9GcR29ucO-lC93uDtdxlfu2Zz7q-EVDv5_haFspFFloUBrGvY6V2a",
+"asset":{"ahus":["AHU1","AHU2","AHU3"],"vavs":["VAV1","VAV2","VAV3"],"plants":["Plant1"],"compressors":["Compressor"],"heatExchangers":["HeatExchanger"],"coolingTowers":["CoolingTower"],"pumps":["Pump1","Pump2","Pump3"],"meters":["Meter"]},
+"city" :"Bethel",
+"state" :"CT",
+"zipCode" :"6801",
+"country" :"US",
+"liveDate" :"Aug 18 2014 05:01:09 EDT",
+"buildingType" :"Commercial"}]
+};
+		});
 
 	$scope.initMultiOrganization = function (organization) {
 		var add = true;

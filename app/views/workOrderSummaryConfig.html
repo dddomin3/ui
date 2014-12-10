@@ -1,8 +1,5 @@
 <div class="modal-header">
-	<h3 class="modal-title">Work Order Summary</h3>
-</div>
-
-<div class="modal-footer">
+<h1 class="modal-title">Work Order Summary</h1>
 	<div class="btn-group" dropdown>	
 			<button type="button" class="btn btn-primary dropdown-toggle">
 				Select an Organization<span class="caret"></span>
@@ -13,5 +10,12 @@
 				</li>
 			</ul>
 	</div>
-	<button type="button" class="btn btn-warning" ng-click='closeWindow()'>Cancel</button>
-<div>
+	<button ng-if="showCloseButton" type="button" class="btn btn-warning" ng-click='closeWindow()'>Close</button>
+</div>
+
+<div class ="modal-body">
+<h1 ng-if="drawChartNow">{{organizationName}} Organizational Overview</h1>
+<div ng-if ="drawChartNow" class = "gridStyle" ui-grid="gridOptions" external-scopes="test" ui-grid-auto-resize></div>
+<h1 ng-if="drawChartNowFacility">{{facilityName}} Facility Overview</h1>
+<div ng-if ="drawChartNowFacility" class = "gridStyle" ui-grid="gridOptionsFacility" external-scopes="test"></div>
+</div>
