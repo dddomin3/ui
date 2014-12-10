@@ -3,18 +3,41 @@
 
 angular.module('myApp.eventPage', ['ngRoute'])
   
-  .directive('eventPage', [function(){
+  .directive('eventPage', ['chartIdService',function(chartIdService){
 	  return{
 		  restrict:'E',
 		  templateUrl : 'views/eventPage.html',
+		  scope:{
+			  dcName:"@",
+		  },
+		  compile : function(element, attrs){
+			  if(!attrs.hasOwnProperty('dom') ){
+				  attrs.dcName = chartIdService.getNewId();
+			  }
+		  },
 		  controller: function($scope, $http, $location, $route, $window) {
 
 				 //*******************************debugging/troubleshooting variables/functions *****************************
 				  
 				 $scope.timeseries = "not time series";
-				 var ticketID = "PLP-0126879";
+				 
+				 var getTicketID = function(){
+					 if($scope.dcName.indexOf(0) >= 0){
+						 $scope.pointsUsed = ["Site_kWh1","SITE_kW"];
+						 return "PLP-0126879";
+					 }else if($scope.dcName.indexOf(1) >= 0){
+						 $scope.pointsUsed = ["Site_kWh1","SITE_kW"];
+						 return "DEU-0110146";
+					 }else{
+						 $scope.pointsUsed = ["Site_kWh1","SITE_kW"];
+						 return "MER-0116576";
+					 }
+				 }
+				 
+				 var ticketID = getTicketID();
+				 
 				 $scope.pointsUsed;
-
+				 console.log(ticketID);
 				 //**********************************  end debugging/troubleshotting variables/functions ***********************
 				 
 				 // receive the proper work order number ($scope variable change, watch scope variable for change)
@@ -31,18 +54,12 @@ angular.module('myApp.eventPage', ['ngRoute'])
 					 return $scope.myTicket == null ? "null" : $scope.myTicket.asset;
 				 }
 				 
-				 var workOrderRequest = "eventID : \"" + $scope.workOrderNumber.toString() +"\"";
+				 var formatRequest = function(first, second){
+					 return "\""+first+"\":\""+second+"\"";
+				 }
+				 
 				 var eventHeader = {'Collection':'Event'};
 				 var contentHeader = {'Content-Type':'application/json'};
-				 
-				 var getAssetRequest = function(output){
-					 return "\"asset\" : \"" + output.toString() +"\"";
-				 };
-				 
-				 var getTicketTypeRequest = function(output){
-					 
-					 return "\"anomaly\" : \"" + output.toString() + "\"";
-				 }
 				 
 				 var requestObject = function(header, requestString){
 				   var mongoUrl = "http://10.239.3.132:9763/MongoServlet-0.0.1-SNAPSHOT/send";
@@ -65,7 +82,7 @@ angular.module('myApp.eventPage', ['ngRoute'])
 				 
 				 //  ***********  throw-away function for programming/debugging only  ********************
 				 var requestFromWorkOrder = function(){
-				   requestObject(eventHeader, "{"+workOrderRequest+"}")
+				   requestObject(eventHeader, "{"+formatRequest("eventID",$scope.workOrderNumber)+"}")
 				     .then(function(response){
 					   if(response.data.result == null){
 						 return;
@@ -74,7 +91,7 @@ angular.module('myApp.eventPage', ['ngRoute'])
 					   $scope.myTicket = response.data.result;
 					   $scope.myTicketType = response.data.result[0].anomaly;
 					   $scope.myAsset = response.data.result[0].asset;
-					   $scope.organization = response.data.result[0].stationName;
+					   $scope.stationName = response.data.result[0].stationName;
 					 }).then(function(){
 					    getAllMyTickets();
 					 })
@@ -88,7 +105,7 @@ angular.module('myApp.eventPage', ['ngRoute'])
 				 // query database for the relevant work orders
 				 
 				 var getAllMyTickets = function(){
-					 requestObject(eventHeader, "{"+getTicketTypeRequest($scope.myTicketType)+","+getAssetRequest($scope.myAsset)+/*TODO add facility/organization limiting too!!*/"}")
+					 requestObject(eventHeader, "{"+formatRequest("anomaly",$scope.myTicketType)+","+formatRequest("asset",$scope.myAsset)+","+formatRequest("stationName",$scope.stationName)+"}")
 					 .then(function(response){	
 						 if(response.data.result == null){
 							return;
@@ -137,7 +154,7 @@ angular.module('myApp.eventPage', ['ngRoute'])
 										  };
 						
 						// receive point list from the database object
-						$scope.pointsUsed = response.data.result[0].pointsUsed === undefined ? ["Site_kWh1","SITE_kW"] :  response.data.result[0].pointUsed;
+						//$scope.pointsUsed = response.data.result[0].pointUsed;
 					 }).then(function(){
 						 // create full history tables of the database object ** will probably need to break down into time windows to make faster querying **
 						 getAllMyPoints($scope.pointsUsed);
@@ -301,7 +318,7 @@ angular.module('myApp.eventPage', ['ngRoute'])
 						}
 						else{useRight = false;}
 						
-						var lineChart = dc.lineChart(chart)
+						var lineChart = dc.lineChart($scope.composite)
 						     .dimension(_myDim)
 						     .group(_group,myFilter)
 						     .useRightYAxis(useRight)
@@ -321,7 +338,7 @@ angular.module('myApp.eventPage', ['ngRoute'])
 							 _myDim = _tempDim;
 						 }
 						 
-						 var thisChart = dc.lineChart("#chart")
+						 var thisChart = dc.lineChart("#chart_"+$scope.dcName)
 						     .width(900)
 						     .height(600)
 						     .x(myDomain)
@@ -338,7 +355,6 @@ angular.module('myApp.eventPage', ['ngRoute'])
 						 thisChart.xAxis().tickFormat(function(v){return displayDate(new Date(v));});
 						 
 						 return thisChart;
-							 
 					 }
 					 
 					 		 
@@ -349,7 +365,7 @@ angular.module('myApp.eventPage', ['ngRoute'])
 						 compositeCharts[i] = createCharts(_indDim, $scope.pointsUsed[i]);
 					 }
 					
-					 $scope.composite = dc.compositeChart("#chart")
+					 $scope.composite = dc.compositeChart("#chart_"+$scope.dcName)
 					 	.width(900)
 					 	.height(600)
 					 	.x(myDomain)
@@ -365,28 +381,7 @@ angular.module('myApp.eventPage', ['ngRoute'])
 					 $scope.composite.margins().left = 100;
 					 $scope.composite.margins().right = 125;
 					 
-					 
-					 
 					 $scope.composite.xAxis().tickFormat(function(v){return displayDate(new Date(v));})
-					 
-					 $scope.johnnyDropTable = dc.dataTable('#datTable')
-				 		.dimension(_dateDim)
-				 		.group(function(d){return d3.time.day(new Date(d.timestamp));})
-				 		.size(totalSize)
-				 		.columns([
-				 		          	'name',
-				 		          	{
-				 		        	  label:'Date',
-				 		        	  format: function(d){
-				 		        		  return d.timestamp;
-				 		        	  }
-				 		          	},
-				 		          	'value'
-				 		          ])
-				 		 .sortBy(function(d){return new Date(d.timestamp);})
-				 		 .order(d3.ascending)
-
-				 	 ;
 					 
 					 renderDefault();
 				 }
@@ -399,63 +394,66 @@ angular.module('myApp.eventPage', ['ngRoute'])
 				 
 				 // display the anomaly detail information
 				 
-				 $scope.anomalyDetails = {
-						 enableSorting:false,
-						 enableFiltering: false,
-						 multiSelect: false,
-						 //headerTemplate: '<div class="ui-grid-top-panel" style="text-align: center">Work Order Details</div>',
-						 data: 'myTicket',
-						 rowTemplate: '<div ng-repeat="col in colContainer.renderedColumns track by col.colDef.name" class="ui-grid-cell" ui-grid-cell></div>',				 
-						 columnDefs : [
-						               {field:'anomaly', displayName: "Anomaly"},
-						               {field:'asset', displayName: "Asset"},
-						               {field:'facility',displayName:"Facility"},
-						               {field:'createdTime',displayName:"Created"},
-						               {field:'closedTime',displayName:"Closed"},
-						               {field:'eventID',displayName:"Event ID"},
-						               {field:'status',displayName:"Status"},
-						               {field:'potentialSaving',displayName:"Potential Savings"},
-						               {field:'waste',displayName:"Waste"}
-						               ]
-				 };
+				 $scope.anomalyDetails = 
+				   {
+					 enableSorting:false,
+					 enableFiltering: false,
+					 multiSelect: false,
+					 data: 'myTicket',
+					 rowTemplate: '<div ng-repeat="col in colContainer.renderedColumns track by col.colDef.name" class="ui-grid-cell" ui-grid-cell></div>',				 
+					 columnDefs : [
+					               {field:'anomaly', displayName: "Anomaly"},
+					               {field:'asset', displayName: "Asset"},
+					               {field:'facility',displayName:"Facility"},
+					               {field:'createdTime',displayName:"Created"},
+					               {field:'closedTime',displayName:"Closed"},
+					               {field:'eventID',displayName:"Event ID"},
+					               {field:'status',displayName:"Status"},
+					               {field:'potentialSaving',displayName:"Potential Savings"},
+					               {field:'waste',displayName:"Waste"}
+					              ]
+				   }
+				 ;
 
-				 $scope.anomalySummary = {
-						 enableSorting:false,
-						 enableFiltering:false,
-						 multiSelect:false,
-						 //headerTemplate: '<div class="ui-grid-top-panel" style="text-align: center">Anomaly Summary</div>',
-						 data:"mySum",
-						 rowTemplate: '<div ng-repeat="col in colContainer.renderedColumns track by col.colDef.name" class="ui-grid-cell" ui-grid-cell></div>',
-						 columnDefs : [
-						               {field:'anomaly', displayName: "Anomaly Type"},
-						               {field:'firstDate', displayName:"First Instance"},
-						               {field:'lastDate', displayName: "Most Recent Instance"},
-						               {field:'total', displayName:"# of Occurences"},
-						               {field:'totalSaved', displayName: "Total Potential Savings"},
-						               {field:'totalWaste', displayName: "Total Waste"}
-						              ]
-				 };
+				 $scope.anomalySummary = 
+				   {
+					 enableSorting:false,
+					 enableFiltering:false,
+					 multiSelect:false,
+					 data:"mySum",
+					 rowTemplate: '<div ng-repeat="col in colContainer.renderedColumns track by col.colDef.name" class="ui-grid-cell" ui-grid-cell></div>',
+					 columnDefs : [
+					                {field:'anomaly', displayName: "Anomaly Type"},
+					                {field:'firstDate', displayName:"First Instance"},
+				 	                {field:'lastDate', displayName: "Most Recent Instance"},
+				 	                {field:'total', displayName:"# of Occurences"},
+					                {field:'totalSaved', displayName: "Total Potential Savings"},
+					                {field:'totalWaste', displayName: "Total Waste"}
+					              ]
+				   }
+				 ;
 			 
-				 $scope.pointData = {
-						 enableSorting:true,
-						 enableFiltering:true,
-						 multiSelect: false,
-						 //headerTemplate: '<div class="ui-grid-top-panel" style="text-align: center">Point Data</div>',
-						 data:"myPoints",
-						 rowTemplate: '<div ng-repeat="col in colContainer.renderedColumns track by col.colDef.name" class="ui-grid-cell" ui-grid-cell></div>',
-						 columnDefs : [
-						                {field:'name', displayName:'Point Name',
-						                 filter : {
-						                	 	    noTerm: false,
-						                            condition:function(searchTerm, cellValue){
-						                        	  return cellValue==searchTerm;
-						                            },
-						                		  }
-						                },
-						                {field:'timestamp', displayName:"Date"},
-						                {field:'value',displayName:'Value'}
-						              ]
-				 };
+				 $scope.pointData = 
+				   {
+					 enableSorting:true,
+					 enableFiltering:true,
+					 multiSelect: false,
+					 data:"myPoints",
+					 rowTemplate: '<div ng-repeat="col in colContainer.renderedColumns track by col.colDef.name" class="ui-grid-cell" ui-grid-cell></div>',
+					 columnDefs : [
+					                {field:'name', displayName:'Point Name',
+					                 filter : {
+					                	 	    noTerm: false,
+					                            condition:function(searchTerm, cellValue){
+					                        	  return cellValue==searchTerm;
+					                            },
+					                		  }
+					                },
+					                {field:'timestamp', displayName:"Date"},
+					                {field:'value',displayName:'Value'}
+					              ]
+				   }
+				 ;
 				 
 					 
 				 
