@@ -345,16 +345,18 @@ angular.module('myApp.ticketImpulse', ['ngRoute'])
 		restrict: "E",
 		scope: {
 			dom: "@", // allows the name of the chart to be assigned.  this name is the new scope variable created once a date is selected
-			userParamSidebar: "@",	//bool: true to show, false to hide. default true
+			userParametersSidebar: "@",	//bool: true to show, false to hide. default true
 			organizationSidebar: "@",
+			inputUserParameters: "=userParameters",
 			query: "="
 		},
 		compile : function (element, attrs) {
+		console.log(attrs);
 			if (!attrs.hasOwnProperty('dom') ) {
 				attrs.dom = chartIdService.getNewId();
 			}
-			if ( !attrs.hasOwnProperty('userParamSidebar') ) {
-				attrs.userParamSidebar = 'true';
+			if ( !attrs.hasOwnProperty('userParametersSidebar') ) {
+				attrs.userParametersSidebar = 'true';
 			}
 			if ( !attrs.hasOwnProperty('organizationSidebar') ) {
 				attrs.organizationSidebar = 'true';
@@ -371,11 +373,29 @@ angular.module('myApp.ticketImpulse', ['ngRoute'])
 			$scope.timeSeries = 'ticketImpulse: '+$scope.dom;
 			$scope.showButtons = true;
 			$scope.chartInit = false;
-			$scope.userParameters = dataService.getDefaultUserParameters();
+			
+			if ($scope.inputUserParameters === undefined) {
+				$scope.userParameters = dataService.getDefaultUserParameters();
+			}
+			else {
+				//this is VERY specific functionality. The controller will copy the reference of the inputUserParameters,
+				//then populate the missing properties. This is so any userParameter manipulation in this controller is
+				//propagated outwardly
+				var defaultUserParameters = dataService.getDefaultUserParameters();
+				console.log(defaultUserParameters);
+				for(var property in defaultUserParameters) {
+					if( $scope.inputUserParameters[property] === undefined ) {
+						$scope.inputUserParameters[property] = defaultUserParameters[property];
+					}
+				}
+				$scope.userParameters = $scope.inputUserParameters;
+			}
+			
 			$scope.inactiveOrganizations = {};
 			$scope.treatedData = {};
 			$scope.active = {};
 			
+			console.log($scope);
 			var bar;
 				//populated by drawChart
 			
@@ -406,7 +426,7 @@ angular.module('myApp.ticketImpulse', ['ngRoute'])
 				$scope.treatedData = response.data.treatedData;
 				$scope.rawData = response.data.result;
 				$scope.showButtons = false;
-				//try {
+				try {
 					$scope.redrawChart();
 					
 					$scope.$watch('userParameters.barWidthPercentage', function(newVal, oldVal, scope) {
@@ -419,18 +439,22 @@ angular.module('myApp.ticketImpulse', ['ngRoute'])
 						$scope.redrawChart();
 					});
 					
-				// }
-				// catch (e) {
-					// console.error(e); // pass exception object to error handler
-				// }
-				// finally {
+				}
+				catch (e) {
+					console.error(e); // pass exception object to error handler
+				}
+				finally {
 					$scope.showButtons = true;
-				// }
+				}
 			};
+			var httpError = function (e) { console.log("Ray broke the server"); console.error(e);};
 			
 			$scope.drawHttpChart = function () {
 				$scope.chartInit = true;
-				dataService.getData($scope.userParameters, $scope.active).then( httpCallback, function () {alert("epicfail");} );
+				dataService.getData($scope.userParameters, $scope.active).then (
+					httpCallback, 
+					httpError
+				);
 			};
 			$scope.redrawChart = function () {
 				bar = dc.barChart('#'+$scope.dom);
@@ -444,15 +468,21 @@ angular.module('myApp.ticketImpulse', ['ngRoute'])
 			};
 			
 			$scope.queryData = function () {
-				dataService.getData($scope.userParameters, $scope.active).then( function (response) {
-					$scope.treatedData = response.data.treatedData;
-					$scope.rawData = response.data.result;
-				});
+				dataService.getData($scope.userParameters, $scope.active).then(
+					function (response) {
+						$scope.treatedData = response.data.treatedData;
+						$scope.rawData = response.data.result;
+					}, 
+					httpError
+				);
 			};
 			$scope.queryAllData = function () {
-				dataService.getData($scope.userParameters, undefined).then( function (response) {
-					$scope.treatedData = response.data.treatedData;
-				});
+				dataService.getData($scope.userParameters, undefined).then (
+					function (response) {
+						$scope.treatedData = response.data.treatedData;
+					}, 
+					httpError
+				);
 			};
 			$scope.deleteActive = function (org, fac, asset) {
 				for(var i = 0, len = $scope.active.assets.length; i < len; i++)
