@@ -16,17 +16,15 @@ angular.module('myApp.ticketImpulse', ['ngRoute'])
 	}; 
 	var _init = function (bar, sortedData, userParameters) {
 		var getDaysBetween = function(endDate, startDate){
-			var daysBetween = Math.round((endDate - startDate)/(1000*60*60*24));
-			
-			return daysBetween;
+			return Math.round((endDate - startDate)/(1000*60*60*24));
 		};
 		var chartHelper = {};
 		chartHelper._ndx = crossfilter(sortedData);
 		chartHelper._dimensions = {};
 			//stores all dimensions generated from data
 			//holds a masterDimension key that should be the dimension that is currently used on the drawn chart.
-		chartHelper._groups = {};
-			//stores all groups connected to the chart. Is made from the masterDimension
+		chartHelper._group = {};
+			//stores groups connected to the chart. Is made from the masterDimension
 			//if the master dimension is changed, the groups should be recreated
 		chartHelper._charts = {};
 		
@@ -39,26 +37,15 @@ angular.module('myApp.ticketImpulse', ['ngRoute'])
 		};
 			//these are chart parameters that should be shared amongst generate charts
 			//stuff like xAxis 
-		var _tfMonthYear = d3.time.format("%m-%Y"); //format for x-axis labels USED BY CSV INIT
-		var _tfMonthDayYear = d3.time.format("%m-%d-%Y"); //format for x-axis labels USED BY CSV INIT
+		var _tfMonthYear = d3.time.format("%m-%Y"); //format for x-axis labels
 		var _tfIso = d3.time.format.iso.parse; //TODO: maybe the service can populate the users scope with convienence values like this?
 			//this is a function that parses lots of timestamp formats, so its convenient 
-		var _dayStringArray = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
-			//Date.getDay returns a number, which this array translates into the day fo week
-		var _dayToColorMap = {
-			"Sun": "rgba(229,  63,   0, .8)",
-			"Mon": "rgba(222, 172,   0, .8)",
-			"Tue": "rgba(156, 216,   0, .8)",
-			"Wed": "rgba( 46, 210,   0, .8)",
-			"Thu": "rgba(  0, 203,  56, .8)",
-			"Fri": "rgba(  0, 197, 153, .8)",
-			"Sat": "rgba(  0, 137, 191, .8)"
-		};
 		
 		chartHelper.createDimensions = function () {
 			//creates, chooses and populates dimensions.
 			chartHelper._dimensions.hourDimension = chartHelper._ndx.dimension(function(d) {
-				var timeObj = _tfIso(new Date(d.createdTime));
+				var timeObj = new Date(d.createdTime);
+				
 				return timeObj;
 			}); // creates the x-axis components using their date as a guide
 			// chartHelper._dimensions.quarterDimension = chartHelper._ndx.dimension(function(d) {
@@ -78,8 +65,13 @@ angular.module('myApp.ticketImpulse', ['ngRoute'])
 			chartHelper._dimensions.masterDimension = chartHelper._dimensions.hourDimension;
 		};
 		
-		chartHelper.createDomain = function (userParameters) {     
-			chartHelper._chartParameters.domainX = d3.scale.linear().domain([+userParameters.lowDate, +userParameters.highDate])
+		chartHelper.createDomain = function (userParameters) {
+			var top = chartHelper._dimensions.masterDimension.top(1)[0];
+			var bottom = chartHelper._dimensions.masterDimension.bottom(1)[0];
+			var scale = d3.time.scale();
+			scale.ticks(d3.time.month);
+			chartHelper._chartParameters.domainX = d3.time.scale().domain([new Date(bottom.createdTime), new Date(top.createdTime)]);
+			
 			chartHelper._chartParameters.xUnits = function (start, end) {
 				var barWidth = userParameters.barWidthPercentage;
 				barWidth = (barWidth > 100)||(barWidth <= 0)? 
@@ -93,7 +85,8 @@ angular.module('myApp.ticketImpulse', ['ngRoute'])
 				
 				return domain;
 			};
-			chartHelper._chartParameters.tickFormat = function(v) { return _tfMonthYear(new Date(v));};
+			
+			chartHelper._chartParameters.tickFormat = scale.tickFormat();
 		};
 		
 		chartHelper.createGroups = function () {
@@ -136,8 +129,7 @@ angular.module('myApp.ticketImpulse', ['ngRoute'])
 				.renderHorizontalGridLines(true)
 				.renderVerticalGridLines(true)
 				
-				//.xUnits(chartHelper._chartParameters.xUnits) // sets X axis units
-				.xUnits(chartHelper._chartParameters.xUnits)
+				.xUnits(chartHelper._chartParameters.xUnits) // sets X axis units
 				.x(chartHelper._chartParameters.domainX)
 		        .dimension(chartHelper._dimensions.masterDimension)
 		        .group(chartHelper._group)
@@ -150,10 +142,11 @@ angular.module('myApp.ticketImpulse', ['ngRoute'])
 				
 				.colors(userParameters.barColor)
 				
-				//.elasticX(true)
+				.elasticX(true)
 				//.elasticY(true)
 				.legend(dc.legend().x(lX).y(lY).itemHeight(13).gap(5)) // legend position and add'l info
 				//.yAxisPadding("5%")	//WARNING: not in api, but xAxisScaling works. This was legit a stab in the dark.
+				//.xAxisPadding("5%")
 				
 				.mouseZoomable(true)
 				.brushOn(false);
@@ -348,11 +341,12 @@ angular.module('myApp.ticketImpulse', ['ngRoute'])
 			userParametersSidebar: "@",	//bool: true to show, false to hide. default true
 			organizationSidebar: "@",
 			inputUserParameters: "=userParameters",
+			inputRawData: "=data",
 			query: "="
 		},
 		compile : function (element, attrs) {
 		console.log(attrs);
-			if (!attrs.hasOwnProperty('dom') ) {
+			if ( !attrs.hasOwnProperty('dom') ) {
 				attrs.dom = chartIdService.getNewId();
 			}
 			if ( !attrs.hasOwnProperty('userParametersSidebar') ) {
@@ -365,6 +359,9 @@ angular.module('myApp.ticketImpulse', ['ngRoute'])
 				attrs.query = undefined;	//TODO: give dataService a getDefaultQuery option?
 											//this can fetch user permissions, and return the best default query for user.
 											//something like the first asset on the first facility the user has access to
+			}
+			if ( attrs.hasOwnProperty('data') ) {
+				attrs.organizationSidebar = 'false'; //mostly because I don't want to deal with this usecase.
 			}
 		},
 		templateUrl : "views/ticketImpulse.html",
@@ -391,35 +388,39 @@ angular.module('myApp.ticketImpulse', ['ngRoute'])
 				$scope.userParameters = $scope.inputUserParameters;
 			}
 			
-			$scope.inactiveOrganizations = {};
 			$scope.treatedData = {};
+			$scope.rawData = [];
 			$scope.active = {};
+			
+			if($scope.inputRawData !== undefined) {	
+				$scope.rawData = $scope.inputRawData;
+			}
 			
 			console.log($scope);
 			var bar;
 				//populated by drawChart
 			
 			$scope.active = $scope.query ? $scope.query
-			:	{
-					assets : [{
-						asset : "AHU1",
-						facility : "60 Wall Street",
-						organization : "DEU",
-					}],
-					lowDate: new Date((new Date((new Date()) - (6*28*24*60*60*1000))).toDateString()),
-					highDate: new Date( (new Date()).toDateString() )
-				};
-				
-			var populateScope = function () {
-				//this function populates necessary variables onto the scope.
-				$scope.masterDimension  = $scope.chartHelper.getMasterDimension();
-				
-				$scope.cumulativeAverageGroup = $scope.chartHelper.getCumulativeAverageGroup();
-				$scope.cumulativeMaxGroup = $scope.chartHelper.getCumulativeMaxGroup();
-				$scope.averageGroups = $scope.chartHelper.getAverageGroups();
-				$scope.maxGroups = $scope.chartHelper.getMaxGroups();
-				
-				$scope.chartParameters = $scope.chartHelper.getChartParameters();
+			: {
+				assets : [{
+					asset : "AHU1",
+					facility : "60 Wall Street",
+					organization : "DEU",
+				}],
+				lowDate: new Date((new Date((new Date()) - (6*28*24*60*60*1000))).toDateString()),
+				highDate: new Date( (new Date()).toDateString() )
+			};
+			
+			var userParameterWatches = function () {
+				$scope.$watch('userParameters.barWidthPercentage', function(newVal, oldVal, scope) {
+					$scope.drawChart();
+				});
+				$scope.$watch('userParameters.height', function(newVal, oldVal, scope) {
+					$scope.drawChart();
+				});
+				$scope.$watch('userParameters.width', function(newVal, oldVal, scope) {
+					$scope.drawChart();
+				});
 			};
 			
 			var httpCallback = function(response) {
@@ -427,18 +428,8 @@ angular.module('myApp.ticketImpulse', ['ngRoute'])
 				$scope.rawData = response.data.result;
 				$scope.showButtons = false;
 				try {
-					$scope.redrawChart();
-					
-					$scope.$watch('userParameters.barWidthPercentage', function(newVal, oldVal, scope) {
-						$scope.redrawChart();
-					});
-					$scope.$watch('userParameters.height', function(newVal, oldVal, scope) {
-						$scope.redrawChart();
-					});
-					$scope.$watch('userParameters.width', function(newVal, oldVal, scope) {
-						$scope.redrawChart();
-					});
-					
+					$scope.drawChart();
+					userParameterWatches();
 				}
 				catch (e) {
 					console.error(e); // pass exception object to error handler
@@ -447,16 +438,26 @@ angular.module('myApp.ticketImpulse', ['ngRoute'])
 					$scope.showButtons = true;
 				}
 			};
+			
 			var httpError = function (e) { console.log("Ray broke the server"); console.error(e);};
 			
-			$scope.drawHttpChart = function () {
+			$scope.initDataStartChartDraw = function () {
 				$scope.chartInit = true;
-				dataService.getData($scope.userParameters, $scope.active).then (
-					httpCallback, 
-					httpError
-				);
+				if($scope.inputRawData !== undefined) {
+					$scope.showButtons = false;
+					$scope.drawChart();
+					userParameterWatches(); //TODO: make this set chartInit, and only execute if chart init if false if doing this over and over messes things up.
+					$scope.showButtons = true;
+				}	//if inputData is passed in, there is no need to fetch data
+				else {
+					dataService.getData($scope.userParameters, $scope.active).then (
+						httpCallback, 
+						httpError
+					);
+				}
 			};
-			$scope.redrawChart = function () {
+			
+			$scope.drawChart = function () {
 				bar = dc.barChart('#'+$scope.dom);
 				$scope.chartHelper = chartService.init(
 					bar,
@@ -492,7 +493,7 @@ angular.module('myApp.ticketImpulse', ['ngRoute'])
 					&&($scope.active.assets[i].asset === asset) ) {
 					
 						$scope.active.assets.splice(i,1);
-						if($scope.active.assets.length > 0) {$scope.drawHttpChart();}	//redraw if there is data to redraw
+						if($scope.active.assets.length > 0) {$scope.initDataStartChartDraw();}	//redraw if there is data to redraw
 						return true;
 					}
 				}
@@ -505,7 +506,7 @@ angular.module('myApp.ticketImpulse', ['ngRoute'])
 					&&($scope.active.assets[i].facility === fac)
 					&&($scope.active.assets[i].asset === asset) ) {
 						alert("Already Exists!");
-						$scope.drawHttpChart();
+						$scope.initDataStartChartDraw();
 						return false;	//Don't do anything if it already exists
 					}
 				}
@@ -514,7 +515,7 @@ angular.module('myApp.ticketImpulse', ['ngRoute'])
 					facility : fac,
 					organization : org,
 				});
-				if($scope.active.assets.length > 0) {$scope.drawHttpChart();}//redraw if there is data to redraw
+				if($scope.active.assets.length > 0) {$scope.initDataStartChartDraw();}//redraw if there is data to redraw
 				return true;
 			};
 			
@@ -546,8 +547,8 @@ angular.module('myApp.ticketImpulse', ['ngRoute'])
 				console.log($scope);
 			};
 
-			
-			if($scope.active !== undefined) { $scope.drawHttpChart(); }
+			if($scope.query !== undefined) { $scope.initDataStartChartDraw(); }
+			else if($scope.inputRawData !== undefined) {$scope.initDataStartChartDraw();}
 			else { $scope.queryData($scope.userParameters); }
 		}]
 	}
