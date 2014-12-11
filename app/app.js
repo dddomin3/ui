@@ -22,8 +22,10 @@ angular.module('myApp', [
   'myApp.panelComponent',
   'myApp.dashboard',
   'myApp.ticketImpulse',
+  'myApp.equipmentTickets',
   'myApp.eventPage',
-  'myApp.equipmentInFaults'
+  'myApp.equipmentInFaults',
+  'myApp.ticketImpulseTest'
 ]).
 
 config(['$routeProvider', function($routeProvider) {
@@ -81,6 +83,10 @@ config(['$routeProvider', function($routeProvider) {
 	when('/eventPage',{
 		templateUrl: 'views/eventPage.html',
 		controller: 'eventPageCtrl'
+	}).
+	when('/equipmentTickets/:facility/:assetId', {
+		templateUrl: 'views/equipmentTickets.html',
+		controller: 'equipmentTicketsCtrl'
 	}).
 	when('/equipmentInFaults',{
 		templateUrl: 'views/equipmentInFaults.html',

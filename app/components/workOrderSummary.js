@@ -35,7 +35,7 @@ angular.module('myApp.workOrderSummary', ['ngRoute', 'ui.grid', 'ui.grid.autoRes
 		
 		var _serviceObject = {};
 		//var mongoUrl = "http://10.239.3.132:9763/MongoServlet-0.0.1-SNAPSHOT/send";
-		var mongoUrl = "http://1.239.3.132:9763/MongoServlet-0.0.1-SNAPSHOT/send";
+		var mongoUrl = "http://10.239.3.132:9763/MongoServlet-0.0.1-SNAPSHOT/send";
 		var today = new Date();
 		var firstOfMonth = new Date(today.getFullYear(), today.getMonth()-6, 1);
 		
@@ -148,7 +148,7 @@ angular.module('myApp.workOrderSummary', ['ngRoute', 'ui.grid', 'ui.grid.autoRes
 		
 	var _serviceObj = {};
 	//var mongoUrl = "http://10.239.3.132:9763/MongoServlet-0.0.1-SNAPSHOT/send";
-	var mongoUrl = "http://1.239.3.132:9763/MongoServlet-0.0.1-SNAPSHOT/send";
+	var mongoUrl = "http://10.239.3.132:9763/MongoServlet-0.0.1-SNAPSHOT/send";
 	var today = new Date();
 	var firstOfMonth = new Date(today.getFullYear(), today.getMonth()-10, 1);
 	

@@ -545,9 +545,9 @@ angular.module('myApp.equipmentInFaults', ['ngRoute'])
 					eventsInfo.push(0);
 					eventsInfo.push(0);
 					eventsInfo.push(0);
+					eventsInfo.push(0);
 			}
 			else{
-				console.log(vm.data._event);
 				
 				var anomaly=0;
 				var anomalyMap={};
@@ -557,6 +557,7 @@ angular.module('myApp.equipmentInFaults', ['ngRoute'])
 				var occ=0;
 				var waste=0;
 				var potentialSaving=0;
+				var mtbf;
 				
 				
 				
@@ -611,10 +612,15 @@ angular.module('myApp.equipmentInFaults', ['ngRoute'])
 				return max;
 			}
 			
-			
-			
 			firstOcc=minArray(createdTime);
 			lastOcc=maxArray(createdTime);
+			
+			// calculate the mean time between failure
+			mtbf = (lastOcc.getTime()-firstOcc.getTime())/(occ*1000*60*60*24);
+		
+			
+			console.log(mtbf);
+
 			
 			console.log(anomaly);
 			console.log(createdTime);
@@ -628,6 +634,8 @@ angular.module('myApp.equipmentInFaults', ['ngRoute'])
 			eventsInfo.push(occ);
 			eventsInfo.push(waste.toFixed(2));
 			eventsInfo.push(potentialSaving.toFixed(2));
+			eventsInfo.push(mtbf.toFixed(1));
+			
 			
 			}
 			
