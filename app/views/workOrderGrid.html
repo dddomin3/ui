@@ -1,5 +1,8 @@
-
 <h1><b>Work Order Grid</b></h1>
-<div class="workOrderGridStyle" ui-grid="gridOptions" external-scopes="test" ui-grid-auto-resize ></div>
+<div class="custom-csv-link-location">
+	<label>Link to file export:</label>
+	<span class="ui-grid-exporter-csv-link">&nbsp</span>
+</div>
+<div ui-grid="gridOptions" external-scopes="test" ui-grid-auto-resize ui-grid-exporter ui-grid-selection class="workOrderGridStyle"></div>
 
-<button type="button"><a ng-click='reset()'>Restore Columns</a></button>
+<button class="btn btn-default" ng-click='reset()'>Restore Columns</button>

@@ -23,7 +23,9 @@ angular.module('myApp', [
   'myApp.dashboard',
   'myApp.ticketImpulse',
   'myApp.equipmentTickets',
-  'myApp.eventPage'
+  'myApp.eventPage',
+  'myApp.equipmentInFaults',
+  'myApp.ticketImpulseTest'
 ]).
 
 config(['$routeProvider', function($routeProvider) {
@@ -68,8 +70,7 @@ config(['$routeProvider', function($routeProvider) {
 		controller: 'workOrderSummaryFacilityCtrl'
 	}).
 	when('/ticketImpulse', {
-		templateUrl: 'views/ticketImpulse.html',
-		controller: 'ticketImpulseCtrl'
+		templateUrl: 'views/ticketImpulseTest.html'
 	}).
 	when('/workOrderSummaryAsset', {
 		templateUrl: 'views/workOrderSummaryAsset.html',
@@ -87,5 +88,9 @@ config(['$routeProvider', function($routeProvider) {
 		templateUrl: 'views/equipmentTickets.html',
 		controller: 'equipmentTicketsCtrl'
 	}).
-	otherwise({redirectTo: '/heatmap'});
+	when('/equipmentInFaults',{
+		templateUrl: 'views/equipmentInFaults.html',
+		controller: 'equipmentInFaultsCtrl'
+	}).
+	otherwise({redirectTo: '/dashboard'});
 }]);

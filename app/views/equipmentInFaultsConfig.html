@@ -3,8 +3,8 @@
 	
 	
 	
-			<div class="btn-group" dropdown>
-		<button type="button" ng-click="queryAssets()" class="btn btn-primary dropdown-toggle">
+			<div class="btn-group" id="myDropdown" ng-click="$event.stopPropagation()" dropdown>
+		<button type="button" ng-click="queryAssets(activeOrganization,activeClient)" class="btn btn-primary dropdown-toggle">
 		<div ng-if="!isBlank(activeAsset)">
 			{{activeAsset}}
 			</div>
@@ -14,9 +14,17 @@
 			<span class="caret"></span>
 		</button>
 		<ul class="dropdown-menu" role="menu">
-			<button class="btn btn-default" ng-click='setAssetAll()'>All</button>
-			<li ng-repeat="(asset, param) in assetQuery | orderBy:'asset'">
-				<button class="btn btn-default" ng-click='initSingleAsset(asset)'>{{asset}}</button>
+			<li ng-repeat="(assetType, assetName) in assetQuery | orderBy:'assetType'">
+			
+			
+				<button ng-click = "selectChildren(assetType)" >{{assetType}}</button>
+				<ul><li ng-repeat="asset in assetQuery[assetType] | orderBy:'asset'">
+				{{asset}} <input type = "checkbox" name="activeList" value={{asset}} placeholder={{assetType}}> 
+				</li></ul>
+				
+				
+				
+				 
 			</li>
 		</ul>
 		
@@ -58,7 +66,6 @@
 			<span class="caret"></span>
 		</button>
 		<ul class="dropdown-menu" role="menu">
-			<button class="btn btn-default" ng-click='setClientAll()'>All</button>
 			<li ng-repeat="(client, param) in clientQuery | orderBy:'client'">
 				<button class="btn btn-default" ng-click='initSingleClient(client)'>{{client}}</button>
 			</li>
@@ -77,19 +84,17 @@
 	
 	
 	<div class="modal-footer">
-		<button class="btn btn-primary" ng-click="add()">Add</button>
+		<button class="btn btn-primary" ng-click="add();getActidves()">Add</button>
+			<button class="btn btn-primary" ng-click="remove()">Delete</button>
 	</div>
 	
 	
 	<div class="modal-footer">
-		<button class="btn btn-primary" ng-click="remove()">Delete</button>
+	
+		<button class="btn btn-primary" ng-click="ok()">OK</button>
 	</div>
 
 	
-	
-	<div class="modal-footer">
-		<button class="btn btn-primary" ng-click="ok()">OK</button>
-	</div>
-	
+
 	
 </div>
