@@ -1,0 +1,382 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<wsdl:definitions xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:wsdl="http://schemas.xmlsoap.org/wsdl/" xmlns:tns="http://daa.ispf.philips.com" xmlns:soap="http://schemas.xmlsoap.org/wsdl/soap/" xmlns:ns1="http://schemas.xmlsoap.org/soap/http" name="daaServiceSoap" targetNamespace="http://daa.ispf.philips.com">
+  <wsdl:types>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema" xmlns:tns="http://daa.ispf.philips.com" attributeFormDefault="unqualified" elementFormDefault="unqualified" targetNamespace="http://daa.ispf.philips.com">
+  <xs:complexType name="location">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="childLocations" type="tns:locationList"/>
+      <xs:element minOccurs="0" name="name" type="xs:string"/>
+      <xs:element minOccurs="0" name="type" type="xs:string"/>
+      <xs:element minOccurs="0" name="id" type="xs:string"/>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="locationList">
+    <xs:sequence>
+      <xs:element maxOccurs="unbounded" minOccurs="0" name="childLocations" nillable="true" type="tns:location"/>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="metricsReportRequest">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="fromDateTime" type="xs:dateTime"/>
+      <xs:element minOccurs="0" name="locationID" type="xs:string"/>
+      <xs:element minOccurs="0" name="metricType" type="tns:metricType"/>
+      <xs:element minOccurs="0" name="period" type="tns:periodType"/>
+      <xs:element minOccurs="0" name="toDateTime" type="xs:dateTime"/>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="metricsReportResponse">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="locationID" type="xs:string"/>
+      <xs:element maxOccurs="unbounded" minOccurs="0" name="metricReportList" nillable="true" type="tns:metricReport"/>
+      <xs:element minOccurs="0" name="metricType" type="tns:metricType"/>
+      <xs:element minOccurs="0" name="period" type="tns:periodType"/>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType abstract="true" name="metricReport">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="fromDateTime" type="xs:dateTime"/>
+      <xs:element minOccurs="0" name="toDateTime" type="xs:dateTime"/>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="energyReport">
+    <xs:complexContent>
+      <xs:extension base="tns:metricReport">
+        <xs:sequence>
+          <xs:element minOccurs="0" name="avgKW" type="xs:double"/>
+          <xs:element minOccurs="0" name="endAccKWH" type="xs:double"/>
+          <xs:element minOccurs="0" name="maxKW" type="xs:double"/>
+          <xs:element minOccurs="0" name="minKW" type="xs:double"/>
+          <xs:element minOccurs="0" name="startAccKWH" type="xs:double"/>
+        </xs:sequence>
+      </xs:extension>
+    </xs:complexContent>
+  </xs:complexType>
+  <xs:complexType name="subscribedDetails">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="password" type="xs:string"/>
+      <xs:element minOccurs="0" name="roomName" type="xs:string"/>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="alarmsRequest">
+    <xs:sequence>
+      <xs:element minOccurs="0" name="alarmSeverity" type="tns:alarmEventSeverity"/>
+      <xs:element minOccurs="0" name="alarmState" type="tns:alarmEventState"/>
+      <xs:element minOccurs="0" name="alarmType" type="tns:alarmEventType"/>
+      <xs:element minOccurs="0" name="fromDateTime" type="xs:string"/>
+      <xs:element minOccurs="0" name="locationID" type="xs:string"/>
+      <xs:element minOccurs="0" name="toDateTime" type="xs:string"/>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="alarmList">
+    <xs:sequence>
+      <xs:element maxOccurs="unbounded" minOccurs="0" name="alarmList" nillable="true" type="tns:alarm"/>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:complexType name="alarm">
+    <xs:sequence>
+      <xs:element name="id" type="xs:int"/>
+      <xs:element minOccurs="0" name="alarmType" type="xs:string"/>
+      <xs:element minOccurs="0" name="alarmState" type="xs:string"/>
+      <xs:element minOccurs="0" name="alarmSeverity" type="xs:string"/>
+      <xs:element minOccurs="0" name="description" type="xs:string"/>
+      <xs:element minOccurs="0" name="dateTime" type="xs:dateTime"/>
+      <xs:element minOccurs="0" name="locationID" type="xs:string"/>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:simpleType name="subscriptionType">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="ALARM"/>
+    </xs:restriction>
+  </xs:simpleType>
+  <xs:simpleType name="metricType">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="ENERGY"/>
+    </xs:restriction>
+  </xs:simpleType>
+  <xs:simpleType name="periodType">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="QUARTER"/>
+      <xs:enumeration value="HOUR"/>
+      <xs:enumeration value="DAY"/>
+      <xs:enumeration value="MONTH"/>
+    </xs:restriction>
+  </xs:simpleType>
+  <xs:simpleType name="alarmEventSeverity">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="SeverityFault"/>
+      <xs:enumeration value="SeverityAlarm"/>
+      <xs:enumeration value="SseverityEvent"/>
+    </xs:restriction>
+  </xs:simpleType>
+  <xs:simpleType name="alarmEventState">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="AlarmCreated"/>
+      <xs:enumeration value="AlarmAcknowledged"/>
+      <xs:enumeration value="AlarmRestored"/>
+      <xs:enumeration value="AlarmRestoreAcknowledged"/>
+      <xs:enumeration value="AlarmCleared"/>
+      <xs:enumeration value="EventLogged"/>
+    </xs:restriction>
+  </xs:simpleType>
+  <xs:simpleType name="alarmEventType">
+    <xs:restriction base="xs:string">
+      <xs:enumeration value="DeviceOffline"/>
+      <xs:enumeration value="BallastOffline"/>
+      <xs:enumeration value="BallastError"/>
+      <xs:enumeration value="BreakerTrip"/>
+      <xs:enumeration value="EmergencyBallastFunctionTestFailed"/>
+      <xs:enumeration value="EmergencyBallastDurationTestFailed"/>
+      <xs:enumeration value="SubDeviceOffline"/>
+      <xs:enumeration value="LicensingError"/>
+      <xs:enumeration value="Panic"/>
+      <xs:enumeration value="FCUCFireTrip"/>
+      <xs:enumeration value="FCUCAirflowStopped"/>
+      <xs:enumeration value="FCUCEnergyHoldoff"/>
+      <xs:enumeration value="FCUCDripTrayOverflow"/>
+      <xs:enumeration value="FCUCDirtyAirFilter"/>
+      <xs:enumeration value="TemperatureSensorOpenCircuit"/>
+      <xs:enumeration value="TemperatureSensorShortCircuit"/>
+      <xs:enumeration value="TemperatureSensorRemoteSensorTimeout"/>
+      <xs:enumeration value="DyNetOverVoltage"/>
+      <xs:enumeration value="DyNetUnderVoltage"/>
+      <xs:enumeration value="DyNetVoltageInterupted"/>
+      <xs:enumeration value="LampFailure"/>
+      <xs:enumeration value="LampOverLife"/>
+      <xs:enumeration value="PhaseFailure"/>
+      <xs:enumeration value="ChannelElectronicFaultProtection"/>
+      <xs:enumeration value="ChannelOverCurrentFault"/>
+      <xs:enumeration value="ChannelUnderCurrentFault"/>
+      <xs:enumeration value="ChannelOverTempurature"/>
+      <xs:enumeration value="OpenCircuitFault"/>
+      <xs:enumeration value="ShortCircuitFault"/>
+      <xs:enumeration value="AlarmMeterOverReference"/>
+      <xs:enumeration value="AlarmMeterUnderReference"/>
+      <xs:enumeration value="ClientStarted"/>
+      <xs:enumeration value="UserLogOn"/>
+      <xs:enumeration value="UserLogOff"/>
+      <xs:enumeration value="ScheduleStarted"/>
+      <xs:enumeration value="ScheduleStopped"/>
+      <xs:enumeration value="TaskStarted"/>
+      <xs:enumeration value="TaskStopped"/>
+      <xs:enumeration value="TaskPaused"/>
+      <xs:enumeration value="TaskResumed"/>
+      <xs:enumeration value="AllTaskStopped"/>
+      <xs:enumeration value="EmergencyGroupFunctionTestStarted"/>
+      <xs:enumeration value="EmergencyBallastFunctionTestStarted"/>
+      <xs:enumeration value="EmergencyGroupDurationTestStarted"/>
+      <xs:enumeration value="EmergencyBallastDurationTestStarted"/>
+      <xs:enumeration value="EmergencyGroupFunctionTestTerminated"/>
+      <xs:enumeration value="EmergencyBallastFunctionTestTerminated"/>
+      <xs:enumeration value="EmergencyGroupDurationTestTerminated"/>
+      <xs:enumeration value="EmergencyBallastDurationTestTerminated"/>
+      <xs:enumeration value="LampEndOfLife"/>
+      <xs:enumeration value="SensorCalibrationComplete"/>
+      <xs:enumeration value="PanelsEnabled"/>
+      <xs:enumeration value="PanelsDisabled"/>
+      <xs:enumeration value="MotionControlEnabled"/>
+      <xs:enumeration value="MotionControlDisabled"/>
+      <xs:enumeration value="PEControlEnabled"/>
+      <xs:enumeration value="PEControlDisabled"/>
+      <xs:enumeration value="AreaCascadingEnabled"/>
+      <xs:enumeration value="AreaCascadingDisabled"/>
+    </xs:restriction>
+  </xs:simpleType>
+  <xs:complexType final="#all" name="metricTypeArray">
+    <xs:sequence>
+      <xs:element maxOccurs="unbounded" minOccurs="0" name="item" nillable="true" type="tns:metricType"/>
+    </xs:sequence>
+  </xs:complexType>
+  <xs:element name="DaaServiceException" type="tns:DaaServiceException"/>
+  <xs:complexType name="DaaServiceException">
+    <xs:sequence>
+      <xs:element name="faultcode" nillable="true" type="xs:string"/>
+      <xs:element name="faultstring" nillable="true" type="xs:string"/>
+    </xs:sequence>
+  </xs:complexType>
+</xs:schema>
+  </wsdl:types>
+  <wsdl:message name="getBuildingNavigation">
+    <wsdl:part name="id" type="xsd:string">
+    </wsdl:part>
+  </wsdl:message>
+  <wsdl:message name="getSupportedMetricTypes">
+  </wsdl:message>
+  <wsdl:message name="getMetricReport">
+    <wsdl:part name="metricsReportRequest" type="tns:metricsReportRequest">
+    </wsdl:part>
+  </wsdl:message>
+  <wsdl:message name="getSupportedMetricTypesResponse">
+    <wsdl:part name="return" type="tns:metricTypeArray">
+    </wsdl:part>
+  </wsdl:message>
+  <wsdl:message name="unsubscribeResponse">
+    <wsdl:part name="return" type="xsd:boolean">
+    </wsdl:part>
+  </wsdl:message>
+  <wsdl:message name="subscribeResponse">
+    <wsdl:part name="return" type="tns:subscribedDetails">
+    </wsdl:part>
+  </wsdl:message>
+  <wsdl:message name="getHistoricalAlarms">
+    <wsdl:part name="alarmsRequest" type="tns:alarmsRequest">
+    </wsdl:part>
+  </wsdl:message>
+  <wsdl:message name="DaaServiceException">
+    <wsdl:part element="tns:DaaServiceException" name="DaaServiceException">
+    </wsdl:part>
+  </wsdl:message>
+  <wsdl:message name="subscribe">
+    <wsdl:part name="subscriptionType" type="tns:subscriptionType">
+    </wsdl:part>
+    <wsdl:part name="userName" type="xsd:string">
+    </wsdl:part>
+  </wsdl:message>
+  <wsdl:message name="getBuildingNavigationResponse">
+    <wsdl:part name="return" type="tns:location">
+    </wsdl:part>
+  </wsdl:message>
+  <wsdl:message name="getMetricReportResponse">
+    <wsdl:part name="return" type="tns:metricsReportResponse">
+    </wsdl:part>
+  </wsdl:message>
+  <wsdl:message name="getHistoricalAlarmsResponse">
+    <wsdl:part name="return" type="tns:alarmList">
+    </wsdl:part>
+  </wsdl:message>
+  <wsdl:message name="unsubscribe">
+    <wsdl:part name="subscriptionType" type="tns:subscriptionType">
+    </wsdl:part>
+    <wsdl:part name="userName" type="xsd:string">
+    </wsdl:part>
+  </wsdl:message>
+  <wsdl:portType name="DaaService">
+    <wsdl:operation name="unsubscribe">
+      <wsdl:input message="tns:unsubscribe" name="unsubscribe">
+    </wsdl:input>
+      <wsdl:output message="tns:unsubscribeResponse" name="unsubscribeResponse">
+    </wsdl:output>
+      <wsdl:fault message="tns:DaaServiceException" name="DaaServiceException">
+    </wsdl:fault>
+    </wsdl:operation>
+    <wsdl:operation name="getBuildingNavigation">
+      <wsdl:input message="tns:getBuildingNavigation" name="getBuildingNavigation">
+    </wsdl:input>
+      <wsdl:output message="tns:getBuildingNavigationResponse" name="getBuildingNavigationResponse">
+    </wsdl:output>
+      <wsdl:fault message="tns:DaaServiceException" name="DaaServiceException">
+    </wsdl:fault>
+    </wsdl:operation>
+    <wsdl:operation name="getSupportedMetricTypes">
+      <wsdl:input message="tns:getSupportedMetricTypes" name="getSupportedMetricTypes">
+    </wsdl:input>
+      <wsdl:output message="tns:getSupportedMetricTypesResponse" name="getSupportedMetricTypesResponse">
+    </wsdl:output>
+      <wsdl:fault message="tns:DaaServiceException" name="DaaServiceException">
+    </wsdl:fault>
+    </wsdl:operation>
+    <wsdl:operation name="getMetricReport">
+      <wsdl:input message="tns:getMetricReport" name="getMetricReport">
+    </wsdl:input>
+      <wsdl:output message="tns:getMetricReportResponse" name="getMetricReportResponse">
+    </wsdl:output>
+      <wsdl:fault message="tns:DaaServiceException" name="DaaServiceException">
+    </wsdl:fault>
+    </wsdl:operation>
+    <wsdl:operation name="subscribe">
+      <wsdl:input message="tns:subscribe" name="subscribe">
+    </wsdl:input>
+      <wsdl:output message="tns:subscribeResponse" name="subscribeResponse">
+    </wsdl:output>
+      <wsdl:fault message="tns:DaaServiceException" name="DaaServiceException">
+    </wsdl:fault>
+    </wsdl:operation>
+    <wsdl:operation name="getHistoricalAlarms">
+      <wsdl:input message="tns:getHistoricalAlarms" name="getHistoricalAlarms">
+    </wsdl:input>
+      <wsdl:output message="tns:getHistoricalAlarmsResponse" name="getHistoricalAlarmsResponse">
+    </wsdl:output>
+      <wsdl:fault message="tns:DaaServiceException" name="DaaServiceException">
+    </wsdl:fault>
+    </wsdl:operation>
+  </wsdl:portType>
+  <wsdl:binding name="daaServiceSoapSoapBinding" type="tns:DaaService">
+    <soap:binding style="rpc" transport="http://schemas.xmlsoap.org/soap/http"/>
+    <wsdl:operation name="getBuildingNavigation">
+      <soap:operation soapAction="" style="rpc"/>
+      <wsdl:input name="getBuildingNavigation">
+        <soap:body namespace="http://daa.ispf.philips.com" use="literal"/>
+      </wsdl:input>
+      <wsdl:output name="getBuildingNavigationResponse">
+        <soap:body namespace="http://daa.ispf.philips.com" use="literal"/>
+      </wsdl:output>
+      <wsdl:fault name="DaaServiceException">
+        <soap:fault name="DaaServiceException" use="literal"/>
+      </wsdl:fault>
+    </wsdl:operation>
+    <wsdl:operation name="unsubscribe">
+      <soap:operation soapAction="" style="rpc"/>
+      <wsdl:input name="unsubscribe">
+        <soap:body namespace="http://daa.ispf.philips.com" use="literal"/>
+      </wsdl:input>
+      <wsdl:output name="unsubscribeResponse">
+        <soap:body namespace="http://daa.ispf.philips.com" use="literal"/>
+      </wsdl:output>
+      <wsdl:fault name="DaaServiceException">
+        <soap:fault name="DaaServiceException" use="literal"/>
+      </wsdl:fault>
+    </wsdl:operation>
+    <wsdl:operation name="getSupportedMetricTypes">
+      <soap:operation soapAction="" style="rpc"/>
+      <wsdl:input name="getSupportedMetricTypes">
+        <soap:body namespace="http://daa.ispf.philips.com" use="literal"/>
+      </wsdl:input>
+      <wsdl:output name="getSupportedMetricTypesResponse">
+        <soap:body namespace="http://daa.ispf.philips.com" use="literal"/>
+      </wsdl:output>
+      <wsdl:fault name="DaaServiceException">
+        <soap:fault name="DaaServiceException" use="literal"/>
+      </wsdl:fault>
+    </wsdl:operation>
+    <wsdl:operation name="getMetricReport">
+      <soap:operation soapAction="" style="rpc"/>
+      <wsdl:input name="getMetricReport">
+        <soap:body namespace="http://daa.ispf.philips.com" use="literal"/>
+      </wsdl:input>
+      <wsdl:output name="getMetricReportResponse">
+        <soap:body namespace="http://daa.ispf.philips.com" use="literal"/>
+      </wsdl:output>
+      <wsdl:fault name="DaaServiceException">
+        <soap:fault name="DaaServiceException" use="literal"/>
+      </wsdl:fault>
+    </wsdl:operation>
+    <wsdl:operation name="getHistoricalAlarms">
+      <soap:operation soapAction="" style="rpc"/>
+      <wsdl:input name="getHistoricalAlarms">
+        <soap:body namespace="http://daa.ispf.philips.com" use="literal"/>
+      </wsdl:input>
+      <wsdl:output name="getHistoricalAlarmsResponse">
+        <soap:body namespace="http://daa.ispf.philips.com" use="literal"/>
+      </wsdl:output>
+      <wsdl:fault name="DaaServiceException">
+        <soap:fault name="DaaServiceException" use="literal"/>
+      </wsdl:fault>
+    </wsdl:operation>
+    <wsdl:operation name="subscribe">
+      <soap:operation soapAction="" style="rpc"/>
+      <wsdl:input name="subscribe">
+        <soap:body namespace="http://daa.ispf.philips.com" use="literal"/>
+      </wsdl:input>
+      <wsdl:output name="subscribeResponse">
+        <soap:body namespace="http://daa.ispf.philips.com" use="literal"/>
+      </wsdl:output>
+      <wsdl:fault name="DaaServiceException">
+        <soap:fault name="DaaServiceException" use="literal"/>
+      </wsdl:fault>
+    </wsdl:operation>
+  </wsdl:binding>
+  <wsdl:service name="daaServiceSoap">
+    <wsdl:port binding="tns:daaServiceSoapSoapBinding" name="DaaServiceImplPort">
+      <soap:address location="https://192.168.1.129:8443/daa-webservice/services/soap/daaService"/>
+    </wsdl:port>
+  </wsdl:service>
+</wsdl:definitions>
