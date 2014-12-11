@@ -8,16 +8,23 @@ angular.module('myApp.equipmentTickets')
 	
 	var facility = $routeParams.facility;
 	var assetId = $routeParams.assetId;
-	var asset = { id: assetId, type: "ahu" }; // replace existing line
 	
+	$scope.asset = null;
 	$scope.events = null;
-	$scope.asset = asset;
 	
-	var promise = assetService.getEvents(facility, asset.id); // need to eventually pass the org, fac, and asset id in
-	promise.then(function(events) {
+	var promise = assetService.getAsset(facility, assetId);
+	promise.then(function(asset) {
+		$scope.asset = asset;
+		
+	}, function() {
+		alert('fail to query asset data');
+	});
+	
+	var promise1 = assetService.getEvents(facility, assetId);
+	promise1.then(function(events) {
 		$scope.events = events;
 		
 	}, function() {
-		alert('fail to query data');
+		alert('fail to query event data');
 	});
 }]);

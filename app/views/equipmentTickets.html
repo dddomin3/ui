@@ -4,16 +4,18 @@
 	<title>All Angela</title>
 	
 	<div class="row" style="margin-bottom: 10px">
-		<div class="col-md-4">
-			<img ng-src="/app/pictures/assetTypes/{{asset.type}}.png"/></br>
-			<a ng-href="#">Asset Configuration</a></br>
-			<a ng-href="#">Analytic Configuration</a>
-		</div>
-		
-		<div class="col-md-4">
+		<div class="col-md-4 col-md-push-4">
 			<h1>Asset Name: {{asset.id}}</br></h1>
 			Asset Type: <span style="text-transform: uppercase">{{asset.type}}</span></br>
-			Asset Location: (Building 4 Roof)
+			Asset Location: {{asset.location}}
+		</div>
+
+
+		<div class="col-md-4 col-md-pull-4">
+			<img ng-if="asset.type==null" ng-src="/app/ajax-loader.gif"/>
+			<img ng-if="asset.type!=null" ng-src="/app/pictures/assetTypes/{{asset.type}}.png"/></br>
+			<a ng-href="#">Asset Configuration</a></br>
+			<a ng-href="#">Analytic Configuration</a>
 		</div>
 		
 		<div class="col-md-4">
@@ -21,8 +23,8 @@
 		</div>
 	</div>
 	
-	<div style="background-color: lightgray" ng-repeat="event in events">
-		<a ng-href="#"> <!-- this whole div should be clickable into the event -->
+	<div style="background-color: lightgray" ng-repeat="event in events" ng-if="events.length>0">
+		<a ng-href="/app/#/eventPage/{{event.id}}"> <!-- this whole div should be clickable into the event -->
 			<div class="row">
 				<div class="col-sm-6">
 					<p>(Put Dennis' grid here)</p>
@@ -53,10 +55,13 @@
 						<td>{{event.quantity}}</td>
 						<td>$ {{event.waste}}</td>
 						<td>$ {{event.potential}}</td>
-					</tr>
 				</tbody>
 			</table>
 		</a>
 		<div class="row" style="margin-bottom: 10px">   </div>
-	</div> 
+	</div>
+	
+	<div style="background-color: lightgray" ng-if="events.length==0">
+		<i>There are currently no open events for {{asset.id}}</i>
+	</div>
 </div>
