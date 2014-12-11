@@ -15,7 +15,7 @@ angular.module('myApp.eventPage', ['ngRoute'])
 				  attrs.dcName = chartIdService.getNewId();
 			  }
 		  },
-		  controller: function($scope, $http, $location, $route, $window) {
+		  controller: function($scope, $http, $location, $route, $window,$element) {
 
 				 //*******************************debugging/troubleshooting variables/functions *****************************
 				  
@@ -24,25 +24,23 @@ angular.module('myApp.eventPage', ['ngRoute'])
 				 var getTicketID = function(){
 					 if($scope.dcName.indexOf(0) >= 0){
 						 $scope.pointsUsed = ["Site_kWh1","SITE_kW"];
+						 //organization ANDO
 						 return "PLP-0126879";
-					 }else if($scope.dcName.indexOf(1) >= 0){
-						 $scope.pointsUsed = ["Site_kWh1","SITE_kW"];
-						 return "DEU-0110146";
-					 }else{
-						 $scope.pointsUsed = ["Site_kWh1","SITE_kW"];
-						 return "MER-0116576";
+					 }else {
+						 $scope.pointsUsed = ["B100_KWH","B200_KWH","B400_KWH","B500_KWH"];
+						 return "DEU-0165521";
+						 //organization JACK
 					 }
 				 }
+				 //bhev, cali, cans, emef, flsm,glob, haun, jack, kron, glob, miss, sjic, swic, 
 				 
-				 var ticketID = getTicketID();
+				 //var ticketID = getTicketID();
 				 
-				 $scope.pointsUsed;
-				 console.log(ticketID);
 				 //**********************************  end debugging/troubleshotting variables/functions ***********************
 				 
 				 // receive the proper work order number ($scope variable change, watch scope variable for change)
 				 
-				 $scope.workOrderNumber = ticketID;
+				 $scope.workOrderNumber = getTicketID();
 				 
 				 $scope.myTicketType = "null";
 				 $scope.myAsset = "null";
@@ -164,13 +162,14 @@ angular.module('myApp.eventPage', ['ngRoute'])
 				
 				 // query database for the relevant points
 				 $scope.drawGraph = function(term){
+					 
+
 					 if(term == 'composite'){
 						 $scope.composite.render();
 						 $scope.myPoints = $scope.allPoints;
 					 }else{
-						 eraseAllGraphs();
 						 $scope.myPoints = [];
-						 
+						 eraseAllGraphs();
 						 for(var item in $scope.allPoints){
 							 if($scope.allPoints[item].name == term){
 								 $scope.myPoints.push($scope.allPoints[item]);
@@ -192,7 +191,7 @@ angular.module('myApp.eventPage', ['ngRoute'])
 				 var allMyPoints = [];
 				 
 				 var getAllMyPoints = function(_pointArray){
-					 var organizationMessage = "\"organization\": \""+"ANDO"/*$scope.organization.toString()*/+"\"";
+					 //var organizationMessage = "\"organization\": \""+"ANDO"/*$scope.organization.toString()*/+"\"";
 					 var nameStart = "\"name\":\"";
 					 allMyPoints = [];
 					 
@@ -208,8 +207,8 @@ angular.module('myApp.eventPage', ['ngRoute'])
 						 }); 
 					   };
 						 
-					 // treat the data to fit within the needed format of everything..			 
-					 myArray($scope.pointsUsed[i], contentHeader, "{"+organizationMessage+","+nameMessage+"\"}");;
+					 // treat the data to fit within the needed format of everything..	
+					 myArray($scope.pointsUsed[i], contentHeader, "{"+formatRequest("organization",$scope.stationName)+","+nameMessage+"\"}");;
 				 };
 					 
 				 var retry = function(flag){
@@ -229,14 +228,26 @@ angular.module('myApp.eventPage', ['ngRoute'])
 					 retry(counter == max);
 				 }
 				 
+				 
+				 
 				 $scope.$watch(
 					 'doMyGraphing', 
 					 function(val){
 						 if(val == true){
-						   treatData();
 						   compositeChart(treatData());
 						 }
 					 }
+				 );
+				 
+				 
+				 
+				 $scope.$watch(
+					'panelWidth',
+					function(val){
+						if($scope.allPoints !== undefined){
+						  compositeChart($scope.allPoints);
+					    }
+					}
 				 );
 				 
 				 var totalSize;
@@ -339,7 +350,7 @@ angular.module('myApp.eventPage', ['ngRoute'])
 						 }
 						 
 						 var thisChart = dc.lineChart("#chart_"+$scope.dcName)
-						     .width(900)
+						     .width(+$scope.panelWidth)
 						     .height(600)
 						     .x(myDomain)
 						     .dimension(_myDim)
@@ -366,7 +377,7 @@ angular.module('myApp.eventPage', ['ngRoute'])
 					 }
 					
 					 $scope.composite = dc.compositeChart("#chart_"+$scope.dcName)
-					 	.width(900)
+					 	.width(+$scope.panelWidth)
 					 	.height(600)
 					 	.x(myDomain)
 					 	.shareColors(true)
