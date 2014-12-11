@@ -431,13 +431,13 @@ angular.module('myApp.workOrderSummary', ['ngRoute', 'ui.grid', 'ui.grid.autoRes
 			showFooter: true,
 			data: 'chartData',
 			columnDefs: [
-			             {field: 'facility', displayName: 'Facility', width: 200},
+			             {field: 'facility', displayName: 'Facility'},
 			             {field: 'numberOfEvents', displayName: 'Number Of Events Created This Month', aggregationType: uiGridConstants.aggregationTypes.sum},			             
 			             {field: 'numberClosedEvents', displayName: 'Number of Events Closed This Month', aggregationType: uiGridConstants.aggregationTypes.sum},
 			             {field: 'numberOpenEvents', displayName: 'Total Number of Open Events', aggregationType: uiGridConstants.aggregationTypes.sum},
 			             {field: 'averageTimeToClose', displayName: 'Average Days To Close Event(s)', aggregationType: uiGridConstants.aggregationTypes.avg},
-			             {field: 'waste', displayName: 'Waste', aggregationType: uiGridConstants.aggregationTypes.sum, width: 200},
-			             {field: 'value', displayName: 'Avoidable Cost', aggregationType: uiGridConstants.aggregationTypes.sum, width: 200}
+			             {field: 'waste', displayName: 'Waste', aggregationType: uiGridConstants.aggregationTypes.sum},
+			             {field: 'value', displayName: 'Avoidable Cost', aggregationType: uiGridConstants.aggregationTypes.sum}
 			             ]
 		};
 	$scope.gridOptionsFacility = {
@@ -446,13 +446,13 @@ angular.module('myApp.workOrderSummary', ['ngRoute', 'ui.grid', 'ui.grid.autoRes
 			showFooter: true,
 			data: 'chartDataFacility',
 			columnDefs: [
-			             {field: 'asset', displayName: 'Asset', width: 200},
+			             {field: 'asset', displayName: 'Asset'},
 			             {field: 'numberOfEvents', displayName: 'Number Of Events Created This Month', aggregationType: uiGridConstants.aggregationTypes.sum},			             
 			             {field: 'numberEventsClosed', displayName: 'Number of Events Closed This Month', aggregationType: uiGridConstants.aggregationTypes.sum},
 			             {field: 'numberEventsOpen', displayName: 'Total Number of Open Events', aggregationType: uiGridConstants.aggregationTypes.sum},
 			             {field: 'averageTimeToClose', displayName: 'Average Days To Close Event(s)'},
-			             {field: 'waste', displayName: 'Waste', aggregationType: uiGridConstants.aggregationTypes.sum, width: 200},
-			             {field: 'value', displayName: 'Avoidable Cost', aggregationType: uiGridConstants.aggregationTypes.sum, width: 200}
+			             {field: 'waste', displayName: 'Waste', aggregationType: uiGridConstants.aggregationTypes.sum},
+			             {field: 'value', displayName: 'Avoidable Cost', aggregationType: uiGridConstants.aggregationTypes.sum}
 			             ]
 		};
 }])
@@ -714,13 +714,13 @@ angular.module('myApp.workOrderSummary', ['ngRoute', 'ui.grid', 'ui.grid.autoRes
 			showFooter: true,
 			data: 'chartData',
 			columnDefs: [
-			             {field: 'facility', displayName: 'Facility', width: 150},
+			             {field: 'facility', displayName: 'Facility'},
 			             {field: 'numberOfEvents', displayName: 'Number Of Events Created This Month', aggregationType: uiGridConstants.aggregationTypes.sum},			             
 			             {field: 'numberClosedEvents', displayName: 'Number of Events Closed This Month', aggregationType: uiGridConstants.aggregationTypes.sum},
-			             {field: 'numberOpenEvents', displayName: 'Total Number of Open Events', aggregationType: uiGridConstants.aggregationTypes.sum, width: 250},
-			             {field: 'averageTimeToClose', displayName: 'Average Days To Close Event(s)', aggregationType: uiGridConstants.aggregationTypes.avg, width: 250},
-			             {field: 'waste', displayName: 'Waste', aggregationType: uiGridConstants.aggregationTypes.sum, width: 100},
-			             {field: 'value', displayName: 'Avoidable Cost', aggregationType: uiGridConstants.aggregationTypes.sum, width: 150}
+			             {field: 'numberOpenEvents', displayName: 'Total Number of Open Events', aggregationType: uiGridConstants.aggregationTypes.sum},
+			             {field: 'averageTimeToClose', displayName: 'Average Days To Close Event(s)', aggregationType: uiGridConstants.aggregationTypes.avg},
+			             {field: 'waste', displayName: 'Waste', aggregationType: uiGridConstants.aggregationTypes.sum},
+			             {field: 'value', displayName: 'Avoidable Cost', aggregationType: uiGridConstants.aggregationTypes.sum}
 			             ]
 		};
 	$scope.gridOptionsFacility = {
@@ -729,13 +729,13 @@ angular.module('myApp.workOrderSummary', ['ngRoute', 'ui.grid', 'ui.grid.autoRes
 			showFooter: true,
 			data: 'chartDataFacility',
 			columnDefs: [
-			             {field: 'asset', displayName: 'Asset', width: 150},
+			             {field: 'asset', displayName: 'Asset'},
 			             {field: 'numberOfEvents', displayName: 'Number Of Events Created This Month', aggregationType: uiGridConstants.aggregationTypes.sum},			             
 			             {field: 'numberEventsClosed', displayName: 'Number of Events Closed This Month', aggregationType: uiGridConstants.aggregationTypes.sum},
-			             {field: 'numberEventsOpen', displayName: 'Total Number of Open Events', aggregationType: uiGridConstants.aggregationTypes.sum, width: 250},
-			             {field: 'averageTimeToClose', displayName: 'Average Days To Close Event(s)', width: 250},
-			             {field: 'waste', displayName: 'Waste', aggregationType: uiGridConstants.aggregationTypes.sum, width: 100},
-			             {field: 'value', displayName: 'Avoidable Cost', aggregationType: uiGridConstants.aggregationTypes.sum, width: 150}
+			             {field: 'numberEventsOpen', displayName: 'Total Number of Open Events', aggregationType: uiGridConstants.aggregationTypes.sum},
+			             {field: 'averageTimeToClose', displayName: 'Average Days To Close Event(s)'},
+			             {field: 'waste', displayName: 'Waste', aggregationType: uiGridConstants.aggregationTypes.sum},
+			             {field: 'value', displayName: 'Avoidable Cost', aggregationType: uiGridConstants.aggregationTypes.sum}
 			             ]
 		};
 }])

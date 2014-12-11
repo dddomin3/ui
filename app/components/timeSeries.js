@@ -293,14 +293,28 @@ angular.module('myApp.timeSeries', ['ngRoute'])
 .directive('resize', function ($window) {
 	return function (scope, element, attr) {
 	    var w = angular.element($window);
+	    var panel = element;
+	    
+	    while(angular.element(panel)[0].tagName !== "BODY"){
+	    	if(angular.element(panel)[0].className === "panel-body"){
+	    		break;
+	    	}else{
+	    		panel = angular.element(panel[0].parentElement);
+	    	}
+	    }
+	    	    
 	    scope.$watch(function () {
 	        return {
 	            'h': window.innerHeight, 
-	            'w': window.innerWidth
+	            'w': window.innerWidth,
+	            'ph':panel[0].offsetHeight,
+	            'pw':panel[0].offsetWidth
 	        };
 	    }, function (newValue, oldValue) {
 	        scope.windowHeight = newValue.h;
 	        scope.windowWidth = newValue.w;
+	        scope.panelHeight = newValue.ph;
+	        scope.panelWidth = newValue.pw;
 	
 	        scope.resizeWithOffset = function (offsetH) {
 	            scope.$eval(attr.notifier);

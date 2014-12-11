@@ -1,3 +1,9 @@
+<div class="btn-group">
+  <button type="button" class='btn btn-default' ng-click="changeWorkOrder()">
+  Change Work Order Number)
+  </button>
+</div>
+
 <div><h2 text-align:center>Work Order Details</h2></div>
 <table class="gridStyleTwo" ui-grid="anomalyDetails"  ui-grid-auto-resize></table>
 
@@ -22,7 +28,7 @@
 </div>
     
 <div class="row">
-	<div id="chart_{{dcName}}"></div>
+	<div id="chart_{{dcName}}" resize></div>
 </div>
 <div><h2>Point Data</h2></div>
 
