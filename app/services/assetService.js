@@ -2,7 +2,7 @@
 
 'use strict';
 
-angular.module('myApp.equipmentTickets', ['ngRoute'])
+angular.module('myApp.equipmentTickets')
 
 .factory('assetService', ['$http', function($http) {
     return {

@@ -2,7 +2,7 @@
 
 'use strict';
 
-angular.module('myApp.equipmentTickets')
+angular.module('myApp.equipmentTickets', ['ngRoute'])
 
 .controller('equipmentTicketsCtrl', ['$scope', '$routeParams', 'assetService', function($scope, $routeParams, assetService) {
 	
