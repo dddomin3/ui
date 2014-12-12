@@ -66,12 +66,18 @@ angular.module('myApp.ticketImpulse', ['ngRoute'])
 		};
 		
 		chartHelper.createDomain = function (userParameters) {
-			var top = chartHelper._dimensions.masterDimension.top(1)[0];
-			var bottom = chartHelper._dimensions.masterDimension.bottom(1)[0];
+			var topDate = chartHelper._dimensions.masterDimension.top(1)[0].createdTime;
+			var topMonth = (new Date(topDate)).getMonth();
+			var bottomDate = ( new Date(chartHelper._dimensions.masterDimension.bottom(1)[0].createdTime) ).setDate(1);
+			topDate = (new Date((new Date(topDate)).setMonth(topMonth + 1))).setDate(0);
+			
+			console.log({topDate: topDate, bottomDate: bottomDate, topMonth: topMonth});
+			chartHelper._chartParameters.domainX = d3.time.scale().domain([(new Date(bottomDate)), new Date(topDate)]);
+				//above sets the domain of the chart to the first day of the motnh of the first
+				//ticket, and the last day of the month of the last ticket
+			
 			var scale = d3.time.scale();
 			scale.ticks(d3.time.month);
-			chartHelper._chartParameters.domainX = d3.time.scale().domain([new Date(bottom.createdTime), new Date(top.createdTime)]);
-			
 			chartHelper._chartParameters.xUnits = function (start, end) {
 				var barWidth = userParameters.barWidthPercentage;
 				barWidth = (barWidth > 100)||(barWidth <= 0)? 
@@ -142,7 +148,7 @@ angular.module('myApp.ticketImpulse', ['ngRoute'])
 				
 				.colors(userParameters.barColor)
 				
-				.elasticX(true)
+				//.elasticX(true)
 				//.elasticY(true)
 				.legend(dc.legend().x(lX).y(lY).itemHeight(13).gap(5)) // legend position and add'l info
 				//.yAxisPadding("5%")	//WARNING: not in api, but xAxisScaling works. This was legit a stab in the dark.
