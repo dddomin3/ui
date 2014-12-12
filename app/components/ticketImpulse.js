@@ -268,9 +268,9 @@ angular.module('myApp.ticketImpulse', ['ngRoute'])
 			for (var i = 0, len = query.assets.length; i < len; i++) {
 				or.push(
 					{
-						"asset" : query.assets[i].asset,
-						"facility" : query.assets[i].facility,
-						"organization": query.assets[i].organization
+						"asset" : query.assets[i].asset ? query.assets[i].asset : undefined,
+						"facility" : query.assets[i].facility ? query.assets[i].facility : undefined,
+						"organization": query.assets[i].organization ? query.assets[i].organization : undefined
 					}
 				);
 			}
