@@ -9,44 +9,61 @@ angular.module('myApp.eventPage', ['ngRoute'])
 		  templateUrl : 'views/eventPage.html',
 		  scope:{
 			  dcName:"@",
+			  workOrderNumber:"@"
 		  },
 		  compile : function(element, attrs){
 			  if(!attrs.hasOwnProperty('dom') ){
 				  attrs.dcName = chartIdService.getNewId();
 			  }
 		  },
-		  controller: function($scope, $http, $location, $route, $window) {
+		  controller: function($scope, $http, $location, $route, $window,$element) {
 
 				 //*******************************debugging/troubleshooting variables/functions *****************************
-				  
-				 $scope.timeseries = "not time series";
-				 
+				  				 
 				 var getTicketID = function(){
 					 if($scope.dcName.indexOf(0) >= 0){
 						 $scope.pointsUsed = ["Site_kWh1","SITE_kW"];
 						 return "PLP-0126879";
-					 }else if($scope.dcName.indexOf(1) >= 0){
-						 $scope.pointsUsed = ["Site_kWh1","SITE_kW"];
-						 return "DEU-0110146";
-					 }else{
-						 $scope.pointsUsed = ["Site_kWh1","SITE_kW"];
-						 return "MER-0116576";
+						 //organization ANDO
+					 }else {
+						 $scope.pointsUsed = ["B100_KWH","B200_KWH","B400_KWH","B500_KWH"];
+						 return "DEU-0165521";
+						 //organization JACK
 					 }
 				 }
 				 
-				 var ticketID = getTicketID();
-				 
-				 $scope.pointsUsed;
-				 console.log(ticketID);
+				 $scope.changeWorkOrder = function(){
+					 console.log($scope);
+					 
+					 if($scope.workOrderNumber === "PLP-0126879"){
+						 $scope.workOrderNumber = "DEU-0165521";
+						 $scope.pointsUsed = ["B100_KWH","B200_KWH","B400_KWH","B500_KWH"];
+					 }else{
+						 $scope.pointsUsed = ["Site_kWh1","SITE_kW"];
+						 $scope.workOrderNumber = "PLP-0126879"; 
+					 }	
+					 $scope.$apply;
+				 }
+								 
 				 //**********************************  end debugging/troubleshotting variables/functions ***********************
 				 
 				 // receive the proper work order number ($scope variable change, watch scope variable for change)
 				 
-				 $scope.workOrderNumber = ticketID;
+				 if($scope.workOrderNumber === undefined){
+					 $scope.workOrderNumber = getTicketID(); 
+				 }
 				 
-				 $scope.myTicketType = "null";
-				 $scope.myAsset = "null";
-				 $scope.organization = "null";
+				 if($scope.myTickeTType === undefined){
+					 $scope.myTicketType = "null";
+				 }
+				 
+				 if($scope.myAsset === undefined){
+					 $scope.myAsset = "null"; 
+				 }
+				 
+				 if($scope.organization === undefined){
+					 $scope.organization = "null"; 
+				 }
 				 
 				 $scope.doMyGraphing = false;
 				 
@@ -98,7 +115,7 @@ angular.module('myApp.eventPage', ['ngRoute'])
 				   ;
 				 }
 				 
-				 requestFromWorkOrder();
+				 
 				 
 				//  ***********  End throw-away function for programming/debugging only  ********************
 				 
@@ -118,7 +135,6 @@ angular.module('myApp.eventPage', ['ngRoute'])
 							anomaly = null,
 							saved = 0,
 							wasted = 0
-							
 						;
 						
 						for(var i = 0; i < $scope.allMyTickets.length; i++){
@@ -154,7 +170,7 @@ angular.module('myApp.eventPage', ['ngRoute'])
 										  };
 						
 						// receive point list from the database object
-						//$scope.pointsUsed = response.data.result[0].pointUsed;
+						//$scope.pointsUsed = response.data.result[0].pointUsed;   ******************* uncomment for live
 					 }).then(function(){
 						 // create full history tables of the database object ** will probably need to break down into time windows to make faster querying **
 						 getAllMyPoints($scope.pointsUsed);
@@ -168,9 +184,8 @@ angular.module('myApp.eventPage', ['ngRoute'])
 						 $scope.composite.render();
 						 $scope.myPoints = $scope.allPoints;
 					 }else{
-						 eraseAllGraphs();
 						 $scope.myPoints = [];
-						 
+						 eraseAllGraphs();
 						 for(var item in $scope.allPoints){
 							 if($scope.allPoints[item].name == term){
 								 $scope.myPoints.push($scope.allPoints[item]);
@@ -192,7 +207,7 @@ angular.module('myApp.eventPage', ['ngRoute'])
 				 var allMyPoints = [];
 				 
 				 var getAllMyPoints = function(_pointArray){
-					 var organizationMessage = "\"organization\": \""+"ANDO"/*$scope.organization.toString()*/+"\"";
+					 //var organizationMessage = "\"organization\": \""+"ANDO"/*$scope.organization.toString()*/+"\"";
 					 var nameStart = "\"name\":\"";
 					 allMyPoints = [];
 					 
@@ -208,8 +223,8 @@ angular.module('myApp.eventPage', ['ngRoute'])
 						 }); 
 					   };
 						 
-					 // treat the data to fit within the needed format of everything..			 
-					 myArray($scope.pointsUsed[i], contentHeader, "{"+organizationMessage+","+nameMessage+"\"}");;
+					 // treat the data to fit within the needed format of everything..	
+					 myArray($scope.pointsUsed[i], contentHeader, "{"+formatRequest("organization",$scope.stationName)+","+nameMessage+"\"}");;
 				 };
 					 
 				 var retry = function(flag){
@@ -233,10 +248,32 @@ angular.module('myApp.eventPage', ['ngRoute'])
 					 'doMyGraphing', 
 					 function(val){
 						 if(val == true){
-						   treatData();
 						   compositeChart(treatData());
 						 }
 					 }
+				 );
+				 
+				 
+				 
+				 $scope.$watch(
+					'panelWidth',
+					function(val){
+						if($scope.allPoints !== undefined){
+						  compositeChart($scope.allPoints);
+					    }
+					}
+				 );
+				 
+				 $scope.$watch(
+					'workOrderNumber',
+					function(val){
+						if(val !== undefined){
+							console.log("restart everything",val);
+							$scope.doMyGraphing = false;
+							eraseAllGraphs();
+							requestFromWorkOrder();
+						}
+					}
 				 );
 				 
 				 var totalSize;
@@ -339,7 +376,7 @@ angular.module('myApp.eventPage', ['ngRoute'])
 						 }
 						 
 						 var thisChart = dc.lineChart("#chart_"+$scope.dcName)
-						     .width(900)
+						     .width(+$scope.panelWidth)
 						     .height(600)
 						     .x(myDomain)
 						     .dimension(_myDim)
@@ -366,7 +403,7 @@ angular.module('myApp.eventPage', ['ngRoute'])
 					 }
 					
 					 $scope.composite = dc.compositeChart("#chart_"+$scope.dcName)
-					 	.width(900)
+					 	.width(+$scope.panelWidth)
 					 	.height(600)
 					 	.x(myDomain)
 					 	.shareColors(true)
@@ -403,6 +440,7 @@ angular.module('myApp.eventPage', ['ngRoute'])
 					 rowTemplate: '<div ng-repeat="col in colContainer.renderedColumns track by col.colDef.name" class="ui-grid-cell" ui-grid-cell></div>',				 
 					 columnDefs : [
 					               {field:'anomaly', displayName: "Anomaly"},
+					               {field:'eventID', displayName:'Work Order Number'},
 					               {field:'asset', displayName: "Asset"},
 					               {field:'facility',displayName:"Facility"},
 					               {field:'createdTime',displayName:"Created"},
@@ -455,7 +493,7 @@ angular.module('myApp.eventPage', ['ngRoute'])
 				   }
 				 ;
 				 
-					 
+				 requestFromWorkOrder();
 				 
 				 //TODO highlight based on active alarms
 				 //TODO cleanup!!
@@ -463,7 +501,7 @@ angular.module('myApp.eventPage', ['ngRoute'])
 				 //TODO perform null checks on start (query down to ticket type and asset, get full list of tickets matching those requirements)
 				 //TODO package into a directive which may have variables set	 
 			    }
-			  
+		  
 	  }
   }])
   .run(['directiveService', function(directiveService){

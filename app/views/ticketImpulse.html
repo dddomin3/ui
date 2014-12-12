@@ -32,15 +32,13 @@
 	</div>
 
 	<div class="panel-footer">
-		<button class="btn btn-success" ng-if="showButtons" ng-click="drawHttpChart()">HttpDate&Org</button>
-		<button class="btn btn-primary" ng-if="chartInit" ng-click="redrawChart()">Redraw</button><br>
+		<button class="btn btn-success" ng-if="showButtons" ng-click="initDataStartChartDraw()">DrawChart</button>
+		<button class="btn btn-primary" ng-if="chartInit" ng-click="drawChart()">Redraw</button><br>
 		<button class="btn btn-danger" ng-click="logScope()">console.log($scope)</button>
 	</div>
 </div>
 <!-- chart -->
-<div class="col-md-6">
-	<div class="row"><div class = "col-md-6 col-sm-8 col-xs-12 col-lg-4" id="{{dom}}" resize></div></div>
-</div>
+<div class = "col-md-6 col-sm-8 col-xs-12 col-lg-4" id="{{dom}}" resize></div>
 <!-- dropdowns -->
 <div class="col-md-3" ng-if="organizationSidebar">
 	<!-- org -->
