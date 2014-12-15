@@ -240,8 +240,8 @@ angular.module('myApp.intervalDemand', ['ngRoute'])
 					.interpolate("cardinal")
 					.colors(chartHelper._groups.averageGroups[i].color)
 					.group(
-							chartHelper._groups.averageGroups[i], 
-							chartHelper._groups.averageGroups[i].day
+						chartHelper._groups.averageGroups[i], 
+						chartHelper._groups.averageGroups[i].day
 					)
 					.valueAccessor(function(p) {return (p.value.total/p.value.cnt); })
 					.title(function(p) {return (p.value.total/p.value.cnt)+" "+p.value.total+" "+p.value.cnt;})
@@ -397,9 +397,7 @@ angular.module('myApp.intervalDemand', ['ngRoute'])
 		.success(
 				function (data) {
 					var organizationQuery = {};
-					for(var i = 0, ilen = data.result.length; i < ilen; i++) {
-						organizationQuery[data.result[i].organization] = '';	//keeps track of all meters in query
-					}
+					for(var i = 0, ilen = data.result.length; i < ilen; i++) { organizationQuery[data.result[i].organization] = '';	}//keeps track of all meters in query
 					data.organizationQuery = organizationQuery;
 				}
 		)
@@ -439,12 +437,7 @@ angular.module('myApp.intervalDemand', ['ngRoute'])
 					"SITE_kW": '',
 					"kWdiv": ''
 				},
-				'color' : 'rgba(127,127,55,0.5)',
-				'groups' : {
-					'meter' : {},
-					'savings' : {},
-					'cumulativeSavings': {}
-				}
+				'color' : 'rgba(127,127,55,0.5)'
 			};
 		}
 		var or = [];
@@ -501,12 +494,7 @@ angular.module('myApp.intervalDemand', ['ngRoute'])
 		activeOrganizations[organization] = {
 			"meter" : "",
 			"meterQuery" : {},
-			'color' : 'rgba(0,255,255,0.5)',
-			'groups' : {
-				'meter' : {},
-				'savings' : {},
-				'cumulativeSavings': {}
-			}
+			'color' : 'rgba(0,255,255,0.5)'
 		};
 		_getMeters(organization, activeOrganizations);
 	};
@@ -565,7 +553,6 @@ angular.module('myApp.intervalDemand', ['ngRoute'])
 			$scope.showButtons = true;
 		}
     };
-  
 	
 	$scope.drawHttpChart = function () {
 		$scope.chartInit = true;
