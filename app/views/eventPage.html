@@ -1,5 +1,5 @@
 <div class="btn-group">
-  <button type="button" class='btn btn-default' ng-click="changeWorkOrder()">
+  <button type="button" class='btn btn-default' ng-click="changeWorkOrder(workOrderNumber)">
   Change Work Order Number)
   </button>
 </div>
@@ -28,6 +28,7 @@
 </div>
     
 <div class="row">
+	<img ng-if="doMyGraphing!=true" ng-src="/app/ajax-loader.gif"/> 
 	<div id="chart_{{dcName}}" resize></div>
 </div>
 <div><h2>Point Data</h2></div>
