@@ -3,7 +3,7 @@ angular.module('myApp.intervalDemand', ['ngRoute'])
 
 .factory('intervalDemandChartService', ['$http', function($http){
 
-	var _init = function (composite, activeOrganizations, sortedData, userParameters) {
+	var _init = function (series, activeOrganizations, sortedData, userParameters) {
 		var getDaysBetween = function(endDate, startDate){
 			var daysBetween = Math.round((endDate - startDate)/(1000*60*60*24));
 			
@@ -29,6 +29,7 @@ angular.module('myApp.intervalDemand', ['ngRoute'])
 			//these are chart parameters that should be shared amongst generate charts
 			//stuff like xAxis 
 		var _tfMonthYear = d3.time.format("%m-%Y"); //format for x-axis labels USED BY CSV INIT
+		var _tfHour = d3.time.format("%H"); //format for x-axis labels USED BY CSV INIT
 		var _tfIso = d3.time.format.iso.parse; //TODO: maybe the service can populate the users scope with convienence values like this?
 			//this is a function that parses lots of timestamp formats, so its convenient 
 		chartHelper._activeOrganizations = activeOrganizations;
@@ -49,13 +50,9 @@ angular.module('myApp.intervalDemand', ['ngRoute'])
 			//creates, chooses and populates dimensions.
 			chartHelper._dimensions.hourDimension = chartHelper._ndx.dimension(function(d) {
 				if(d.timestamp === undefined) { d.timestamp = d.date; }
-				var ret = d3.time.hour(_tfIso(d.timestamp));
-				ret.meterName = d.meterName;	//retains meter name on value. Since its a Date object, the toString function
-				//(or whatever dc decides is the important/common return) will be the same even if the datapoints
-				//have different 'name' keys
-				var displayDate = d3.time.format("%H");
-				var hour = displayDate(new Date(ret));
-				return +hour;
+				var key = new Date(d.timestamp).getHours()+1;
+				var series = new Date(d.timestamp).getDay();
+				return [key , series];
 			}); // creates the x-axis components using their date as a guide
 			chartHelper._dimensions.quarterDimension = chartHelper._ndx.dimension(function(d) {
 				if(d.timestamp === undefined) { d.timestamp = d.date; } 
@@ -74,19 +71,19 @@ angular.module('myApp.intervalDemand', ['ngRoute'])
 		};
 		
 		chartHelper.createDomain = function () {     
-			chartHelper._chartParameters.domainX = d3.scale.linear().domain([1, 24]);
+			var scale = d3.scale.linear();
+			chartHelper._chartParameters.domainX = scale.domain([1, 24]);
+			
 			chartHelper._chartParameters.xUnits = dc.units.integers;
-			var displayDate = d3.time.format("%H"); // function to change the format of a date object to hour
-			chartHelper._chartParameters.tickFormat = function(v) {return +v;};
+			
+			scale.ticks();
+			chartHelper._chartParameters.tickFormat = scale.tickFormat();
 		};
 		
 		chartHelper.createGroups = function () {
 			//Start: create cumulative groups
 			//these groups consider the entire dataset in question.
-			chartHelper._groups.cumulativeMaxGroup = chartHelper._dimensions.masterDimension.group(function(v) {
-				var displayDate = d3.time.format("%H"); // function to change the format of a date object to mm-yyyy
-				return displayDate(new Date(v));
-				})
+			chartHelper._groups.cumulativeMaxGroup = chartHelper._dimensions.masterDimension.group()
 				.reduce(
 					//groups a value for each entry in the dimension by finding the total aggregated savings
 					function (p,v) {
@@ -103,15 +100,13 @@ angular.module('myApp.intervalDemand', ['ngRoute'])
 				);
 			//_groups.maxGroup.organization = "Total";
 			
-			chartHelper._groups.cumulativeAverageGroup = chartHelper._dimensions.masterDimension.group(function(v) {
-					return v+1;
-				})
+			chartHelper._groups.cumulativeAverageGroup = chartHelper._dimensions.masterDimension.group()
 				.reduce(
 					//groups a value for each entry in the dimension by finding the total aggregated savings
 					function (p,v) {
 						p.cnt++;
 						p.total += +v.value;
-						return p;	
+						return p;
 					},	
 					function (p,v) {
 						p.cnt--;
@@ -197,10 +192,7 @@ angular.module('myApp.intervalDemand', ['ngRoute'])
 				var day = new Date( chartHelper._userParameters.highDate - (1000*60*60*24)*daysBetween );
 				var dayOfWeek = day.getDay();
 				
-				var averageGroup = chartHelper._dimensions.masterDimension.group(
-					function(v) {
-						return v+1;
-					})
+				var averageGroup = chartHelper._dimensions.masterDimension.group()
 					.reduce(
 						averageReduceAddGenerator(dayOfWeek),	
 						averageReduceRemoveGenerator(dayOfWeek),
@@ -235,7 +227,7 @@ angular.module('myApp.intervalDemand', ['ngRoute'])
 			//legend coords
 			chartHelper._charts.averageCharts = [];
 			for(var i = 0, len = chartHelper._groups.averageGroups.length; i < len; i++) {
-				var averageDemandChart = dc.lineChart(composite)
+				var averageDemandChart = dc.lineChart(series)
 					.dimension(chartHelper._dimensions.masterDimension)
 					.interpolate("cardinal")
 					.colors(chartHelper._groups.averageGroups[i].color)
@@ -254,7 +246,7 @@ angular.module('myApp.intervalDemand', ['ngRoute'])
 			
 			chartHelper._charts.maxCharts = [];
 			for(var i = 0, len = chartHelper._groups.maxGroups.length; i < len; i++) {
-				var maxDemandChart = dc.lineChart(composite)
+				var maxDemandChart = dc.lineChart(series)
 					.dimension(chartHelper._dimensions.masterDimension)
 					.interpolate("cardinal")
 					.colors(chartHelper._groups.maxGroups[i].color)
@@ -271,9 +263,8 @@ angular.module('myApp.intervalDemand', ['ngRoute'])
 				chartHelper._charts.maxCharts.push(maxDemandChart)
 			}
 			
-			composite.xAxis().tickFormat(chartHelper._chartParameters.tickFormat); // sets the tick format to be the hour only
 			var composedCharts = average ? chartHelper._charts.maxCharts : chartHelper._charts.averageCharts;
-			composite	//configure composite graph object
+			series = series	//configure series graph object
 				.width(chartHelper._userParameters.width)
 				.height(chartHelper._userParameters.height)
 				.xAxisLabel("Hour")
@@ -284,7 +275,9 @@ angular.module('myApp.intervalDemand', ['ngRoute'])
 					top: chartHelper._userParameters.marginTop,
 					bottom: chartHelper._userParameters.marginBottom
 				})
-				
+				.seriesAccessor(function (d) {return _dayStringArray[d.key[1]];})
+				.keyAccessor(function (d) {return d.key[0];})
+				.valueAccessor(function(p) {return (p.value.total/p.value.cnt); })
 				.renderHorizontalGridLines(true)
 				.renderVerticalGridLines(true)
 				
@@ -293,16 +286,22 @@ angular.module('myApp.intervalDemand', ['ngRoute'])
 				.elasticX(true)
 				//.elasticY(true)
 				.legend(dc.legend().x(lX).y(lY).itemHeight(13).gap(5)) // legend position and add'l info
-				.shareTitle(false)	//required so that each individual chart's titles are rendered, and composite doesnt try to get its grubby hands on it
+				.shareTitle(false)	//required so that each individual chart's titles are rendered, and series doesnt try to get its grubby hands on it
 				.yAxisPadding("5%")	//WARNING: not in api, but xAxisScaling works. This was legit a stab in the dark.
 				
 				.mouseZoomable(true)
 				.brushOn(false)
-				
-				.compose(composedCharts);
+				.dimension(chartHelper._dimensions.masterDimension)
+				.group(chartHelper._groups.cumulativeAverageGroup)
+				.title(function(p) {return p.value[0]; })
+				.renderTitle(true);
+				//.renderDataPoints({radius:2, fillOpacity: 1, strokeOpacity: 1})
+				//.tension(0.5)
+				//.compose(composedCharts);
+			series.xAxis().tickFormat(chartHelper._chartParameters.tickFormat); // sets the tick format to be the hour only
 			
-			dc.renderAll();
-			return composite;
+			series.render();
+			return series;
 		};
 		
 		chartHelper.meterIsntConsumption = function (meterName) {
@@ -519,7 +518,7 @@ angular.module('myApp.intervalDemand', ['ngRoute'])
 	$scope.inactiveOrganizations = {};
 	console.log($scope.activeOrganizations);
 	
-	var composite = dc	.compositeChart("#test_composed"); //variable that stores the composite chart generated by program
+	var series = dc	.seriesChart("#test_composed"); //variable that stores the series chart generated by program
 		//populated by drawChart
 	
 	var populateScope = function () {
@@ -536,22 +535,22 @@ angular.module('myApp.intervalDemand', ['ngRoute'])
 	
 	var http = function(response) {
 		$scope.chartHelper = chartService.init(
-			composite,
+			series,
 			$scope.activeOrganizations,
 			response.data.sortedData,
 			$scope.userParameters
 		);
 		$scope.showButtons = false;
-		try {
+		//try {
 			//populateScope();
-			composite = $scope.chartHelper.drawChart(false);
-		}
-		catch (e) {
-			console.log(e); // pass exception object to error handler
-		}
-		finally {
+			series = $scope.chartHelper.drawChart(false);
+		//}
+		//catch (e) {
+		//	console.error(e); // pass exception object to error handler
+		//}
+		//finally {
 			$scope.showButtons = true;
-		}
+		//}
     };
 	
 	$scope.drawHttpChart = function () {
@@ -559,7 +558,7 @@ angular.module('myApp.intervalDemand', ['ngRoute'])
 		dataService.getData($scope.activeOrganizations, $scope.userParameters).then( http, function () {alert("epicfail");} );
 	};
 	$scope.redrawChart = function () {
-		composite = $scope.chartHelper.drawChart(false);
+		series = $scope.chartHelper.drawChart(false);
 	};
 	
 	$scope.queryOrganizations = function () {

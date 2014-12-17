@@ -142,9 +142,9 @@ angular.module('myApp.ticketImpulse', ['ngRoute'])
 				
 		        .centerBar(true)
 		        .barPadding(0.5)
-				.title(function(p) {return p.value.mouseoverInfo; })
+				.title(function (p) {return p.value.mouseoverInfo; })
 				.renderTitle(true)
-				.valueAccessor(function(p) {return p.value.count; })
+				.valueAccessor(function (p) {return p.value.count; })
 				
 				.colors(userParameters.barColor)
 				
