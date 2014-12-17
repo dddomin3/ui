@@ -311,7 +311,7 @@ angular.module('myApp.facilityDetails', ['ngRoute'])
 
 .controller('facilityDetailsCtrl', ['$scope', '$modal', '$location', '$route', 'facilityDetailsService', 'facilityQueryService','sharedPropertiesService',
                                     function($scope, $modal, $location, $route, dataService,queryData,sharedProperties) {
-
+$scope.debugMode = true;
 	$scope.activeOrganizations = dataService.getActiveOrganizations();
 	$scope.activeClient="";
 	$scope.queryOrganizations = function () {
@@ -703,6 +703,13 @@ if($scope._buildingType===undefined){$scope._buildingType=""};
 
 	$scope.debug = function () {
 		console.log($scope);
+
+	};
+	$scope.debugModeSwitch = function () {
+		if($scope.debugMode === true){
+		$scope.debugMode = false;}
+		else if($scope.debugMode === false){
+		$scope.debugMode = true}
 
 	};
 	
