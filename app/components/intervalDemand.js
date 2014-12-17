@@ -29,6 +29,7 @@ angular.module('myApp.intervalDemand', ['ngRoute'])
 			//these are chart parameters that should be shared amongst generate charts
 			//stuff like xAxis 
 		var _tfMonthYear = d3.time.format("%m-%Y"); //format for x-axis labels USED BY CSV INIT
+		var _tfYearMonthDay = d3.time.format("%Y-%m-%e"); //format for x-axis labels USED BY CSV INIT
 		var _tfHour = d3.time.format("%H"); //format for x-axis labels USED BY CSV INIT
 		var _tfIso = d3.time.format.iso.parse; //TODO: maybe the service can populate the users scope with convienence values like this?
 			//this is a function that parses lots of timestamp formats, so its convenient 
@@ -52,7 +53,11 @@ angular.module('myApp.intervalDemand', ['ngRoute'])
 				if(d.timestamp === undefined) { d.timestamp = d.date; }
 				var key = new Date(d.timestamp).getHours()+1;
 				var series = new Date(d.timestamp).getDay();
-				return [key , series];
+				
+				var monthYearDay = new Date(d.timestamp);
+				monthYearDay = _tfYearMonthDay(new Date(monthYearDay));
+				
+				return [key , series, monthYearDay];
 			}); // creates the x-axis components using their date as a guide
 			chartHelper._dimensions.quarterDimension = chartHelper._ndx.dimension(function(d) {
 				if(d.timestamp === undefined) { d.timestamp = d.date; } 
@@ -275,7 +280,9 @@ angular.module('myApp.intervalDemand', ['ngRoute'])
 					top: chartHelper._userParameters.marginTop,
 					bottom: chartHelper._userParameters.marginBottom
 				})
-				.seriesAccessor(function (d) {return _dayStringArray[d.key[1]];})
+				.colors(d3.scale.category20())
+				
+				.seriesAccessor(function (d) {return d.key[2]+', '+_dayStringArray[d.key[1]];})
 				.keyAccessor(function (d) {return d.key[0];})
 				.valueAccessor(function(p) {return (p.value.total/p.value.cnt); })
 				.renderHorizontalGridLines(true)
@@ -295,9 +302,7 @@ angular.module('myApp.intervalDemand', ['ngRoute'])
 				.group(chartHelper._groups.cumulativeAverageGroup)
 				.title(function(p) {return p.value[0]; })
 				.renderTitle(true);
-				//.renderDataPoints({radius:2, fillOpacity: 1, strokeOpacity: 1})
-				//.tension(0.5)
-				//.compose(composedCharts);
+				
 			series.xAxis().tickFormat(chartHelper._chartParameters.tickFormat); // sets the tick format to be the hour only
 			
 			series.render();
