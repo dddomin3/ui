@@ -7,6 +7,12 @@
 	
 	<button class="btn btn-default pull-right" ng-click="openConfig('lg');queryOrganizations()" >Config</button>
 	<button class="btn btn-default pull-right" ng-click="openDetailed('lg')" >+</button>
+	<div ng-if="debugMode">
+	<button class="btn btn-default pull-left" ng-click="debug()">debug</button>
+	
+	</div>
+	
+	<button class="btn btn-default pull-left" ng-click="debugModeSwitch()">switch</button>
 
 	</div>
 	
@@ -50,4 +56,4 @@
 </div>
 </div>
 </div>
-
+  

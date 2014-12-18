@@ -142,9 +142,9 @@ angular.module('myApp.ticketImpulse', ['ngRoute'])
 				
 		        .centerBar(true)
 		        .barPadding(0.5)
-				.title(function(p) {return p.value.mouseoverInfo; })
+				.title(function (p) {return p.value.mouseoverInfo; })
 				.renderTitle(true)
-				.valueAccessor(function(p) {return p.value.count; })
+				.valueAccessor(function (p) {return p.value.count; })
 				
 				.colors(userParameters.barColor)
 				
@@ -339,6 +339,191 @@ angular.module('myApp.ticketImpulse', ['ngRoute'])
 	
 	return _servObj;
 }])
+.controller('ticketImpulseCtrl', ['$scope', '$location', 'ticketImpulseChartService', 'ticketImpulseDataService', function($scope, $location, chartService, dataService) {
+	$scope.timeSeries = 'ticketImpulse: '+$scope.dom;
+	$scope.showButtons = true;
+	$scope.chartInit = false;
+	
+	if ($scope.inputUserParameters === undefined) {
+		$scope.userParameters = dataService.getDefaultUserParameters();
+	}
+	else {
+		//this is VERY specific functionality. The controller will copy the reference of the inputUserParameters,
+		//then populate the missing properties. This is so any userParameter manipulation in this controller is
+		//propagated outwardly
+		var defaultUserParameters = dataService.getDefaultUserParameters();
+		console.log(defaultUserParameters);
+		for(var property in defaultUserParameters) {
+			if( $scope.inputUserParameters[property] === undefined ) {
+				$scope.inputUserParameters[property] = defaultUserParameters[property];
+			}
+		}
+		$scope.userParameters = $scope.inputUserParameters;
+	}
+	
+	$scope.treatedData = {};
+	$scope.rawData = [];
+	$scope.active = {};
+	
+	if($scope.inputRawData !== undefined) {	
+		$scope.rawData = $scope.inputRawData;
+	}
+	
+	console.log($scope);
+	var bar;
+		//populated by drawChart
+	
+	$scope.active = $scope.query ? $scope.query
+	: {
+		assets : [{
+			asset : "AHU1",
+			facility : "60 Wall Street",
+			organization : "DEU",
+		}],
+		lowDate: new Date((new Date((new Date()) - (6*28*24*60*60*1000))).toDateString()),
+		highDate: new Date( (new Date()).toDateString() )
+	};
+	
+	var userParameterWatches = function () {
+		$scope.$watch('userParameters.barWidthPercentage', function(newVal, oldVal, scope) {
+			$scope.drawChart();
+		});
+		$scope.$watch('userParameters.height', function(newVal, oldVal, scope) {
+			$scope.drawChart();
+		});
+		$scope.$watch('userParameters.width', function(newVal, oldVal, scope) {
+			$scope.drawChart();
+		});
+	};
+	
+	var httpCallback = function(response) {
+		$scope.treatedData = response.data.treatedData;
+		$scope.rawData = response.data.result;
+		$scope.showButtons = false;
+		try {
+			$scope.drawChart();
+			userParameterWatches();
+		}
+		catch (e) {
+			console.error(e); // pass exception object to error handler
+		}
+		finally {
+			$scope.showButtons = true;
+		}
+	};
+	
+	var httpError = function (e) { console.log("Ray broke the server"); console.error(e);};
+	
+	$scope.initDataStartChartDraw = function () {
+		$scope.chartInit = true;
+		if($scope.inputRawData !== undefined) {
+			$scope.showButtons = false;
+			$scope.drawChart();
+			userParameterWatches(); //TODO: make this set chartInit, and only execute if chart init if false if doing this over and over messes things up.
+			$scope.showButtons = true;
+		}	//if inputData is passed in, there is no need to fetch data
+		else {
+			dataService.getData($scope.userParameters, $scope.active).then (
+				httpCallback, 
+				httpError
+			);
+		}
+	};
+	
+	$scope.drawChart = function () {
+		bar = dc.barChart('#'+$scope.dom);
+		$scope.chartHelper = chartService.init(
+			bar,
+			$scope.rawData,
+			$scope.userParameters
+		);
+		
+		$scope.chartHelper.drawChart();
+	};
+	
+	$scope.queryData = function () {
+		dataService.getData($scope.userParameters, $scope.active).then(
+			function (response) {
+				$scope.treatedData = response.data.treatedData;
+				$scope.rawData = response.data.result;
+			}, 
+			httpError
+		);
+	};
+	$scope.queryAllData = function () {
+		dataService.getData($scope.userParameters, undefined).then (
+			function (response) {
+				$scope.treatedData = response.data.treatedData;
+			}, 
+			httpError
+		);
+	};
+	$scope.deleteActive = function (org, fac, asset) {
+		for(var i = 0, len = $scope.active.assets.length; i < len; i++)
+		{
+			if( ($scope.active.assets[i].organization === org)
+			&&($scope.active.assets[i].facility === fac)
+			&&($scope.active.assets[i].asset === asset) ) {
+			
+				$scope.active.assets.splice(i,1);
+				if($scope.active.assets.length > 0) {$scope.initDataStartChartDraw();}	//redraw if there is data to redraw
+				return true;
+			}
+		}
+		return false;
+	};
+	$scope.initAsset = function (org, fac, asset) {
+		for(var i = 0, len = $scope.active.assets.length; i < len; i++)
+		{
+			if( ($scope.active.assets[i].organization === org)
+			&&($scope.active.assets[i].facility === fac)
+			&&($scope.active.assets[i].asset === asset) ) {
+				alert("Already Exists!");
+				$scope.initDataStartChartDraw();
+				return false;	//Don't do anything if it already exists
+			}
+		}
+		$scope.active.assets.push({
+			asset : asset,
+			facility : fac,
+			organization : org,
+		});
+		if($scope.active.assets.length > 0) {$scope.initDataStartChartDraw();}//redraw if there is data to redraw
+		return true;
+	};
+	
+	$scope.isColor = function (paramName) {
+		var regex = /color/ig;
+		return regex.test(paramName);
+	};
+	$scope.isDate = function (paramName) {
+		var regex = /date/ig;
+		return regex.test(paramName);
+	};
+	$scope.isArray = function (param) {
+		return typeof param === "object";
+	};
+	$scope.isntSpecial = function (param, paramName) {		//true when isn't a color, date or array, or something else
+		return !$scope.isColor(paramName)&&!$scope.isDate(paramName)&&!$scope.isArray(param);
+	};
+	$scope.addColor = function (param) {
+		param.push('cyan');
+	};
+	$scope.removeColor = function (param) {
+		param.pop();
+	};
+	
+	$scope.logScope = function () {
+		console.log($scope);
+	};
+	$scope.debug = function () {
+		console.log($scope);
+	};
+
+	if($scope.query !== undefined) { $scope.initDataStartChartDraw(); }
+	else if($scope.inputRawData !== undefined) {$scope.initDataStartChartDraw();}
+	else { $scope.queryData($scope.userParameters); }
+}])
 .directive('ticketImpulse', ['chartIdService', function (chartIdService) {
 	return {
 		restrict: "E",
@@ -371,192 +556,7 @@ angular.module('myApp.ticketImpulse', ['ngRoute'])
 			}
 		},
 		templateUrl : "views/ticketImpulse.html",
-		controller: ['$scope', '$location', 'ticketImpulseChartService', 'ticketImpulseDataService',
-                    function($scope, $location, chartService, dataService) {
-			$scope.timeSeries = 'ticketImpulse: '+$scope.dom;
-			$scope.showButtons = true;
-			$scope.chartInit = false;
-			
-			if ($scope.inputUserParameters === undefined) {
-				$scope.userParameters = dataService.getDefaultUserParameters();
-			}
-			else {
-				//this is VERY specific functionality. The controller will copy the reference of the inputUserParameters,
-				//then populate the missing properties. This is so any userParameter manipulation in this controller is
-				//propagated outwardly
-				var defaultUserParameters = dataService.getDefaultUserParameters();
-				console.log(defaultUserParameters);
-				for(var property in defaultUserParameters) {
-					if( $scope.inputUserParameters[property] === undefined ) {
-						$scope.inputUserParameters[property] = defaultUserParameters[property];
-					}
-				}
-				$scope.userParameters = $scope.inputUserParameters;
-			}
-			
-			$scope.treatedData = {};
-			$scope.rawData = [];
-			$scope.active = {};
-			
-			if($scope.inputRawData !== undefined) {	
-				$scope.rawData = $scope.inputRawData;
-			}
-			
-			console.log($scope);
-			var bar;
-				//populated by drawChart
-			
-			$scope.active = $scope.query ? $scope.query
-			: {
-				assets : [{
-					asset : "AHU1",
-					facility : "60 Wall Street",
-					organization : "DEU",
-				}],
-				lowDate: new Date((new Date((new Date()) - (6*28*24*60*60*1000))).toDateString()),
-				highDate: new Date( (new Date()).toDateString() )
-			};
-			
-			var userParameterWatches = function () {
-				$scope.$watch('userParameters.barWidthPercentage', function(newVal, oldVal, scope) {
-					$scope.drawChart();
-				});
-				$scope.$watch('userParameters.height', function(newVal, oldVal, scope) {
-					$scope.drawChart();
-				});
-				$scope.$watch('userParameters.width', function(newVal, oldVal, scope) {
-					$scope.drawChart();
-				});
-			};
-			
-			var httpCallback = function(response) {
-				$scope.treatedData = response.data.treatedData;
-				$scope.rawData = response.data.result;
-				$scope.showButtons = false;
-				try {
-					$scope.drawChart();
-					userParameterWatches();
-				}
-				catch (e) {
-					console.error(e); // pass exception object to error handler
-				}
-				finally {
-					$scope.showButtons = true;
-				}
-			};
-			
-			var httpError = function (e) { console.log("Ray broke the server"); console.error(e);};
-			
-			$scope.initDataStartChartDraw = function () {
-				$scope.chartInit = true;
-				if($scope.inputRawData !== undefined) {
-					$scope.showButtons = false;
-					$scope.drawChart();
-					userParameterWatches(); //TODO: make this set chartInit, and only execute if chart init if false if doing this over and over messes things up.
-					$scope.showButtons = true;
-				}	//if inputData is passed in, there is no need to fetch data
-				else {
-					dataService.getData($scope.userParameters, $scope.active).then (
-						httpCallback, 
-						httpError
-					);
-				}
-			};
-			
-			$scope.drawChart = function () {
-				bar = dc.barChart('#'+$scope.dom);
-				$scope.chartHelper = chartService.init(
-					bar,
-					$scope.rawData,
-					$scope.userParameters
-				);
-				
-				$scope.chartHelper.drawChart();
-			};
-			
-			$scope.queryData = function () {
-				dataService.getData($scope.userParameters, $scope.active).then(
-					function (response) {
-						$scope.treatedData = response.data.treatedData;
-						$scope.rawData = response.data.result;
-					}, 
-					httpError
-				);
-			};
-			$scope.queryAllData = function () {
-				dataService.getData($scope.userParameters, undefined).then (
-					function (response) {
-						$scope.treatedData = response.data.treatedData;
-					}, 
-					httpError
-				);
-			};
-			$scope.deleteActive = function (org, fac, asset) {
-				for(var i = 0, len = $scope.active.assets.length; i < len; i++)
-				{
-					if( ($scope.active.assets[i].organization === org)
-					&&($scope.active.assets[i].facility === fac)
-					&&($scope.active.assets[i].asset === asset) ) {
-					
-						$scope.active.assets.splice(i,1);
-						if($scope.active.assets.length > 0) {$scope.initDataStartChartDraw();}	//redraw if there is data to redraw
-						return true;
-					}
-				}
-				return false;
-			};
-			$scope.initAsset = function (org, fac, asset) {
-				for(var i = 0, len = $scope.active.assets.length; i < len; i++)
-				{
-					if( ($scope.active.assets[i].organization === org)
-					&&($scope.active.assets[i].facility === fac)
-					&&($scope.active.assets[i].asset === asset) ) {
-						alert("Already Exists!");
-						$scope.initDataStartChartDraw();
-						return false;	//Don't do anything if it already exists
-					}
-				}
-				$scope.active.assets.push({
-					asset : asset,
-					facility : fac,
-					organization : org,
-				});
-				if($scope.active.assets.length > 0) {$scope.initDataStartChartDraw();}//redraw if there is data to redraw
-				return true;
-			};
-			
-			$scope.isColor = function (paramName) {
-				var regex = /color/ig;
-				return regex.test(paramName);
-			};
-			$scope.isDate = function (paramName) {
-				var regex = /date/ig;
-				return regex.test(paramName);
-			};
-			$scope.isArray = function (param) {
-				return typeof param === "object";
-			};
-			$scope.isntSpecial = function (param, paramName) {		//true when isn't a color, date or array, or something else
-				return !$scope.isColor(paramName)&&!$scope.isDate(paramName)&&!$scope.isArray(param);
-			};
-			$scope.addColor = function (param) {
-				param.push('cyan');
-			};
-			$scope.removeColor = function (param) {
-				param.pop();
-			};
-			
-			$scope.logScope = function () {
-				console.log($scope);
-			};
-			$scope.debug = function () {
-				console.log($scope);
-			};
-
-			if($scope.query !== undefined) { $scope.initDataStartChartDraw(); }
-			else if($scope.inputRawData !== undefined) {$scope.initDataStartChartDraw();}
-			else { $scope.queryData($scope.userParameters); }
-		}]
+		controller: 'ticketImpulseCtrl'
 	}
 }])
 ;

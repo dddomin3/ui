@@ -13,6 +13,7 @@ angular.module('myApp', [
   'myApp.facilityDetails',
   'myApp.workOrderGrid',
   'myApp.workOrderSummary',
+  'myApp.eventOccurrences',
   'calHeatmap',
   'angularDc',
   'colorpicker.module',
@@ -40,6 +41,10 @@ config(['$routeProvider', function($routeProvider) {
 	when('/energyProfile', {
 		templateUrl: 'views/energyProfile.html',
 		controller: 'energyProfileCtrl'
+	}).
+	when('/eventOccurrences', {
+		templateUrl: 'views/eventOccurrences.html',
+		controller: 'eventOccurrencesCtrl'
 	}).
 	when('/intervalDemand', {
 		templateUrl: 'views/intervalDemand.html',
