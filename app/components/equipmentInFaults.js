@@ -20,7 +20,7 @@ angular.module('myApp.equipmentInFaults', ['ngRoute'])
 	var _location={};
 	
 
-
+	var _activeInfo={};
 	
 
 	
@@ -325,6 +325,68 @@ angular.module('myApp.equipmentInFaults', ['ngRoute'])
 		
 	};
 	
+	
+	// get activeinfo map
+	
+	var _getActiveInfo = function(){
+		return _activeInfo;
+	}
+	
+	//set activeInfo map
+	
+	var _setActiveInfo = function(value){
+		_activeInfo = value;
+	}
+	
+	// query events data by date
+	
+	var _queryTicketsByDate = function (start,end,station,asset) {	
+		//this function queries the server for all existing Assets
+		var _tickets=[];
+		var caller =this;
+		var Url  = "http://10.239.3.132:9763/MongoServlet-0.0.1-SNAPSHOT/send";
+		var requestString = "{ \"createdTime\": {\"$gt\" : { \"$date\": \""+start+"\" }, \"$lt\": { \"$date\": \"" +end+"\" }}, \"asset\" :\""+asset+"\", \"stationName\" :\""+station+"\"}";
+		var config = {
+				method:'POST',
+				headers: {'Collection': 'Event'},
+				url:Url,
+				data:requestString
+		}
+		
+		return $http(config)
+		.success(
+				function (data) {
+					if(data.result!=null){
+						for(var i = 0, ilen = data.result.length; i < ilen; i++) { 
+							
+							var _subTicket=[];
+				
+							_subTicket.push(data.result[i].eventID);
+							_subTicket.push(data.result[i].asset);
+							_subTicket.push(data.result[i].createdTime);
+							_subTicket.push(data.result[i].stationName);
+							
+							_tickets.push(_subTicket);
+							
+							caller.data._tickets=_tickets;	
+							
+							
+							};	
+					}
+					else{
+						_tickets.push("empty");
+						caller.data._tickets=_tickets;
+					}
+					
+					
+				})
+		.error( function () { alert('fail to query data');
+		
+		} );
+	
+		
+	};
+	
 
 	
 
@@ -359,7 +421,13 @@ angular.module('myApp.equipmentInFaults', ['ngRoute'])
 			getAddress : _getAddress,
 			
 			
-			queryEvents: _queryEvents
+			queryEvents: _queryEvents,
+			
+			getActiveInfo : _getActiveInfo,
+			
+			setActiveInfo : _setActiveInfo,
+			
+			queryTicketsByDate :_queryTicketsByDate
 			
 	};
 
@@ -380,6 +448,7 @@ angular.module('myApp.equipmentInFaults', ['ngRoute'])
 	
 	
 	var _events=[];
+	
 	
 	var vm=this;
 	
@@ -660,6 +729,8 @@ angular.module('myApp.equipmentInFaults', ['ngRoute'])
 			
 			$scope.activeInfo[key]=info;
 			
+			dataService.setActiveInfo($scope.activeInfo);
+			
 			console.log(info);
 			
 
@@ -726,6 +797,82 @@ angular.module('myApp.equipmentInFaults', ['ngRoute'])
 		console.log($scope.imBoolean);
 				
 	}
+	
+	
+	
+	
+	//bar chart
+	$scope.chart = function(size,station,asset) {
+		
+		$scope.modalInstance = $modal.open({
+			templateUrl: 'views/equipmentInFaultschart.html',
+			controller: 'equipmentInFaultsCtrl',
+			size: size,
+			scope: $scope
+		});
+		
+		
+		
+		$scope.barChart=function(station,asset){
+			
+			var today= new Date();
+			today=today.toJSON();
+			
+			var startDate = new Date();
+			startDate.setDate(startDate.getDate()-7);
+			
+			
+			vm.queryTicketsByDate(startDate.toJSON(),today,station,asset).then().finally(function(){
+				
+				var chart = dc.barChart("#test");
+				
+				console.log(vm.data._tickets);
+				
+				var ndx  = crossfilter(vm.data._tickets);
+				  
+				    var  dateDimension        = ndx.dimension(function(d) {return d[2];});
+				    
+				    var dateGroup = dateDimension.group(function(date){
+				    	var date = new Date(date);
+				    	return date.getDate();
+				    	
+				    }).reduceCount();
+				    
+				    console.log(dateGroup);
+				    
+				    
+								      
+				   chart =  chart.dimension(dataDimension)
+				   	   .x(d3.scale.linear().domain([0,3]))
+				   	   .group(dateGroup);
+				  
+				    chart.render();
+				
+
+			});
+			
+
+		};
+		
+		$scope.barChart(station,asset);
+		
+		
+
+	};
+		
+		
+		
+		
+
+		
+		
+
+
+	
+	 
+	
+
+	
 	
 	
 }])
