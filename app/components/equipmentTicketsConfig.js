@@ -1,8 +1,13 @@
+// Angela's code; equipmentTicketsConfig.js
+
 'use strict';
 
 angular.module('myApp.equipmentTickets')
 
-.controller('equipmentTicketsConfigCtrl', ['$scope', 'clientService', function($scope, clientService) {
+
+
+.controller('equipmentTicketsConfigCtrl', ['$scope', '$modalInstance', 'clientService', function($scope, $modalInstance, clientService) {
+	
 	$scope.clientList = null;
 	$scope.facilityList = null;
 	$scope.assetList = null;
@@ -15,34 +20,36 @@ angular.module('myApp.equipmentTickets')
 	clientListPromise.then(function(clientList) {
 		$scope.clientList = clientList;
 	}, function() {
-		alert('fail to query clients from client service');
+		console.log('fail to query clients from client service');
 	});
 	
-	$scope.$watch("currentClientName", function() { // because $scope.currentClientName
-		console.log('client name changed');
-
-
-		var facilityListPromise = clientService.getFacilityList($scope.currentClientName);
-		facilityListPromise.then(function(facilityList) {
-			$scope.facilityList = facilityList;
-		}, function() {
-			alert('fail to query facilities from client service');
-		});
-		
-		$scope.$watch("currentFacilityName", function() { // because $scope.currentClientName
-			console.log('facility name changed');
-			
-			
+	$scope.$watch("currentClientName", function() {
+		if ($scope.currentClientName!==null){
+			var facilityListPromise = clientService.getFacilityList($scope.currentClientName);
+			facilityListPromise.then(function(facilityList) {
+				$scope.facilityList = facilityList;
+			}, function() {
+				console.log('fail to query facilities from client service');
+			});
+		}
+	});
+	
+	$scope.$watch("currentFacilityName", function() {
+		if ($scope.currentFacilityName!==null){
 			var assetListPromise = clientService.getAssetList($scope.currentClientName, $scope.currentFacilityName);
 			assetListPromise.then(function(assetList) {
 				$scope.assetList = assetList;
 			}, function() {
-				alert('fail to query assets from client service');
+				console.log('fail to query assets from client service');
 			});
-			
-			$scope.$watch("currentAssetName", function() { // because $scope.currentClientName
-			console.log('asset name changed');
-			});
-		});
-    });
+		}
+	});
+	
+	$scope.ok = function() {
+		var configData = {
+			facility: $scope.currentFacilityName,
+			assetId: $scope.currentAssetName
+		};
+		$modalInstance.close(configData);
+	};
 }]);

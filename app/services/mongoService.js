@@ -17,7 +17,7 @@ angular.module('myApp.equipmentTickets')
 			return promise.then(function(response) {
 				return response.data.result;
 			}, function() {
-				alert('fail to query from database');
+				console.log('fail to query from database');
 			});
 		}
     };

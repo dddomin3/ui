@@ -27,9 +27,9 @@ angular.module('myApp.equipmentTickets')
 				var assetPair = _.find(assetPairs, function(kvp) { return _.contains(kvp[1], assetId) }); // get the matching pair
 				var assetTypePlural = assetPair[0]; // choose the key from the pair
 				var assetType = assetTypePlural.substring(0, assetTypePlural.length-1); //remove the 's' from the end
-				return {"id": assetId, "type": assetType, "location": "Building 4 Roof"}; //need a location in the database still!
+				return {"id": assetId, "type": assetType, "facility": facility, "location": "Building 4 Roof"}; //need a location in the database still!
 			}, function() {
-				alert('fail to query asset data from database');
+				console.log('fail to query asset data from database');
 			});
 		},
 	
@@ -58,7 +58,7 @@ angular.module('myApp.equipmentTickets')
                 });
                 return newResults;
             }, function() {
-				alert('fail to query event data from database');
+				console.log('fail to query event data from database');
             });
         }
     };

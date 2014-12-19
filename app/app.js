@@ -85,8 +85,8 @@ config(['$routeProvider', function($routeProvider) {
 		controller: 'eventPageCtrl'
 	}).
 	when('/equipmentTickets', {
-		templateUrl: 'views/equipmentTicketsConfig.html',
-		controller: 'equipmentTicketsConfigCtrl'
+		templateUrl: 'views/equipmentTickets.html',
+		controller: 'equipmentTicketsCtrl'
 	}).
 	when('/equipmentTickets/:facility/:assetId', {
 		templateUrl: 'views/equipmentTickets.html',

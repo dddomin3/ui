@@ -1,38 +1,38 @@
-<!--Angela's code-->
+<!--Angela's code; equipmentTickets.html-->
 
-<div class="container-fluid" ng-controller="equipmentTicketsCtrl">
-	<title>All Angela</title>
+<div class="container-fluid">
+  
+   <div class= "panel-heading clearfix">
+       <button class="btn btn-default pull-right" ng-click="openConfig()" >Config</button>
+   </div>
+   
+   
+   <div class="row" style="margin-bottom: 10px">
+       <div class="col-sm-4 col-sm-push-4">
+           <h1>Asset Name: {{asset.id}}</br></h1>
+           Asset Type: <span style="text-transform: uppercase">{{asset.type}}</span></br>
+           Asset Location: {{asset.facility}}, {{asset.location}}
+       </div>
+ 
+ 
+       <div class="col-sm-4 col-sm-pull-4">
+           <img ng-if="asset.type==null" ng-src="/app/ajax-loader.gif" class="img-responsive"/>
+           <img ng-if="asset.type!=null" ng-src="/app/pictures/assetTypes/{{asset.type}}.png" class="img-responsive"/></br>
+           <a ng-href="#">Asset Configuration</a></br>
+           <a ng-href="#">Analytic Configuration</a>
+       </div>
+       
+       <div class="col-sm-4">
+           <p>(put operating graph here)</p>
+       </div>
+   </div>
 	
-	<div class= "panel-heading clearfix">
-		<button class="btn btn-default pull-right"><a ng-href="/app/#/equipmentTickets">Config</a></button>
-	</div>
-	
-	
-	<div class="row" style="margin-bottom: 10px">
-		<div class="col-md-4 col-md-push-4">
-			<h1>Asset Name: {{asset.id}}</br></h1>
-			Asset Type: <span style="text-transform: uppercase">{{asset.type}}</span></br>
-			Asset Location: {{asset.location}}
-		</div>
-
-
-		<div class="col-md-4 col-md-pull-4">
-			<img ng-if="asset.type==null" ng-src="/app/ajax-loader.gif"/>
-			<img ng-if="asset.type!=null" ng-src="/app/pictures/assetTypes/{{asset.type}}.png"/></br>
-			<a ng-href="#">Asset Configuration</a></br>
-			<a ng-href="#">Analytic Configuration</a>
-		</div>
-		
-		<div class="col-md-4">
-			<p>(put operating graph here)</p>
-		</div>
-	</div>
 	
 	<div style="background-color: lightgray" ng-repeat="event in events" ng-if="events.length>0">
 		<a ng-href="/app/#/eventPage/{{event.id}}"> <!-- this whole div should be clickable into the event -->
 			<div class="row">
 				<div class="col-sm-6">
-					<p>(Put Dennis' grid here)</p>
+					<p>(Put event-specific impulse chart here)</p>
 				</div>
 				
 				<div class="col-sm-6">
@@ -44,10 +44,10 @@
 				<thead>
 					<tr>
 						<th width="16%">Anomaly</th>
-						<th width="16%">First Occurrence</th>
-						<th width="16%">Last Occurrence</th>
-						<th width="16%"># of Occurrences</th>
-						<th width="16%">Waste</th>
+						<th width="16%" class="visible-lg">First Occurrence</th>
+						<th width="16%" class="visible-lg">Last Occurrence</th>
+						<th width="16%" class="visible-lg"># of Occurrences</th>
+						<th width="16%" class="visible-lg visible-md">Waste</th>
 						<th width="16%">Potential</th>
 					</tr>
 				</thead>
@@ -55,10 +55,10 @@
 				<tbody>
 					<tr>
 						<td>{{event.anomaly}}</td>
-						<td>{{event.firstAt}}</td>
-						<td>{{event.lastAt}}</td>
-						<td>{{event.quantity}}</td>
-						<td>$ {{event.waste}}</td>
+						<td class="visible-lg">{{event.firstAt}}</td>
+						<td class="visible-lg">{{event.lastAt}}</td>
+						<td class="visible-lg">{{event.quantity}}</td>
+						<td class="visible-lg visible-md">$ {{event.waste}}</td>
 						<td>$ {{event.potential}}</td>
 				</tbody>
 			</table>

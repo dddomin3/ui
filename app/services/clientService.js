@@ -12,7 +12,7 @@ angular.module('myApp.equipmentTickets')
                 });
                 return _.uniq(clientList);
             }, function() {
-				alert('fail to query client list from database');
+				console.log('fail to query client list from database');
             });
 		},
 		
@@ -24,7 +24,7 @@ angular.module('myApp.equipmentTickets')
                 });
                 return facilityList;
             }, function() {
-				alert('fail to query facility list from database');
+				console.log('fail to query facility list from database');
             });
 		},
 		
@@ -32,12 +32,20 @@ angular.module('myApp.equipmentTickets')
 		getAssetList: function(clientName, facilityName){
 			var promise = mongoService.queryDb({"clientName": clientName, "projectName": facilityName}, "Facility");
             return promise.then(function(results) {
-                var assetList = _.map(results, function(x) {
-                	return x.oCNumber; //how on earth do i deal with the array?!
-                });
+            	var result = results[0];
+                var assetLists = _.map(result.asset, function(k, v) {return k});
+                var assetList = _.flatten(assetLists);
                 return assetList;
+                
+                
+                /* this is the same thing:
+                return _(result) // notice no .
+                	.map(function(k, v) { return v; })
+                	.flatten()
+                	.value();
+					*/
             }, function() {
-				alert('fail to query asset list from database');
+				console.log('fail to query asset list from database');
             });
 		},
     };

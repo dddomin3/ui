@@ -1,16 +1,13 @@
-<div ng-controller="equipmentTicketsConfigCtrl" >
-	Choose Client: <select ng-model="currentClientName" ng-options="client for client in clientList" ng-change="clientSelected()"></select>
-	
-	Choose Facility: <select ng-model="currentFacilityName" ng-options="facility for facility in facilityList"></select>
-					
-	Choose Asset: <select ng-model="currentAsset" ng-options="asset for asset in assetList"></select>
+<!--Angela's code; equipmentTicketsConfig.html-->
 
-	<div class="modal-footer">
-		<button class="btn btn-primary" ng-click="ok()">
-			<a ng-href="/app/#/equipmentTickets/{{currentFacilityName}}/{{currentAssetName}}">
-				OK
-			</a>
-		</button>
-		
-	</div>
+<div></br>
+	Choose Client: <select ng-model="currentClientName" ng-options="client for client in clientList" ng-change="clientSelected()"></select></br></br>
+	
+	Choose Facility: <select ng-model="currentFacilityName" ng-options="facility for facility in facilityList" ng-change="facilitySelected()"></select></br></br>
+					
+	Choose Asset: <select ng-model="currentAssetName" ng-options="asset for asset in assetList" ng-change="assetSelected()"></select><br></br>
+
+	<div ng-if="currentAssetName==null"><i>Please choose a client, facility, asset to continue</i></div>
+	
+	<button class="btn btn-primary" ng-if="currentAssetName!=null" ng-click="ok()">OK</button></br>
 </div>
