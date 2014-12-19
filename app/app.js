@@ -13,6 +13,7 @@ angular.module('myApp', [
   'myApp.facilityDetails',
   'myApp.workOrderGrid',
   'myApp.workOrderSummary',
+  'myApp.eventOccurrences',
   'calHeatmap',
   'angularDc',
   'colorpicker.module',
@@ -41,6 +42,10 @@ config(['$routeProvider', function($routeProvider) {
 		templateUrl: 'views/energyProfile.html',
 		controller: 'energyProfileCtrl'
 	}).
+	when('/eventOccurrences', {
+		templateUrl: 'views/eventOccurrences.html',
+		controller: 'eventOccurrencesCtrl'
+	}).
 	when('/intervalDemand', {
 		templateUrl: 'views/intervalDemand.html',
 		controller: 'intervalDemandCtrl'
@@ -48,10 +53,6 @@ config(['$routeProvider', function($routeProvider) {
 	when('/facilityDetails', {
 		templateUrl: 'views/facilityDetails.html',
 		controller: 'facilityDetailsCtrl'
-	}).
-	when('/workOrderSummary', {
-		templateUrl: 'views/workOrderSummary.html',
-		controller: 'workOrderSummaryCtrl'
 	}).
 	when('/workOrderSummaryModal', {
 		templateUrl: 'views/workOrderSummaryModal.html',
@@ -61,14 +62,7 @@ config(['$routeProvider', function($routeProvider) {
 		templateUrl: 'views/workOrderSummaryConfig.html',
 		controller: 'workOrderSummaryConfigCtrl'
 	}).
-	when('/workOrderSummary', {
-		templateUrl: 'views/workOrderSummary.html',
-		controller: 'workOrderSummaryCtrl'
-	}).
-	when('/workOrderSummaryFacility', {
-		templateUrl: 'views/workOrderSummaryFacility.html',
-		controller: 'workOrderSummaryFacilityCtrl'
-	}).
+	
 	when('/ticketImpulse', {
 		templateUrl: 'views/ticketImpulseTest.html'
 	}).

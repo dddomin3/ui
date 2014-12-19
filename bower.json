@@ -18,6 +18,8 @@
 	"angular-bootstrap":"~0.11.2",
 	"bootstrap":"3.3.0",
 	"jquery":"~2.x.x",
-	"angular-ui-grid":"~3.x"
+	"angular-ui-grid":"~3.x",
+	"lodash":  "~2.4.x",
+	"crossfilter": "~1.3.x"
   }
 }
