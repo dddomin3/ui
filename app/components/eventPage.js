@@ -6,16 +6,7 @@ angular.module('myApp.eventPage', ['ngRoute'])
   .directive('eventPage', ['chartIdService',function(chartIdService){
 	  return{
 		  restrict:'E',
-		  scope : {
-			dcName : '@',
-		  },
-		  templateUrl : 'views/eventPage.html',
-		  controller : 'eventPageCtrl',
-		  compile: function(element, attrs){
-			  if(attrs.hasOwnProperty('dcName') == false){
-			  	attrs.dcName = chartIdService.getNewId();
-		      }
-		  }
+		  templateUrl : 'views/eventPage.html'
 	  }}])
   .run(['directiveService', function(directiveService){
 	directiveService.addFullComponent({
@@ -88,48 +79,61 @@ angular.module('myApp.eventPage', ['ngRoute'])
      function($scope, $http, $location, $route, $window,serv,chartIdService) {
 
 		 //*******************************debugging/troubleshooting variables/functions *****************************
-		if($scope.dcName === undefined){
-			 $scope.dcName = chartIdService.getNewId();
-		 }  
+
+	  	 
+	  
 		 var getTicketID = function(){
-			 
 			 if($scope.dcName.indexOf(1) >= 0){
-				 $scope.pointsUsed = ["Site_kWh1","SITE_kW"];
 				 serv.setWorkOrderNumber("PLP-0126890");
 				 //organization ANDO
 			 }else {
 				 
-				 $scope.pointsUsed = ["B100_KWH","B200_KWH","B400_KWH","B500_KWH"];
 				 serv.setWorkOrderNumber("DEU-0165521");
 				 //organization JACK
 			 }
 		 }
 		 
-		 $scope.changeWorkOrder = function(current){
+		 $scope.changeWorkOrderService = function(current){
 			 if(serv.getWorkOrderNumber() === "PLP-0126879"){
 				 serv.setWorkOrderNumber("DEU-0165521");
-				 $scope.pointsUsed = ["B100_KWH","B200_KWH","B400_KWH","B500_KWH"];
 			 }else{
-				 $scope.pointsUsed = ["Site_kWh1","SITE_kW"];
 				 serv.setWorkOrderNumber("PLP-0126879"); 
 			 }	
+		 }
+		 
+		 $scope.changeWorkOrderLocal = function(current){
+			 if(current === "PLP-0126879"){
+				 $scope.workOrderNumber = "DEU-0165521";
+			 }else{
+				 $scope.workOrderNumber = "PLP-0126879"; 
+			 }
+		 }
+		 
+		 $scope.logScope = function(){
+			 console.log($scope);
 		 }
 						 
 		 //**********************************  end debugging/troubleshotting variables/functions ***********************
 		 
 		 // receive the proper work order number ($scope variable change, watch scope variable for change)
 		 
-		 if($scope.workOrderNumber === undefined){
+		 if($scope.dcName === undefined){
+			 $scope.dcName = chartIdService.getNewId();
+		 }
+		 
+		 if(serv.getWorkOrderNumber() !== undefined){
+			 $scope.workOrderNumber = serv.getWorkOrderNumber();
+		 }else{
 			 getTicketID();
 			 $scope.workOrderNumber = serv.getWorkOrderNumber();
 		 }
 		 
-		 if($scope.myTicketType === undefined){
-			 $scope.myTicketType = "null";
+		 if(serv.getAnomalyName() !== undefined){
+			 $scope.myTicketType = getAnomalyName();
 		 }
 		 
-		 if($scope.myAsset === undefined){
-			 $scope.myAsset = "null"; 
+		 if(serv.getAssetName() !== undefined){
+			 $scope.myAsset = serv.getAssetName();
 		 }
 		 
 		 $scope.doMyGraphing = false;			 
@@ -157,7 +161,7 @@ angular.module('myApp.eventPage', ['ngRoute'])
 				
 		   var ticketPromise =  $http(config)
 			     .success(function(data, status, headers, config){ })
-			     .error(function(data, status, headers, config){ console.log("fail!!");})
+			     .error(function(data, status, headers, config){$scope.errorCode = "Database Error"; $scope.doMyGraphing = null;})
 		   ;
 		   
 		   return ticketPromise;
@@ -181,7 +185,7 @@ angular.module('myApp.eventPage', ['ngRoute'])
 		 }
 		 	
 		 var launchError = function(errorText){
-			 alert(errorText);
+			 console.log($scope);
 			 $scope.errorCode = errorText;
 			 $scope.doMyGraphing = null;
 			 
@@ -197,7 +201,34 @@ angular.module('myApp.eventPage', ['ngRoute'])
 				}
 				
 				$scope.allMyTickets = response.data.result;
-							
+				
+				var activeLine = function(tickets){
+					var _array = [];
+					
+					var getBar = function(entry){
+						var start = new Date(entry.createdTime),
+						    end   = new Date(entry.closedTime)
+						;
+						
+						var time = new Date(((+start)+(+end))/2);
+						var days = getDaysBetween(start,end);
+												
+						return {
+								 "time":start,
+								 "duration":days,
+								 "state":1
+							   }
+					}
+
+					for(var i = 0; i < tickets.length; i++){
+						_array.push(getBar(tickets[i]));
+					}
+					
+					return _array;
+				}
+				
+				$scope.activeTix = activeLine($scope.allMyTickets);
+				
 				var first = new Date(),
 					last = new Date(0),
 					anomaly = null,
@@ -240,11 +271,17 @@ angular.module('myApp.eventPage', ['ngRoute'])
 				
 				// receive point list from the database object
 				//$scope.pointsUsed = response.data.result[0].pointUsed;   ******************* uncomment for live
+				
+				if($scope.workOrderNumber === "PLP-0126879"){
+					   $scope.pointsUsed = ["Site_kWh1","SITE_kW"];
+				}else{
+					   $scope.pointsUsed = ["B100_KWH","B200_KWH","B400_KWH","B500_KWH"];
+				}
 			 }).then(function(){
 				 if(badPointCheck($scope.workOrderNumber)){ // check for error on $scope.workOrderNumber
 					 launchError("No Work Order!!");
-				 }else if(badPointCheck($scope.pointsUsed)){//		""		""	  $scope.pointsList
-					 launchError("Cannot determine point list!!");
+				 }else if(badPointCheck($scope.pointsUsed)){//		""		""	  $scope.pointsUsed
+					 launchError("Cannot determine points used!!");
 				 }else if(badPointCheck($scope.myAsset)){//			""		""	  $scope.myAsset
 					 launchError("Cannot determine asset!!")
 				 }else if(badPointCheck($scope.stationName)){//		""		""	  $scope.stationName
@@ -256,7 +293,6 @@ angular.module('myApp.eventPage', ['ngRoute'])
 		   ;	 
 		 };	 
 		 
-		 
 		 var badPointCheck = function(point){
 			 if(point === undefined || point === null){
 				 return true;
@@ -264,32 +300,7 @@ angular.module('myApp.eventPage', ['ngRoute'])
 				 return false;
 			 }
 		 };
-		
-		 // query database for the relevant points
-		 $scope.drawGraph = function(term){
-			 if(term == 'composite'){
-				 $scope.composite.render();
-				 $scope.myPoints = $scope.allPoints;
-			 }else{
-				 $scope.myPoints = [];
-				 eraseAllGraphs();
-				 for(var item in $scope.allPoints){
-					 if($scope.allPoints[item].name == term){
-						 $scope.myPoints.push($scope.allPoints[item]);
-					 };
-				 };
-				 $scope.pointCharts[term].render();
-			 }
-		 }
-		 
-		 var eraseAllGraphs = function(){
-			 $scope.composite.resetSvg();
-			 
-			 for(var point in $scope.pointCharts){
-				 $scope.pointCharts[point].resetSvg();
-			 }
-		 }
-		 
+				 
 		 var allMyPoints = [];
 		 
 		 var getAllMyPoints = function(_pointArray){
@@ -319,8 +330,9 @@ angular.module('myApp.eventPage', ['ngRoute'])
 					 },10);
 				 }
 				 else{
-					 $scope.doMyGraphing = true; 
-					 $scope.$apply();
+					 if($scope.doMyGraphing !== true){
+						 $scope.doMyGraphing = true;
+					 }
 				 }
 				 
 				 return counter == max;
@@ -364,45 +376,122 @@ angular.module('myApp.eventPage', ['ngRoute'])
 		 }
 		 
 		 var getDaysBetween = function(start, end){
-		    	var _daysBetween = (new Date(end) - new Date(start))/(1000*60*60*24);
-		    	
-		    	return Math.round(_daysBetween);
-	     }
+		    	return (new Date(end) - new Date(start))/(1000*60*60*24);
+		 }
+		 		 
+		 var customTimeFormat = d3.time.format.multi([
+		                                              [".%L", function(d) { return d.getMilliseconds(); }],
+		                                              [":%S", function(d) { return d.getSeconds(); }],
+		                                              ["%I:%M", function(d) { return d.getMinutes(); }],
+		                                              ["%I:%M %p", function(d) { return d.getHours(); }],
+		                                              ["%a %d", function(d) { return d.getDay() && d.getDate() != 1; }],
+		                                              ["%b %d", function(d) { return d.getDate() != 1; }],
+		                                              ["%b '%y", function(d) { return d.getMonth(); }],
+		                                              ["%Y", function() { return true; }]
+		                                            ]);
 		 
-		 var displayDate= d3.time.format("%m-%d-%y");
 		 $scope.pointCharts = [];
 		 
-		 var getMyDim = function(_daysBetween_,_origDim){
+		 var monthDim,
+		 	 dayDim,
+		 	 hourDim,
+		 	 minuteDim
+		 ;
+		 
+		 var getMySettings = function(_daysBetween_){
 			 var _array = [];
-			 _array[0] = _origDim;
+			 var _dim;
+			 var _units;
+			 
+			 
+			 
+			 if(_daysBetween_ >= 180){
+				 _dim = monthDim
+				 _units = d3.time.months;
+			 }else if(_daysBetween_ >= 30){
+				 _dim = dayDim; 
+				 _units = d3.time.days;
+			 }
+			 else if(_daysBetween_ >= 7){
+				 _dim = hourDim;
+				 _units = d3.time.hours;
+			 }else{
+				 _dim = minuteDim
+				 _units = d3.time.minutes;
+			 }
+			 
+			 _array[0] = _dim;
+			 _array[1] = _units;
+			 
 			 return _array;
 		 }
+		 
+		 var lastDaysBetween;
+		 var lastOKDate = [];
 		 
 		 // graph the points
 		 var compositeChart = function(_array){
 			 var _ndx = crossfilter(_array);
-			 var _indDim = _ndx.dimension(function(d){return d;});
-			 var _dateDim = _ndx.dimension(function(d){return d3.time.day(new Date(d.timestamp));});
+			 var _ndxTix = crossfilter($scope.activeTix);
 			 
-			 var _start = _dateDim.bottom(1)[0].timestamp;
-			 var _end = _dateDim.top(1)[0].timestamp;
+			 monthDim = _ndx.dimension(function(d){return d3.time.month(new Date(d.timestamp));});
+			 dayDim = _ndx.dimension(function(d){return d3.time.day(new Date(d.timestamp));});
+			 hourDim = _ndx.dimension(function(d){return d3.time.hour(new Date(d.timestamp));});
+			 minuteDim = _ndx.dimension(function(d){return d3.time.minute(new Date(d.timestamp));});
 			 
-			 var myDomain = d3.scale.linear().domain([new Date(_start), new Date(_end)]);
+			 var ticketDim = _ndxTix.dimension(function(d){return new Date(d.time);});
+			 
+			 var _start = dayDim.bottom(1)[0].timestamp;
+			 var _end = dayDim.top(1)[0].timestamp;
+			 
+			 var myDomain = d3.time.scale().domain([new Date(_start), new Date(_end)]);
 			 
 			 var _daysBetween = getDaysBetween(_start, _end);
-
-			 var _mySettings = getMyDim(_daysBetween,_dateDim);
+			 lastDaysBetween = _daysBetween;
+			 
+			 var _mySettings = getMySettings(_daysBetween); 
 			 
 			 var _myDim = _mySettings[0];
 			 var _myXUnits = _mySettings[1];
 			 
+			 var _origDim = _myDim;
+			 var zoomLimit = true;
+
 			 var maxVal = +_myDim.group().reduceSum(function(d){return +Math.round(d.value);}).top(1)[0].value;
-			 	
+			 var barHeight = 0; 
+			 var rightAxisInUse = false;
+			 
+			 var createTicketChart = function(){
+				 var _group = ticketDim.group().reduce(
+						 function(p,v){return v.state*barHeight;},
+						 function(p,v){	return -v.state*barHeight; },
+						 function(){return 0;}
+				 )
+				 var varChart = dc.barChart($scope.composite)
+					 .dimension(ticketDim)
+					 .group(_group,"Tickets")
+					 .hidableStacks(true)
+					 .centerBar(true)
+					 //.xUnits(d3.time.months)
+				 ;
+				 
+				 varChart.margins().left = 100;
+				 varChart.margins().right = 125;
+						 
+				 return varChart;
+			 }
+			 
 			 var createCharts = function(myFilter){
 				var _group = _myDim.group().reduceSum(function(d){if(d.name == myFilter){return +Math.round(+d.value);}else{return 0;}});
+				
+				if(barHeight < _group.top(1)[0].value){
+					barHeight = _group.top(1)[0].value;
+				}
+				
 				var useRight = false;
 				if(maxVal/25 >= +_group.top(1)[0].value){
 					useRight = true;
+					rightAxisInUse = true;
 				}
 				
 				var lineChart = dc.lineChart($scope.composite)
@@ -410,59 +499,141 @@ angular.module('myApp.eventPage', ['ngRoute'])
 				     .group(_group,myFilter)
 				     .useRightYAxis(useRight)
 				     .defined(function(d){return isNaN(d.data.value)==false;})
+				     .hidableStacks(true)
 				 ;
+				
+				 lineChart.margins().left = 100;
+				 lineChart.margins().right = 125;
+				 
 				 return lineChart;
 			 };
 			 
 			 var compositeCharts = [];
 
+			 compositeCharts[0] = createTicketChart();
+			 for(var i = 0; i < $scope.pointsUsed.length; i++){
+				 compositeCharts[i+1] = createCharts($scope.pointsUsed[i]);
+			 }
+			 
 			 $scope.composite = dc.compositeChart("#chart_"+$scope.dcName)
 			 	.width(+$scope.panelWidth)
 			 	.height(300)
 			 	.x(myDomain)
+			 	.elasticY(true)
+			 	.elasticX(true)
+			 	.zoomOutRestrict(zoomLimit)
+			 	.transitionDuration(100)
 			 	.shareColors(true)
 			 	.yAxisLabel("value")
 			 	.renderHorizontalGridLines(true)
-			 	.legend(dc.legend().x(+$scope.panelWidth - 100).y(25).itemHeight(13).gap(5))
 			 	.compose(compositeCharts)
 			 	.brushOn(false)
 			    .mouseZoomable(true)
-			 ;
+			 ;		 
+			 			 
 			 
+			 
+			 var legendX = function(){return $scope.composite.width()-100;}
+			 $scope.composite.legend(dc.legend()
+					 					.x(legendX())
+					 					.y(25)
+					 					.itemHeight(13)
+					 					.gap(5)
+					 				 );
+
 			 $scope.composite.margins().left = 100;
-			 $scope.composite.margins().right = 125;
 			 
-			 $scope.composite.xAxis().tickFormat(function(v){return displayDate(new Date(v));})
-			 
-			 var makeFullCharts = function(myFilter){
-				 var _group = _myDim.group().reduceSum(function(d){if(d.name == myFilter){return Math.round(+d.value);}else{return 0;}});
-				
-				 var thisChart = dc.lineChart("#chart_"+$scope.dcName)
-				     .width(+$scope.panelWidth)
-				     .height(400)
-				     .x(myDomain)
-				     .dimension(_myDim)
-				     .group(_group,myFilter)
-				     .yAxisLabel("value")
-					 .legend(dc.legend().x(+$scope.panelWidth - 100).y(25).itemHeight(13).gap(5))
-					 .brushOn(false)
-					 .renderHorizontalGridLines(true)
-					 .defined(function(d){return isNaN(d.data.value)==false;})
-				 ;
-				 
-				 thisChart.margins().left = 100;
-				 thisChart.margins().right = 125;
-				 thisChart.xAxis().tickFormat(function(v){return displayDate(new Date(v));});
-				 
-				 return thisChart;
+			 if(rightAxisInUse == true){
+				 $scope.composite.margins().right = 225; 
+			 }else{
+				 $scope.composite.margins().right = 125;
 			 }
+
+			 $scope.composite.xAxis().tickFormat(function(v){return customTimeFormat(v);})
 			 
-			 for(var i = 0; i < $scope.pointsUsed.length; i++){
-				 $scope.pointCharts[$scope.pointsUsed[i]] = makeFullCharts($scope.pointsUsed[i]);
-				 compositeCharts[i] = createCharts($scope.pointsUsed[i]);
-			 }
+			 $scope.composite.on('zoomed', function(chart, filter){
+				 var tempDays;
+				 var newMax = 0;
+				 var tempUnits;
+
+				 var newChildProps = function(child){
+					 var min = child.xAxisMin();
+					 var max = child.xAxisMax();
+					 
+					 var days = getDaysBetween(min,max);
+					 
+					 var newDim;
+					 if(days > lastDaysBetween){ // special lower bounds for zooming back out...
+						 if(days >= 170){
+							 newDim = monthDim;
+						 }else if(days >= 25){
+							 newDim = dayDim;
+						 }else if(days > 5){
+							 newDim = hourDim;
+						 }else{
+							 newDim = minuteDim;
+						 }
+					 }else{
+						 var _settings = getMySettings(days); 
+						 newDim = _settings[0];
+						 tempUnits = _settings[1];
+					 }
+					 				
+					 if(newDim === _origDim){
+						 zoomLimit = true;
+					 }else{
+						 zoomLimit = false;
+					 }
+					 
+					 var nameFilter = child._groupName;
+					 var newGroup = newDim.group().reduceSum(function(d){if(d.name == nameFilter){return +Math.round(+d.value);}else{return 0;}});
+					 
+					 if(child.dimension() !== newDim){						 
+						 var innerMax = newGroup.top(1)[0].value;
+						 						 
+						 if(newMax < innerMax){
+							 newMax = innerMax;
+						 }
+						 child.dimension(newDim);
+						 child.group(newGroup,nameFilter);
+						 
+					 }
+					 
+					 tempDays = days;
+				 }
+				 
+				 for(var i = 1; i < chart.children().length; i++){
+					newChildProps(chart.children()[i])
+				 }
+				 
+				 lastDaysBetween = tempDays;
+				 				 
+				 if(zoomLimit != $scope.composite.zoomOutRestrict()){
+					 $scope.composite.zoomOutRestrict(zoomLimit); 
+				 }
+				 
+				 if(newMax !== 0){
+					 barHeight = newMax; 
+					 
+					 var newBarChart = function(bar,height){
+						 var _barGroup = ticketDim.group().reduce(
+								 function(p,v){return v.state*height;},
+								 function(p,v){	return -v.state*height; },
+								 function(){return 0;}
+						 )
+						 bar.group(_barGroup,"Tickets");
+					 }
+					 
+					 newBarChart(chart.children()[0],barHeight);
+				 }
+				 
+				 if($scope.composite.xUnits() !== tempUnits){
+					 $scope.composite.xUnits(tempUnits);
+				 }
+				 
+			 });
 			 
-			 renderDefault();
+			 renderDefault();			 
 		 }
 		 
 		 var renderDefault = function(){
@@ -471,27 +642,6 @@ angular.module('myApp.eventPage', ['ngRoute'])
 		 }
 		 
 		 // display the anomaly detail information
-		 
-		 $scope.anomalyDetails = {
-			 enableSorting:false,
-			 enableFiltering: false,
-			 multiSelect: false,
-			 data: 'myTicket',
-			 rowTemplate: '<div ng-repeat="col in colContainer.renderedColumns track by col.colDef.name" class="ui-grid-cell" ui-grid-cell></div>',				 
-			 columnDefs : [
-			               {field:'anomaly', displayName: "Anomaly"},
-			               {field:'eventID', displayName:'Work Order Number'},
-			               {field:'asset', displayName: "Asset"},
-			               {field:'facility',displayName:"Facility"},
-			               {field:'createdTime',displayName:"Created"},
-			               {field:'closedTime',displayName:"Closed"},
-			               {field:'eventID',displayName:"Event ID"},
-			               {field:'status',displayName:"Status"},
-			               {field:'potentialSaving',displayName:"Potential Savings"},
-			               {field:'waste',displayName:"Waste"}
-			              ]
-		   }
-		 ;
 
 		 $scope.anomalySummary = {
 			 enableSorting:false,
@@ -532,9 +682,9 @@ angular.module('myApp.eventPage', ['ngRoute'])
 		 
 		 $scope.$watch(
 		   'doMyGraphing', 
-			function(val){
-			  if(val == true){
-				$scope.allPoints = treatData()
+			function(newVal,oldVal){
+			  if(newVal === true){
+				$scope.allPoints = treatData();
 				compositeChart($scope.allPoints);
 			  }
 			}
@@ -551,31 +701,78 @@ angular.module('myApp.eventPage', ['ngRoute'])
 			 
 		 $scope.$watch(
 		   'workOrderNumber',
-		   function(val){
-			   if(val !== undefined){
+		   function(newVal,oldVal){
+			   if(newVal !== undefined && newVal !== oldVal){
 			     if($scope.doMyGraphing === true){
 				   $scope.doMyGraphing = false;
-				   eraseAllGraphs();
+				   //eraseAllGraphs();
 			     }
+			     
+			     //to be removed for more real environment.
+				 /**/
+			     
+			     
 			   requestFromWorkOrder();
 			 }
 		   }
 		 );
 		 
 		 $scope.$on('workOrderNumberSet', function(){
-			 $scope.workOrderNumber = serv.getWorkOrderNumber();
+			 
+			 var tempWorkOrder = serv.getWorkOrderNumber();
+			 if($scope.workOrderNumber !== tempWorkOrder){
+				 console.log($scope.workOrderNumber,tempWorkOrder);
+				 $scope.workOrderNumber = serv.getWorkOrderNumber();
+			 }
 		 })
 		 
-		 $scope.logScope = function(){
-			 console.log($scope);l
+		 var checkForAllThree = function(){
+			 var org = getOrganization(),
+			     asset = getAssetName(),
+			     anomaly = getAnomalyName()
+			 ;
+			 if(org === undefined || $scope.stationName === org){
+				 return false;
+			 }
+			 if(asset === undefined || $scope.myAsset === asset){
+				 return false;
+			 }
+			 if(anomaly === undefined || $scope.myTicketType === anomaly){
+				 return false;
+			 }
+			 
+			 $scope.stationName = org;
+			 $scope.myAsset = asset;
+			 $scope.myTicketType = anomaly;
+			 
+			 return true;
 		 }
 		 
-		 requestFromWorkOrder();
+		 $scope.$on('assetNameSet',function(){
+			 if(checkForAllThree() === true){
+				 getAllMyTickets();
+			 }
+		 });
+		 
+		 $scope.$on('organizationSet', function(){
+			 if(checkForAllThree() === true){
+				 getAllMyTickets();
+			 }
+		 });
+		 
+		 $scope.$on('anomalyNameSet', function(){
+			 if(checkForAllThree() === true){
+				 getAllMyTickets();
+			 }
+		 })
+		 
+		 if($scope.stationName !== undefined && $scope.myAsset !== undefined && $scope.myTicketType !== undefined){
+			 getAllMyTickets();
+		 }else if($scope.workOrderNumber !== undefined){
+			 requestFromWorkOrder();
+		 }
 		 
 		 //TODO highlight based on active alarms
 		 //TODO cleanup!!
-		 //TODO wrap to fit onto dashboard
-		 //TODO perform null checks on start (query down to ticket type and asset, get full list of tickets matching those requirements)
-		 //TODO package into a directive which may have variables set	 
   }])
 ;
