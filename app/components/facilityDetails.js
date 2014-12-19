@@ -9,7 +9,7 @@ angular.module('myApp.facilityDetails', ['ngRoute'])
 		directiveName: function(){return 'facilityDetails';},
 		namespace: function(){return 'facility'},
 		paletteImage: function(){return 'report.png';}
-		});
+	});
 }])
 
 .factory('facilityDetailsService', ['$http', function($http){
@@ -29,13 +29,13 @@ angular.module('myApp.facilityDetails', ['ngRoute'])
 	var _secondClientQuery = {};
 
 	var _getWeather = function(city,state){
-	if(state==="null"){state="";}
+		if(state==="null"){state="";}
 		return $http.get("http://api.openweathermap.org/data/2.5/forecast/daily?q="+city+","+state+"&mode=json&type=accurate&units=imperial&cnt=7&e2b7c435e01ce8ce7833e41644057103")
 		//return $http.get("http://api.openweathermap.org/data/2.5/weather?lat=35&lon=139cnt=7")
 		.success(function(data) {
 
 			_weatherQuery=data;
-			
+
 		})
 	}
 
@@ -50,7 +50,6 @@ angular.module('myApp.facilityDetails', ['ngRoute'])
 		};
 
 		var Url  = "http://10.239.3.132:9763/MongoServlet-0.0.1-SNAPSHOT/send";
-		
 		var requestString = "{}";
 		var config = {
 				method:'POST',
@@ -65,7 +64,7 @@ angular.module('myApp.facilityDetails', ['ngRoute'])
 
 					for(var i = 0, ilen = data.result.length; i < ilen; i++) {
 
-						
+
 						if(client===""){
 							_organizationQuery[data.result[i].stationName] = '';	//keeps track of all meters in query
 						}
@@ -79,23 +78,23 @@ angular.module('myApp.facilityDetails', ['ngRoute'])
 				}
 		)
 		.error( function () 
-		{
-		_organizationQuery["WLST"] = '';
-						_organizationQuery["PLAN"] = '';
-						_organizationQuery["BGTC"] = '';
-						if(client===""){}
-						else{
-						if(client!=="Deutsche Bank"){
-								delete _organizationQuery["WLST"];
-							}
-							if(client!=="P&G"){
-								delete _organizationQuery["BGTC"];
-							}
-							if(client!=="Intuit"){
-								delete _organizationQuery["PLAN"];
-							}
-							}
-		} );
+				{
+			_organizationQuery["WLST"] = '';
+			_organizationQuery["PLAN"] = '';
+			_organizationQuery["BGTC"] = '';
+			if(client===""){}
+			else{
+				if(client!=="Deutsche Bank"){
+					delete _organizationQuery["WLST"];
+				}
+				if(client!=="P&G"){
+					delete _organizationQuery["BGTC"];
+				}
+				if(client!=="Intuit"){
+					delete _organizationQuery["PLAN"];
+				}
+			}
+				} );
 	};
 
 	var _getClients = function () {	
@@ -109,7 +108,7 @@ angular.module('myApp.facilityDetails', ['ngRoute'])
 		};
 
 		var Url  = "http://10.239.3.132:9763/MongoServlet-0.0.1-SNAPSHOT/send";
-		
+
 		var requestString = "{}";
 		var config = {
 				method:'POST',
@@ -124,18 +123,18 @@ angular.module('myApp.facilityDetails', ['ngRoute'])
 					for(var i = 0, ilen = data.result.length; i < ilen; i++) {
 
 						_clientQuery[data.result[i].clientName] = '';	//keeps track of all meters in query
-						
-						
+
+
 					}
-					
-		
+
+
 				}
 		)
 		.error( function () {
-		
-		_clientQuery["Deutsche Bank"] = '';
-					_clientQuery["P&G"] = '';
-					_clientQuery["Intuit"] = '';
+
+			_clientQuery["Deutsche Bank"] = '';
+			_clientQuery["P&G"] = '';
+			_clientQuery["Intuit"] = '';
 		} );
 	};
 
@@ -214,7 +213,7 @@ angular.module('myApp.facilityDetails', ['ngRoute'])
 
 
 	var Url  = "http://10.239.3.132:9763/MongoServlet-0.0.1-SNAPSHOT/send";
-	
+
 	var _queryData = [];
 
 	// $httpProvider.defaults.headers.get = { 'Collections' : 'Facility' }
@@ -235,69 +234,69 @@ angular.module('myApp.facilityDetails', ['ngRoute'])
 
 		//_csvArray = CSVToArray(response,",");
 		_queryData = response;
-		
 
-		
+
+
 	})
 	//console.log(promise);
 	.error( function () {
-	
-	_queryData = {"result":[
+
+		_queryData = {"result":[
 {"clientName" :"Deutsche Bank",
-"projectName" :"60 Wall Street",
-"projectStage" : "Monitoring / Reporting",
-"qNumber" : "Q-JLL-0015",
-"oCNumber" : "1103",
-"facilityAddress" : "60 Wall Street",
-"squareFootage" : "1625683" ,
-"meetingDay":"Thursday",
-"meetingTime" : "11:30:00 AM",
-"stationName" :"WLST",
-"image" :"https://encrypted-tbn2.gstatic.com/images?q=tbn:ANd9GcRZAJlcP_SYgri0nogjFqTa6lcF-1RmNFygkjMPLPWJ-_oY2Y3O",
-"asset":{"ahus":["AHU1","AHU2","AHU3"],"vavs":["VAV1","VAV2","VAV3"],"plants":["Plant1"],"compressors":["Compressor"],"heatExchangers":["HeatExchanger"],"coolingTowers":["CoolingTower"],"pumps":["Pump1","Pump2","Pump3"],"meters":["Meter"]},
-"city" :"New York",
-"state" :"NY",
-"zipCode" :"10005",
-"country" :"US",
-"liveDate" :"Aug 18 2014 05:01:09 EDT",
-"buildingType" :"Commercial"},
-{"clientName" :"Intuit",
-"projectName" :"Plano",
-"projectStage" : "Monitoring / Reporting",
-"qNumber" : "24",
-"oCNumber" : "1110",
-"facilityAddress" : "5601 Headquarters Drive",
-"squareFootage" : "165000" ,
-"meetingDay":"N/A",
-"meetingTime" : "null",
-"stationName" :"PLAN",
-"image" :"https://encrypted-tbn2.gstatic.com/images?q=tbn:ANd9GcRZAJlcP_SYgri0nogjFqTa6lcF-1RmNFygkjMPLPWJ-_oY2Y3O",
-"asset":{"ahus":["AHU1","AHU2","AHU3"],"vavs":["VAV1","VAV2","VAV3"],"plants":["Plant1"],"compressors":["Compressor"],"heatExchangers":["HeatExchanger"],"coolingTowers":["CoolingTower"],"pumps":["Pump1","Pump2","Pump3"],"meters":["Meter"]},
-"city" :"Plano",
-"state" :"TX",
-"zipCode" :"75024",
-"country" :"US",
-"liveDate" :"Aug 18 2014 05:01:09 EDT",
-"buildingType" :"Commercial"},
-{"clientName" :"P&G",
-"projectName" :"Bethel Global Technical Center",
-"projectStage" : "Monitoring / Reporting",
-"qNumber" : "Q-JLL-0003",
-"oCNumber" : "1008",
-"facilityAddress" : "14 Research Drive",
-"squareFootage" : "312931" ,
-"meetingDay":"Wednesday",
-"meetingTime" : "2:00:00 PM",
-"stationName" :"BGTC",
-"image" :"https://encrypted-tbn1.gstatic.com/images?q=tbn:ANd9GcR29ucO-lC93uDtdxlfu2Zz7q-EVDv5_haFspFFloUBrGvY6V2a",
-"asset":{"ahus":["AHU1","AHU2","AHU3"],"vavs":["VAV1","VAV2","VAV3"],"plants":["Plant1"],"compressors":["Compressor"],"heatExchangers":["HeatExchanger"],"coolingTowers":["CoolingTower"],"pumps":["Pump1","Pump2","Pump3"],"meters":["Meter"]},
-"city" :"Bethel",
-"state" :"CT",
-"zipCode" :"6801",
-"country" :"US",
-"liveDate" :"Aug 18 2014 05:01:09 EDT",
-"buildingType" :"Commercial"}]
-};
+	"projectName" :"60 Wall Street",
+	"projectStage" : "Monitoring / Reporting",
+	"qNumber" : "Q-JLL-0015",
+	"oCNumber" : "1103",
+	"facilityAddress" : "60 Wall Street",
+	"squareFootage" : "1625683" ,
+	"meetingDay":"Thursday",
+	"meetingTime" : "11:30:00 AM",
+	"stationName" :"WLST",
+	"image" :"https://encrypted-tbn2.gstatic.com/images?q=tbn:ANd9GcRZAJlcP_SYgri0nogjFqTa6lcF-1RmNFygkjMPLPWJ-_oY2Y3O",
+	"asset":{"ahus":["AHU1","AHU2","AHU3"],"vavs":["VAV1","VAV2","VAV3"],"plants":["Plant1"],"compressors":["Compressor"],"heatExchangers":["HeatExchanger"],"coolingTowers":["CoolingTower"],"pumps":["Pump1","Pump2","Pump3"],"meters":["Meter"]},
+	"city" :"New York",
+	"state" :"NY",
+	"zipCode" :"10005",
+	"country" :"US",
+	"liveDate" :"Aug 18 2014 05:01:09 EDT",
+	"buildingType" :"Commercial"},
+	{"clientName" :"Intuit",
+		"projectName" :"Plano",
+		"projectStage" : "Monitoring / Reporting",
+		"qNumber" : "24",
+		"oCNumber" : "1110",
+		"facilityAddress" : "5601 Headquarters Drive",
+		"squareFootage" : "165000" ,
+		"meetingDay":"N/A",
+		"meetingTime" : "null",
+		"stationName" :"PLAN",
+		"image" :"https://encrypted-tbn2.gstatic.com/images?q=tbn:ANd9GcRZAJlcP_SYgri0nogjFqTa6lcF-1RmNFygkjMPLPWJ-_oY2Y3O",
+		"asset":{"ahus":["AHU1","AHU2","AHU3"],"vavs":["VAV1","VAV2","VAV3"],"plants":["Plant1"],"compressors":["Compressor"],"heatExchangers":["HeatExchanger"],"coolingTowers":["CoolingTower"],"pumps":["Pump1","Pump2","Pump3"],"meters":["Meter"]},
+		"city" :"Plano",
+		"state" :"TX",
+		"zipCode" :"75024",
+		"country" :"US",
+		"liveDate" :"Aug 18 2014 05:01:09 EDT",
+		"buildingType" :"Commercial"},
+		{"clientName" :"P&G",
+			"projectName" :"Bethel Global Technical Center",
+			"projectStage" : "Monitoring / Reporting",
+			"qNumber" : "Q-JLL-0003",
+			"oCNumber" : "1008",
+			"facilityAddress" : "14 Research Drive",
+			"squareFootage" : "312931" ,
+			"meetingDay":"Wednesday",
+			"meetingTime" : "2:00:00 PM",
+			"stationName" :"BGTC",
+			"image" :"https://encrypted-tbn1.gstatic.com/images?q=tbn:ANd9GcR29ucO-lC93uDtdxlfu2Zz7q-EVDv5_haFspFFloUBrGvY6V2a",
+			"asset":{"ahus":["AHU1","AHU2","AHU3"],"vavs":["VAV1","VAV2","VAV3"],"plants":["Plant1"],"compressors":["Compressor"],"heatExchangers":["HeatExchanger"],"coolingTowers":["CoolingTower"],"pumps":["Pump1","Pump2","Pump3"],"meters":["Meter"]},
+			"city" :"Bethel",
+			"state" :"CT",
+			"zipCode" :"6801",
+			"country" :"US",
+			"liveDate" :"Aug 18 2014 05:01:09 EDT",
+			"buildingType" :"Commercial"}]
+		};
 	} );
 
 
@@ -311,7 +310,7 @@ angular.module('myApp.facilityDetails', ['ngRoute'])
 
 .controller('facilityDetailsCtrl', ['$scope', '$modal', '$location', '$route', 'facilityDetailsService', 'facilityQueryService','sharedPropertiesService',
                                     function($scope, $modal, $location, $route, dataService,queryData,sharedProperties) {
-$scope.debugMode = true;
+	$scope.debugMode = true;
 	$scope.activeOrganizations = dataService.getActiveOrganizations();
 	$scope.activeClient="";
 	$scope.queryOrganizations = function () {
@@ -319,146 +318,146 @@ $scope.debugMode = true;
 		.then( function () {
 			$scope.organizationQuery = dataService.getOrganizationQuery();
 		}, function(error) {
-	                // promise rejected, could log the error with: console.log('error', error);
-	                $scope.organizationQuery={};
-					$scope.organizationQuery["WLST"] = '';
-						$scope.organizationQuery["PLAN"] = '';
-						$scope.organizationQuery["BGTC"] = '';
-						if($scope.activeClient===""){}
-						else{
-						if($scope.activeClient!=="Deutsche Bank"){
-								delete $scope.organizationQuery["WLST"];
-							}
-							if($scope.activeClient!=="P&G"){
-								delete $scope.organizationQuery["BGTC"];
-							}
-							if($scope.activeClient!=="Intuit"){
-								delete $scope.organizationQuery["PLAN"];
-							}
-							}
-	    });
-		
+			// promise rejected, could log the error with: console.log('error', error);
+			$scope.organizationQuery={};
+			$scope.organizationQuery["WLST"] = '';
+			$scope.organizationQuery["PLAN"] = '';
+			$scope.organizationQuery["BGTC"] = '';
+			if($scope.activeClient===""){}
+			else{
+				if($scope.activeClient!=="Deutsche Bank"){
+					delete $scope.organizationQuery["WLST"];
+				}
+				if($scope.activeClient!=="P&G"){
+					delete $scope.organizationQuery["BGTC"];
+				}
+				if($scope.activeClient!=="Intuit"){
+					delete $scope.organizationQuery["PLAN"];
+				}
+			}
+		});
+
 	};
 
 	//console.log(dataService.getWeather("Somerset"));
 	$scope.initWeather = function () {
-if($scope.$parent.$parent._city==="null"){return;}
+		if($scope.$parent.$parent._city==="null"){return;}
 		dataService.getWeather($scope.$parent.$parent._city,$scope.$parent.$parent._state).then( function () {
-			
+
 			if(dataService.getWeatherQuery().cod==="200" && dataService.getWeatherQuery().cnt>=5){
-			$scope.$parent.$parent.weatherQuery = dataService.getWeatherQuery();
-			$scope.testing = "testing";
-			
-			var date1 = new Date($scope.weatherQuery.list[0].dt*1000);
-			var date2 = new Date($scope.weatherQuery.list[1].dt*1000);
-			var date3 = new Date($scope.weatherQuery.list[2].dt*1000);
-			var date4 = new Date($scope.weatherQuery.list[3].dt*1000);
-			var date5 = new Date($scope.weatherQuery.list[4].dt*1000);
+				$scope.$parent.$parent.weatherQuery = dataService.getWeatherQuery();
+				$scope.testing = "testing";
 
-			var weatherQueryArray = $scope.$parent.$parent.weatherQuery.list
-			var day1=weatherQueryArray[0];
-			var day2=weatherQueryArray[1];
-			var day3=weatherQueryArray[2];
-			var day4=weatherQueryArray[3];
-			var day5=weatherQueryArray[4];
-			$scope.$parent.$parent.day1LowTemp=day1.temp.min;
-			$scope.$parent.$parent.day1HighTemp=day1.temp.max;
-			$scope.$parent.$parent.day1Rain=day1.rain;
-			$scope.$parent.$parent.day1Desc=day1.weather[0].description;
-			$scope.$parent.$parent.day1Clouds=day1.clouds;
-			$scope.$parent.$parent.day1Snow=day1.snow;
-			$scope.$parent.$parent.day1Name=getDayName(date1.getDay());
-			$scope.$parent.$parent.day1Image="/app/pictures/"+day1.weather[0].icon+".png";
-			
-			$scope.$parent.$parent.day2LowTemp=$scope.$parent.$parent.weatherQuery.list[1].temp.min;
-			$scope.$parent.$parent.day2HighTemp=$scope.$parent.$parent.weatherQuery.list[1].temp.max;
-			$scope.$parent.$parent.day2Rain=$scope.$parent.$parent.weatherQuery.list[1].rain;
-			$scope.$parent.$parent.day2Desc=$scope.$parent.$parent.weatherQuery.list[1].weather[0].description;
-			$scope.$parent.$parent.day2Clouds=$scope.$parent.$parent.weatherQuery.list[1].clouds;
-			$scope.$parent.$parent.day2Snow=$scope.$parent.$parent.weatherQuery.list[1].snow;
-			$scope.$parent.$parent.day2Name=getDayName(date2.getDay());
-			$scope.$parent.$parent.day2Image="/app/pictures/"+day2.weather[0].icon+".png";
+				var date1 = new Date($scope.weatherQuery.list[0].dt*1000);
+				var date2 = new Date($scope.weatherQuery.list[1].dt*1000);
+				var date3 = new Date($scope.weatherQuery.list[2].dt*1000);
+				var date4 = new Date($scope.weatherQuery.list[3].dt*1000);
+				var date5 = new Date($scope.weatherQuery.list[4].dt*1000);
 
-			$scope.$parent.$parent.day3LowTemp=$scope.$parent.$parent.weatherQuery.list[2].temp.min;
-			$scope.$parent.$parent.day3HighTemp=$scope.$parent.$parent.weatherQuery.list[2].temp.max;
-			$scope.$parent.$parent.day3Rain=$scope.$parent.$parent.weatherQuery.list[2].rain;
-			$scope.$parent.$parent.day3Desc=$scope.$parent.$parent.weatherQuery.list[2].weather[0].description;
-			$scope.$parent.$parent.day3Clouds=$scope.$parent.$parent.weatherQuery.list[2].clouds;
-			$scope.$parent.$parent.day3Snow=$scope.$parent.$parent.weatherQuery.list[2].snow;
-			$scope.$parent.$parent.day3Name=getDayName(date3.getDay());
-			$scope.$parent.$parent.day3Image="/app/pictures/"+day3.weather[0].icon+".png";
+				var weatherQueryArray = $scope.$parent.$parent.weatherQuery.list
+				var day1=weatherQueryArray[0];
+				var day2=weatherQueryArray[1];
+				var day3=weatherQueryArray[2];
+				var day4=weatherQueryArray[3];
+				var day5=weatherQueryArray[4];
+				$scope.$parent.$parent.day1LowTemp=day1.temp.min;
+				$scope.$parent.$parent.day1HighTemp=day1.temp.max;
+				$scope.$parent.$parent.day1Rain=day1.rain;
+				$scope.$parent.$parent.day1Desc=day1.weather[0].description;
+				$scope.$parent.$parent.day1Clouds=day1.clouds;
+				$scope.$parent.$parent.day1Snow=day1.snow;
+				$scope.$parent.$parent.day1Name=getDayName(date1.getDay());
+				$scope.$parent.$parent.day1Image="/app/pictures/"+day1.weather[0].icon+".png";
 
-			$scope.$parent.$parent.day4LowTemp=$scope.$parent.$parent.weatherQuery.list[3].temp.min;
-			$scope.$parent.$parent.day4HighTemp=$scope.$parent.$parent.weatherQuery.list[3].temp.max;
-			$scope.$parent.$parent.day4Rain=$scope.$parent.$parent.weatherQuery.list[3].rain;
-			$scope.$parent.$parent.day4Desc=$scope.$parent.$parent.weatherQuery.list[3].weather[0].description;
-			$scope.$parent.$parent.day4Clouds=$scope.$parent.$parent.weatherQuery.list[3].clouds;
-			$scope.$parent.$parent.day4Snow=$scope.$parent.$parent.weatherQuery.list[3].snow;
-			$scope.$parent.$parent.day4Name=getDayName(date4.getDay());
-			$scope.$parent.$parent.day4Image="/app/pictures/"+day4.weather[0].icon+".png";
+				$scope.$parent.$parent.day2LowTemp=$scope.$parent.$parent.weatherQuery.list[1].temp.min;
+				$scope.$parent.$parent.day2HighTemp=$scope.$parent.$parent.weatherQuery.list[1].temp.max;
+				$scope.$parent.$parent.day2Rain=$scope.$parent.$parent.weatherQuery.list[1].rain;
+				$scope.$parent.$parent.day2Desc=$scope.$parent.$parent.weatherQuery.list[1].weather[0].description;
+				$scope.$parent.$parent.day2Clouds=$scope.$parent.$parent.weatherQuery.list[1].clouds;
+				$scope.$parent.$parent.day2Snow=$scope.$parent.$parent.weatherQuery.list[1].snow;
+				$scope.$parent.$parent.day2Name=getDayName(date2.getDay());
+				$scope.$parent.$parent.day2Image="/app/pictures/"+day2.weather[0].icon+".png";
 
-			$scope.$parent.$parent.day5LowTemp=$scope.$parent.$parent.weatherQuery.list[4].temp.min;
-			$scope.$parent.$parent.day5HighTemp=$scope.$parent.$parent.weatherQuery.list[4].temp.max;
-			$scope.$parent.$parent.day5Rain=$scope.$parent.$parent.weatherQuery.list[4].rain;
-			$scope.$parent.$parent.day5Desc=$scope.$parent.$parent.weatherQuery.list[4].weather[0].description;
-			$scope.$parent.$parent.day5Clouds=$scope.$parent.$parent.weatherQuery.list[4].clouds;
-			$scope.$parent.$parent.day5Snow=$scope.$parent.$parent.weatherQuery.list[4].snow;
-			$scope.$parent.$parent.day5Name=getDayName(date5.getDay());
-			$scope.$parent.$parent.day5Image="/app/pictures/"+day5.weather[0].icon+".png";
+				$scope.$parent.$parent.day3LowTemp=$scope.$parent.$parent.weatherQuery.list[2].temp.min;
+				$scope.$parent.$parent.day3HighTemp=$scope.$parent.$parent.weatherQuery.list[2].temp.max;
+				$scope.$parent.$parent.day3Rain=$scope.$parent.$parent.weatherQuery.list[2].rain;
+				$scope.$parent.$parent.day3Desc=$scope.$parent.$parent.weatherQuery.list[2].weather[0].description;
+				$scope.$parent.$parent.day3Clouds=$scope.$parent.$parent.weatherQuery.list[2].clouds;
+				$scope.$parent.$parent.day3Snow=$scope.$parent.$parent.weatherQuery.list[2].snow;
+				$scope.$parent.$parent.day3Name=getDayName(date3.getDay());
+				$scope.$parent.$parent.day3Image="/app/pictures/"+day3.weather[0].icon+".png";
+
+				$scope.$parent.$parent.day4LowTemp=$scope.$parent.$parent.weatherQuery.list[3].temp.min;
+				$scope.$parent.$parent.day4HighTemp=$scope.$parent.$parent.weatherQuery.list[3].temp.max;
+				$scope.$parent.$parent.day4Rain=$scope.$parent.$parent.weatherQuery.list[3].rain;
+				$scope.$parent.$parent.day4Desc=$scope.$parent.$parent.weatherQuery.list[3].weather[0].description;
+				$scope.$parent.$parent.day4Clouds=$scope.$parent.$parent.weatherQuery.list[3].clouds;
+				$scope.$parent.$parent.day4Snow=$scope.$parent.$parent.weatherQuery.list[3].snow;
+				$scope.$parent.$parent.day4Name=getDayName(date4.getDay());
+				$scope.$parent.$parent.day4Image="/app/pictures/"+day4.weather[0].icon+".png";
+
+				$scope.$parent.$parent.day5LowTemp=$scope.$parent.$parent.weatherQuery.list[4].temp.min;
+				$scope.$parent.$parent.day5HighTemp=$scope.$parent.$parent.weatherQuery.list[4].temp.max;
+				$scope.$parent.$parent.day5Rain=$scope.$parent.$parent.weatherQuery.list[4].rain;
+				$scope.$parent.$parent.day5Desc=$scope.$parent.$parent.weatherQuery.list[4].weather[0].description;
+				$scope.$parent.$parent.day5Clouds=$scope.$parent.$parent.weatherQuery.list[4].clouds;
+				$scope.$parent.$parent.day5Snow=$scope.$parent.$parent.weatherQuery.list[4].snow;
+				$scope.$parent.$parent.day5Name=getDayName(date5.getDay());
+				$scope.$parent.$parent.day5Image="/app/pictures/"+day5.weather[0].icon+".png";
 
 			}
 			else{
-			delete $scope.$parent.$parent.weatherQuery;
-			delete $scope.$parent.$parent.day1LowTemp;
-			delete $scope.$parent.$parent.day1HighTemp;
-			delete $scope.$parent.$parent.day1Rain;
-			delete $scope.$parent.$parent.day1Desc;
-			delete $scope.$parent.$parent.day1Cloud;
-			delete $scope.$parent.$parent.day1Snow;
-			delete $scope.$parent.$parent.day1Name;
-			delete $scope.$parent.$parent.day1Image;
-			
-			delete $scope.$parent.$parent.day2LowTemp;
-			delete $scope.$parent.$parent.day2HighTemp;
-			delete $scope.$parent.$parent.day2Rain;
-			delete $scope.$parent.$parent.day2Desc;
-			delete $scope.$parent.$parent.day2Cloud;
-			delete $scope.$parent.$parent.day2Snow;
-			delete $scope.$parent.$parent.day2Name;
-			delete $scope.$parent.$parent.day2Image;
+				delete $scope.$parent.$parent.weatherQuery;
+				delete $scope.$parent.$parent.day1LowTemp;
+				delete $scope.$parent.$parent.day1HighTemp;
+				delete $scope.$parent.$parent.day1Rain;
+				delete $scope.$parent.$parent.day1Desc;
+				delete $scope.$parent.$parent.day1Cloud;
+				delete $scope.$parent.$parent.day1Snow;
+				delete $scope.$parent.$parent.day1Name;
+				delete $scope.$parent.$parent.day1Image;
 
-			delete $scope.$parent.$parent.day3LowTemp;
-			delete $scope.$parent.$parent.day3HighTemp;
-			delete $scope.$parent.$parent.day3Rain;
-			delete $scope.$parent.$parent.day3Desc;
-			delete $scope.$parent.$parent.day3Cloud;
-			delete $scope.$parent.$parent.day3Snow;
-			delete $scope.$parent.$parent.day3Name;
-			delete $scope.$parent.$parent.day3Image;
+				delete $scope.$parent.$parent.day2LowTemp;
+				delete $scope.$parent.$parent.day2HighTemp;
+				delete $scope.$parent.$parent.day2Rain;
+				delete $scope.$parent.$parent.day2Desc;
+				delete $scope.$parent.$parent.day2Cloud;
+				delete $scope.$parent.$parent.day2Snow;
+				delete $scope.$parent.$parent.day2Name;
+				delete $scope.$parent.$parent.day2Image;
 
-			delete $scope.$parent.$parent.day4LowTemp;
-			delete $scope.$parent.$parent.day4HighTemp;
-			delete $scope.$parent.$parent.day4Rain;
-			delete $scope.$parent.$parent.day4Desc;
-			delete $scope.$parent.$parent.day4Cloud;
-			delete $scope.$parent.$parent.day4Snow;
-			delete $scope.$parent.$parent.day4Name;
-			delete $scope.$parent.$parent.day4Image;
+				delete $scope.$parent.$parent.day3LowTemp;
+				delete $scope.$parent.$parent.day3HighTemp;
+				delete $scope.$parent.$parent.day3Rain;
+				delete $scope.$parent.$parent.day3Desc;
+				delete $scope.$parent.$parent.day3Cloud;
+				delete $scope.$parent.$parent.day3Snow;
+				delete $scope.$parent.$parent.day3Name;
+				delete $scope.$parent.$parent.day3Image;
 
-			delete $scope.$parent.$parent.day5LowTemp;
-			delete $scope.$parent.$parent.day5HighTemp;
-			delete $scope.$parent.$parent.day5Rain;
-			delete $scope.$parent.$parent.day5Desc;
-			delete $scope.$parent.$parent.day5Cloud;
-			delete $scope.$parent.$parent.day5Snow;
-			delete $scope.$parent.$parent.day5Name;
-			delete $scope.$parent.$parent.day5Image;
-			
+				delete $scope.$parent.$parent.day4LowTemp;
+				delete $scope.$parent.$parent.day4HighTemp;
+				delete $scope.$parent.$parent.day4Rain;
+				delete $scope.$parent.$parent.day4Desc;
+				delete $scope.$parent.$parent.day4Cloud;
+				delete $scope.$parent.$parent.day4Snow;
+				delete $scope.$parent.$parent.day4Name;
+				delete $scope.$parent.$parent.day4Image;
+
+				delete $scope.$parent.$parent.day5LowTemp;
+				delete $scope.$parent.$parent.day5HighTemp;
+				delete $scope.$parent.$parent.day5Rain;
+				delete $scope.$parent.$parent.day5Desc;
+				delete $scope.$parent.$parent.day5Cloud;
+				delete $scope.$parent.$parent.day5Snow;
+				delete $scope.$parent.$parent.day5Name;
+				delete $scope.$parent.$parent.day5Image;
+
 			}
 		});
 	}
 
-	
+
 
 	var getDayName = function(dayNumber){
 		if(dayNumber===1){return "Monday";}
@@ -475,74 +474,74 @@ if($scope.$parent.$parent._city==="null"){return;}
 			$scope.clientQuery = dataService.getClientQuery();
 		},
 		function(error){
-		$scope.clientQuery={};
-		$scope.clientQuery["Deutsche Bank"] = '';
-					$scope.clientQuery["P&G"] = '';
-					$scope.clientQuery["Intuit"] = '';
+			$scope.clientQuery={};
+			$scope.clientQuery["Deutsche Bank"] = '';
+			$scope.clientQuery["P&G"] = '';
+			$scope.clientQuery["Intuit"] = '';
 		});
 	};
 
 	queryData.promise.then( function (d) {
 		$scope.thisQueryData = queryData.queryData();
 	},
-		function(error){
+	function(error){
 		$scope.thisQueryData = {"result":[
 {"clientName" :"Deutsche Bank",
-"projectName" :"60 Wall Street",
-"projectStage" : "Monitoring / Reporting",
-"qNumber" : "Q-JLL-0015",
-"oCNumber" : "1103",
-"facilityAddress" : "60 Wall Street",
-"squareFootage" : "1625683" ,
-"meetingDay":"Thursday",
-"meetingTime" : "11:30:00 AM",
-"stationName" :"WLST",
-"image" :"https://encrypted-tbn2.gstatic.com/images?q=tbn:ANd9GcRZAJlcP_SYgri0nogjFqTa6lcF-1RmNFygkjMPLPWJ-_oY2Y3O",
-"asset":{"ahus":["AHU1","AHU2","AHU3"],"vavs":["VAV1","VAV2","VAV3"],"plants":["Plant1"],"compressors":["Compressor"],"heatExchangers":["HeatExchanger"],"coolingTowers":["CoolingTower"],"pumps":["Pump1","Pump2","Pump3"],"meters":["Meter"]},
-"city" :"New York",
-"state" :"NY",
-"zipCode" :"10005",
-"country" :"US",
-"liveDate" :"Aug 18 2014 05:01:09 EDT",
-"buildingType" :"Commercial"},
-{"clientName" :"Intuit",
-"projectName" :"Plano",
-"projectStage" : "Monitoring / Reporting",
-"qNumber" : "24",
-"oCNumber" : "1110",
-"facilityAddress" : "5601 Headquarters Drive",
-"squareFootage" : "165000" ,
-"meetingDay":"N/A",
-"meetingTime" : "null",
-"stationName" :"PLAN",
-"image" :"https://encrypted-tbn2.gstatic.com/images?q=tbn:ANd9GcRZAJlcP_SYgri0nogjFqTa6lcF-1RmNFygkjMPLPWJ-_oY2Y3O",
-"asset":{"ahus":["AHU1","AHU2","AHU3"],"vavs":["VAV1","VAV2","VAV3"],"plants":["Plant1"],"compressors":["Compressor"],"heatExchangers":["HeatExchanger"],"coolingTowers":["CoolingTower"],"pumps":["Pump1","Pump2","Pump3"],"meters":["Meter"]},
-"city" :"Plano",
-"state" :"TX",
-"zipCode" :"75024",
-"country" :"US",
-"liveDate" :"Aug 18 2014 05:01:09 EDT",
-"buildingType" :"Commercial"},
-{"clientName" :"P&G",
-"projectName" :"Bethel Global Technical Center",
-"projectStage" : "Monitoring / Reporting",
-"qNumber" : "Q-JLL-0003",
-"oCNumber" : "1008",
-"facilityAddress" : "14 Research Drive",
-"squareFootage" : "312931" ,
-"meetingDay":"Wednesday",
-"meetingTime" : "2:00:00 PM",
-"stationName" :"BGTC",
-"image" :"https://encrypted-tbn1.gstatic.com/images?q=tbn:ANd9GcR29ucO-lC93uDtdxlfu2Zz7q-EVDv5_haFspFFloUBrGvY6V2a",
-"asset":{"ahus":["AHU1","AHU2","AHU3"],"vavs":["VAV1","VAV2","VAV3"],"plants":["Plant1"],"compressors":["Compressor"],"heatExchangers":["HeatExchanger"],"coolingTowers":["CoolingTower"],"pumps":["Pump1","Pump2","Pump3"],"meters":["Meter"]},
-"city" :"Bethel",
-"state" :"CT",
-"zipCode" :"6801",
-"country" :"US",
-"liveDate" :"Aug 18 2014 05:01:09 EDT",
-"buildingType" :"Commercial"}]
-};
-		});
+	"projectName" :"60 Wall Street",
+	"projectStage" : "Monitoring / Reporting",
+	"qNumber" : "Q-JLL-0015",
+	"oCNumber" : "1103",
+	"facilityAddress" : "60 Wall Street",
+	"squareFootage" : "1625683" ,
+	"meetingDay":"Thursday",
+	"meetingTime" : "11:30:00 AM",
+	"stationName" :"WLST",
+	"image" :"https://encrypted-tbn2.gstatic.com/images?q=tbn:ANd9GcRZAJlcP_SYgri0nogjFqTa6lcF-1RmNFygkjMPLPWJ-_oY2Y3O",
+	"asset":{"ahus":["AHU1","AHU2","AHU3"],"vavs":["VAV1","VAV2","VAV3"],"plants":["Plant1"],"compressors":["Compressor"],"heatExchangers":["HeatExchanger"],"coolingTowers":["CoolingTower"],"pumps":["Pump1","Pump2","Pump3"],"meters":["Meter"]},
+	"city" :"New York",
+	"state" :"NY",
+	"zipCode" :"10005",
+	"country" :"US",
+	"liveDate" :"Aug 18 2014 05:01:09 EDT",
+	"buildingType" :"Commercial"},
+	{"clientName" :"Intuit",
+		"projectName" :"Plano",
+		"projectStage" : "Monitoring / Reporting",
+		"qNumber" : "24",
+		"oCNumber" : "1110",
+		"facilityAddress" : "5601 Headquarters Drive",
+		"squareFootage" : "165000" ,
+		"meetingDay":"N/A",
+		"meetingTime" : "null",
+		"stationName" :"PLAN",
+		"image" :"https://encrypted-tbn2.gstatic.com/images?q=tbn:ANd9GcRZAJlcP_SYgri0nogjFqTa6lcF-1RmNFygkjMPLPWJ-_oY2Y3O",
+		"asset":{"ahus":["AHU1","AHU2","AHU3"],"vavs":["VAV1","VAV2","VAV3"],"plants":["Plant1"],"compressors":["Compressor"],"heatExchangers":["HeatExchanger"],"coolingTowers":["CoolingTower"],"pumps":["Pump1","Pump2","Pump3"],"meters":["Meter"]},
+		"city" :"Plano",
+		"state" :"TX",
+		"zipCode" :"75024",
+		"country" :"US",
+		"liveDate" :"Aug 18 2014 05:01:09 EDT",
+		"buildingType" :"Commercial"},
+		{"clientName" :"P&G",
+			"projectName" :"Bethel Global Technical Center",
+			"projectStage" : "Monitoring / Reporting",
+			"qNumber" : "Q-JLL-0003",
+			"oCNumber" : "1008",
+			"facilityAddress" : "14 Research Drive",
+			"squareFootage" : "312931" ,
+			"meetingDay":"Wednesday",
+			"meetingTime" : "2:00:00 PM",
+			"stationName" :"BGTC",
+			"image" :"https://encrypted-tbn1.gstatic.com/images?q=tbn:ANd9GcR29ucO-lC93uDtdxlfu2Zz7q-EVDv5_haFspFFloUBrGvY6V2a",
+			"asset":{"ahus":["AHU1","AHU2","AHU3"],"vavs":["VAV1","VAV2","VAV3"],"plants":["Plant1"],"compressors":["Compressor"],"heatExchangers":["HeatExchanger"],"coolingTowers":["CoolingTower"],"pumps":["Pump1","Pump2","Pump3"],"meters":["Meter"]},
+			"city" :"Bethel",
+			"state" :"CT",
+			"zipCode" :"6801",
+			"country" :"US",
+			"liveDate" :"Aug 18 2014 05:01:09 EDT",
+			"buildingType" :"Commercial"}]
+		};
+	});
 
 	$scope.initMultiOrganization = function (organization) {
 		var add = true;
@@ -574,8 +573,8 @@ if($scope.$parent.$parent._city==="null"){return;}
 
 	}
 
-var setDetails = function(organization){
-for(var a in $scope.thisQueryData.result){
+	var setDetails = function(organization){
+		for(var a in $scope.thisQueryData.result){
 			//console.log($scope.thisCsvArray.result[a].clientName);
 			for(var c in $scope.activeOrganizations){var activeOrgString = $scope.activeOrganizations[c].name;$scope.activeOrg = activeOrgString;}
 
@@ -583,8 +582,8 @@ for(var a in $scope.thisQueryData.result){
 			if($scope.thisQueryData.result[a].stationName === organization){
 				//for(var b in $scope.thisCsvArray.result[a]){
 
-				
-if($scope.$parent.$parent.$parent.$parent!==null){$scope.$parent.$parent.$parent.$parent.organization = organization;}
+
+				if($scope.$parent.$parent.$parent.$parent!==null){$scope.$parent.$parent.$parent.$parent.organization = organization;}
 				$scope.$parent.$parent._clientName = $scope.thisQueryData.result[a].clientName;
 				$scope.$parent.$parent._projectName = $scope.thisQueryData.result[a].projectName;
 				$scope.$parent.$parent._liveDate = $scope.thisQueryData.result[a].liveDate;
@@ -594,12 +593,12 @@ if($scope.$parent.$parent.$parent.$parent!==null){$scope.$parent.$parent.$parent
 				$scope.$parent.$parent._city =$scope.thisQueryData.result[a].city;
 				$scope.$parent.$parent._state =$scope.thisQueryData.result[a].state;
 				$scope.$parent.$parent._buildingType = $scope.thisQueryData.result[a].buildingType;
-				
-				
-				
- 
+
+
+
+
 				$scope.$parent.$parent._assetCount = 0;
-				
+
 				for(var thisAssetType in $scope.thisQueryData.result[a].asset){
 					$scope.$parent.$parent._assetCount = $scope.$parent.$parent._assetCount+$scope.thisQueryData.result[a].asset[thisAssetType].length;
 				}
@@ -623,34 +622,34 @@ if($scope.$parent.$parent.$parent.$parent!==null){$scope.$parent.$parent.$parent
 				$scope.$parent.$parent._state = "";
 			}
 		}
-}
+	}
 
-$scope.refresh = function(){
+	$scope.refresh = function(){
 
-if($scope._assetCount===undefined){$scope._assetCount=0};
-if($scope.siteCount===undefined){$scope.siteCount=0};
-if($scope._clientName===undefined){$scope._clientName=""};
-if($scope._projectName===undefined){$scope._projectName=""};
-if($scope._liveDate===undefined){$scope._liveDate=""};
-if($scope._facilityAddress===undefined){$scope._facilityAddress=""};
-if($scope._image===undefined){$scope._image=""};
-if($scope._squareFootage===undefined){$scope._squareFootage=""};
-if($scope._city===undefined){$scope._city=""};
-if($scope._state===undefined){$scope._state=""};
-if($scope._buildingType===undefined){$scope._buildingType=""};
-				$scope.$parent.$parent._assetCount = $scope._assetCount;
-				$scope.$parent.$parent.siteCount=$scope.siteCount;
-				$scope.$parent.$parent._clientName = $scope._clientName;
-				$scope.$parent.$parent._projectName = $scope._projectName;
-				$scope.$parent.$parent._liveDate = $scope._liveDate;
-				$scope.$parent.$parent._facilityAddress = $scope._facilityAddress;
-				$scope.$parent.$parent._image = $scope._image;
-				$scope.$parent.$parent._squareFootage = $scope._squareFootage;
-				$scope.$parent.$parent._city =$scope._city;
-				$scope.$parent.$parent._state =$scope._state;
-				$scope.$parent.$parent._buildingType = $scope._buildingType;
-				$scope.$parent.$parent._weatherQuery = $scope._weatherQuery;
-}
+		if($scope._assetCount===undefined){$scope._assetCount=0};
+		if($scope.siteCount===undefined){$scope.siteCount=0};
+		if($scope._clientName===undefined){$scope._clientName=""};
+		if($scope._projectName===undefined){$scope._projectName=""};
+		if($scope._liveDate===undefined){$scope._liveDate=""};
+		if($scope._facilityAddress===undefined){$scope._facilityAddress=""};
+		if($scope._image===undefined){$scope._image=""};
+		if($scope._squareFootage===undefined){$scope._squareFootage=""};
+		if($scope._city===undefined){$scope._city=""};
+		if($scope._state===undefined){$scope._state=""};
+		if($scope._buildingType===undefined){$scope._buildingType=""};
+		$scope.$parent.$parent._assetCount = $scope._assetCount;
+		$scope.$parent.$parent.siteCount=$scope.siteCount;
+		$scope.$parent.$parent._clientName = $scope._clientName;
+		$scope.$parent.$parent._projectName = $scope._projectName;
+		$scope.$parent.$parent._liveDate = $scope._liveDate;
+		$scope.$parent.$parent._facilityAddress = $scope._facilityAddress;
+		$scope.$parent.$parent._image = $scope._image;
+		$scope.$parent.$parent._squareFootage = $scope._squareFootage;
+		$scope.$parent.$parent._city =$scope._city;
+		$scope.$parent.$parent._state =$scope._state;
+		$scope.$parent.$parent._buildingType = $scope._buildingType;
+		$scope.$parent.$parent._weatherQuery = $scope._weatherQuery;
+	}
 
 	$scope.setClientAll = function(){
 		$scope.activeClient="";
@@ -662,7 +661,7 @@ if($scope._buildingType===undefined){$scope._buildingType=""};
 		$scope.$parent.$parent.activeOrg="";
 		$scope.$parent.$parent._buildingType = "";
 		$scope.$parent.$parent._liveDate = "";
-				$scope.$parent.$parent._facilityAddress = "";
+		$scope.$parent.$parent._facilityAddress = "";
 		delete $scope.$parent.$parent.weatherQuery;
 		$scope.totalizeStats();
 	};
@@ -688,11 +687,11 @@ if($scope._buildingType===undefined){$scope._buildingType=""};
 					//console.log($scope.totalAssetCount);
 				}
 				$scope.$parent.$parent.siteCount=$scope.$parent.$parent.siteCount+1;
-				
+
 			}
 
 		}
-		
+
 		$scope.$parent.$parent._assetCount = $scope.totalAssetCount;
 		$scope.$parent.$parent._squareFootage = $scope.totalSquareFootage;
 		$scope.$parent.$parent._clientName = $scope.activeClient;
@@ -707,18 +706,18 @@ if($scope._buildingType===undefined){$scope._buildingType=""};
 	};
 	$scope.debugModeSwitch = function () {
 		if($scope.debugMode === true){
-		$scope.debugMode = false;}
+			$scope.debugMode = false;}
 		else if($scope.debugMode === false){
-		$scope.debugMode = true}
+			$scope.debugMode = true}
 
 	};
-	
+
 	$scope.expanded=false;
 	$scope.expand = function () {
 		if($scope.expanded===false){
-		$scope.expanded=true;}
+			$scope.expanded=true;}
 		else if($scope.expanded===true){
-		$scope.expanded=false;}
+			$scope.expanded=false;}
 
 	};
 
@@ -728,7 +727,7 @@ if($scope._buildingType===undefined){$scope._buildingType=""};
 
 	$scope.openConfig = function(size) {
 		$scope.activeOrg = "";
-		
+
 		var modalInstance = $modal.open({
 			templateUrl: 'views/facilityDetailsConfig.html',
 			controller: 'facilityDetailsConfigInstance',
@@ -737,10 +736,10 @@ if($scope._buildingType===undefined){$scope._buildingType=""};
 		});
 
 	}
-	
+
 	$scope.openDetailed = function(size) {
 		$scope.activeOrg = "";
-		
+
 		var modalInstance = $modal.open({
 			templateUrl: 'views/detailedfacilityDetails.html',
 			controller: 'facilityDetailsConfigInstance',
@@ -749,11 +748,11 @@ if($scope._buildingType===undefined){$scope._buildingType=""};
 		});
 
 	}
-	
+
 	$scope.facilitySelected=function(){
-	//console.log($scope.weatherQuery===undefined)
-	if($scope.weatherQuery===undefined){return false;}
-	else{return true;}
+		//console.log($scope.weatherQuery===undefined)
+		if($scope.weatherQuery===undefined){return false;}
+		else{return true;}
 	}
 
 	$scope.isBlank = function(thisString){
@@ -779,6 +778,7 @@ if($scope._buildingType===undefined){$scope._buildingType=""};
 	$scope.queryOrganizations();
 	$scope.queryClients();
 	$scope.apply;
+	
 }])
 
 .service('sharedPropertiesService', function () {
