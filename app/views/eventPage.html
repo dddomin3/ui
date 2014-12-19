@@ -1,46 +1,28 @@
 <div ng-controller="eventPageCtrl">
   <div class="btn-group">
-    <button type="button" class='btn btn-default' ng-click="changeWorkOrder(workOrderNumber)">
-      Change Work Order Number
+    <button type="button" class='btn btn-default' ng-click="changeWorkOrderLocal(workOrderNumber)">
+      Change Work Order Number (Local)
+    </button>
+    <button type="button" class='btn btn-default' ng-click="changeWorkOrderService(workOrderNumber)">
+      Change Work Order Number (Service)
     </button>
     <button type="button" class='btn btn-default' ng-click="logScope()">log scope</button>
   </div>
-
-  <div>
-    <h2 text-align:center>Work Order Details</h2>
-  </div>
-  
-  <table class="gridStyleTwo" ui-grid="anomalyDetails"  ui-grid-auto-resize></table>
 
   <div>
     <h2>Anomaly Summary</h2>
   </div>
 
   <div class="gridStyleTwo" ui-grid="anomalySummary" ui-grid-auto-resize></div>
-
-  <div class="btn-group" dropdown>
-	<button type="button" class="btn btn-primary dropdown-toggle">
-	  Point Graphs <span class="caret"></span>
-	</button>
-
-	<ul class="dropdown-menu" role="menu">
-	  <li><a class="btn " ng-click="drawGraph('composite')" >All Points</a></li>
-	  <li class="divider"></li>
-	  <li ng-repeat="point in pointsUsed">
-	    <a class="btn" ng-click="drawGraph(point)">
-	  	{{point}}
-	    </a>
-	  </li>
-	</ul>
-	
-  </div>
     
   <div class="row">
 	<img ng-if="doMyGraphing===false" ng-src="/app/ajax-loader.gif"/>
-	<img ng-if="doMyGraphing === null" ng-src="/app/redx.png"/> 
-	<div ng-if="doMyGraphing === null">Error Loading Graph: {{errorCode}}</div>
-	<div id="chart_{{dcName}}" resize></div>
   </div>
+  <div class="row">
+	<img class="col-md-2" ng-if="doMyGraphing === null" ng-src="/app/redx.png"/> 
+	<div class="col-md-2" ng-if="doMyGraphing === null">Error Loading Graph: {{errorCode}}</div>
+  </div>
+  <div class="col-sm-12 col-md-12 col-lg-12 col-xl-12" id="chart_{{dcName}}" resize></div>
   <div>
     <h2>Point Data</h2>
   </div>
