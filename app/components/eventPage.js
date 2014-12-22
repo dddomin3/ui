@@ -80,7 +80,6 @@ angular.module('myApp.eventPage', ['ngRoute'])
 
 		 //*******************************debugging/troubleshooting variables/functions *****************************
 
-	  	 
 	  
 		 var getTicketID = function(){
 			 if($scope.dcName.indexOf(1) >= 0){
@@ -112,6 +111,8 @@ angular.module('myApp.eventPage', ['ngRoute'])
 		 $scope.logScope = function(){
 			 console.log($scope);
 		 }
+		 
+		 
 						 
 		 //**********************************  end debugging/troubleshotting variables/functions ***********************
 		 
@@ -178,8 +179,9 @@ angular.module('myApp.eventPage', ['ngRoute'])
 			   $scope.myTicketType = response.data.result[0].anomaly;
 			   $scope.myAsset = response.data.result[0].asset;
 			   $scope.stationName = response.data.result[0].stationName;
-			 }).then(function(){
-			    getAllMyTickets();
+
+			   getAllMyTickets();
+
 			 })
 		   ;
 		 }
@@ -257,8 +259,6 @@ angular.module('myApp.eventPage', ['ngRoute'])
 				saved = Math.round(saved*100)/100;
 				wasted = Math.round(wasted*100)/100;
 				
-				var dateFormat = d3.time.format("%b %e %Y - %I:%M:%S%p (%Z) ");
-				
 				$scope.mySum = [];
 				$scope.mySum[0] = {
 								   'anomaly':anomaly,
@@ -277,7 +277,8 @@ angular.module('myApp.eventPage', ['ngRoute'])
 				}else{
 					   $scope.pointsUsed = ["B100_KWH","B200_KWH","B400_KWH","B500_KWH"];
 				}
-			 }).then(function(){
+				
+				
 				 if(badPointCheck($scope.workOrderNumber)){ // check for error on $scope.workOrderNumber
 					 launchError("No Work Order!!");
 				 }else if(badPointCheck($scope.pointsUsed)){//		""		""	  $scope.pointsUsed
@@ -289,6 +290,8 @@ angular.module('myApp.eventPage', ['ngRoute'])
 				 }else{
 					 getAllMyPoints($scope.pointsUsed);
 				 }
+				 
+				 
 			 })
 		   ;	 
 		 };	 
@@ -310,35 +313,24 @@ angular.module('myApp.eventPage', ['ngRoute'])
 			 var max = $scope.pointsUsed.length;
 			 var counter = 0;
 			 
-			 for(var i = 0; i < max; i++){
-			   var nameMessage = nameStart+$scope.pointsUsed[i];
-			   var myArray = function(name, header, message){
+			 var myArray = function(name, header, message){
 			     requestObject(header, message).then(function(response){
 				   allMyPoints[name] = response.data.result;
 				   counter++;
+				   
+				   if(counter === max){
+					   $scope.doMyGraphing = true;
+				   } 
 				 }); 
 			   };
-				 
-			 // treat the data to fit within the needed format of everything..	
-			 myArray($scope.pointsUsed[i], contentHeader, "{"+formatRequest("organization",$scope.stationName)+","+nameMessage+"\"}");;
+			 
+			 for(var i = 0; i < max; i++){
+			   var nameEnd = $scope.pointsUsed[i];
+			   var nameMessage = nameStart+nameEnd;
+
+			   myArray(nameEnd, contentHeader, "{"+formatRequest("organization",$scope.stationName)+","+nameMessage+"\"}");;
 		   };
 			 
-		   var retry = function(flag){
-				 if(!flag){
-					 setTimeout(function(){
-						 retry(counter == max);
-					 },10);
-				 }
-				 else{
-					 if($scope.doMyGraphing !== true){
-						 $scope.doMyGraphing = true;
-					 }
-				 }
-				 
-				 return counter == max;
-		   };
-			 
-		   retry(counter == max);
 		 }
 		 
 		 var totalSize;
@@ -429,6 +421,9 @@ angular.module('myApp.eventPage', ['ngRoute'])
 		 var lastDaysBetween;
 		 var lastOKDate = [];
 		 
+		 var marginLeft = 100;
+		 var marginRight = 250;
+		 
 		 // graph the points
 		 var compositeChart = function(_array){
 			 var _ndx = crossfilter(_array);
@@ -502,8 +497,8 @@ angular.module('myApp.eventPage', ['ngRoute'])
 				     .hidableStacks(true)
 				 ;
 				
-				 lineChart.margins().left = 100;
-				 lineChart.margins().right = 125;
+				 lineChart.margins().left = marginLeft;
+				 lineChart.margins().right = marginRight;
 				 
 				 return lineChart;
 			 };
@@ -514,6 +509,10 @@ angular.module('myApp.eventPage', ['ngRoute'])
 			 for(var i = 0; i < $scope.pointsUsed.length; i++){
 				 compositeCharts[i+1] = createCharts($scope.pointsUsed[i]);
 			 }
+			 
+			 var legendX = function(){
+		            return  +($scope.panelWidth-2*$scope.composite.legend().itemWidth());
+			 };
 			 
 			 $scope.composite = dc.compositeChart("#chart_"+$scope.dcName)
 			 	.width(+$scope.panelWidth)
@@ -529,25 +528,18 @@ angular.module('myApp.eventPage', ['ngRoute'])
 			 	.compose(compositeCharts)
 			 	.brushOn(false)
 			    .mouseZoomable(true)
+			    .legend(dc.legend() 					
+			    		     .y(25)
+			    		     .itemHeight(13)
+			    		     .gap(5)
+			    		)
 			 ;		 
 			 			 
+			 $scope.composite.legend().x(legendX());
 			 
+			 $scope.composite.margins().left = marginLeft;
+			 $scope.composite.margins().right = marginRight;
 			 
-			 var legendX = function(){return $scope.composite.width()-100;}
-			 $scope.composite.legend(dc.legend()
-					 					.x(legendX())
-					 					.y(25)
-					 					.itemHeight(13)
-					 					.gap(5)
-					 				 );
-
-			 $scope.composite.margins().left = 100;
-			 
-			 if(rightAxisInUse == true){
-				 $scope.composite.margins().right = 225; 
-			 }else{
-				 $scope.composite.margins().right = 125;
-			 }
 
 			 $scope.composite.xAxis().tickFormat(function(v){return customTimeFormat(v);})
 			 
@@ -633,11 +625,17 @@ angular.module('myApp.eventPage', ['ngRoute'])
 				 
 			 });
 			 
-			 renderDefault();			 
-		 }
-		 
-		 var renderDefault = function(){
-			 $scope.myPoints = $scope.allPoints;
+			 $scope.composite.on('postRender', function(chart, filter){
+				 console.log("rendered");
+				 
+				 redrawAllAxis();
+			 });
+			 
+			 $scope.composite.on('postRedraw', function(chart, filter){
+				console.log('redrawn'); 
+			 });
+			 
+			 console.log("here");
 			 $scope.composite.render();
 		 }
 		 
@@ -685,7 +683,10 @@ angular.module('myApp.eventPage', ['ngRoute'])
 			function(newVal,oldVal){
 			  if(newVal === true){
 				$scope.allPoints = treatData();
+				$scope.myPoints = $scope.allPoints;
+				console.log(1);
 				compositeChart($scope.allPoints);
+				//$scope.composite.render();
 			  }
 			}
 		 );
@@ -694,9 +695,22 @@ angular.module('myApp.eventPage', ['ngRoute'])
 		   'panelWidth',
 		   function(val){
 			 if($scope.allPoints !== undefined){
-			   compositeChart($scope.allPoints);
+				console.log(2);
+			    compositeChart($scope.allPoints);
+			    //$scope.composite.render();
 			 }
 		   }
+		 );
+		 
+		 $scope.$watch(
+			'numberOfAxis',
+			function(val){
+				if(val > 0){
+					console.log(3);
+					compositeChart($scope.allPoints);
+					//$scope.composite.render();
+				}
+			}
 		 );
 			 
 		 $scope.$watch(
@@ -705,13 +719,9 @@ angular.module('myApp.eventPage', ['ngRoute'])
 			   if(newVal !== undefined && newVal !== oldVal){
 			     if($scope.doMyGraphing === true){
 				   $scope.doMyGraphing = false;
-				   //eraseAllGraphs();
 			     }
 			     
-			     //to be removed for more real environment.
-				 /**/
-			     
-			     
+			   console.log("watch workordernumber")
 			   requestFromWorkOrder();
 			 }
 		   }
@@ -748,6 +758,68 @@ angular.module('myApp.eventPage', ['ngRoute'])
 			 return true;
 		 }
 		 
+		 var storedAxis = [];
+	  	 $scope.numberOfAxis = 0;
+
+		 $scope.addAxis = function(){
+			 var axisScale = d3.scale.linear()
+			 							.domain([100,0])
+			 							.range([0,$scope.composite.height()-40])
+			 ;
+
+			 var axis = d3.svg.axis()
+			 					.scale(axisScale)
+			 					.orient("right")
+			 ;
+
+			 var x = $scope.numberOfAxis*50 + 25;
+			 
+			 console.log("legend",d3.select("g.dc-legend"));
+			 
+			 //TODO thought train: use d3 to access the actual item width.  use that item width to affect its x position.  this will require an intial draw and then a redraw
+			 // then use that to set the bounds for the axis, and adjust as necessary based on the actual width of the axis.  again.. render and redraw...
+			 
+			 
+			 
+			 var translate = "translate("+($scope.composite.legend().x()-x)+",10)"; 
+			 
+			 console.log(d3.selectAll("g.axis"));
+			 
+			 var point = {
+					 "axis":axis,
+					 "translate": translate
+			 }
+			 
+			 storedAxis[$scope.numberOfAxis] = point;
+			 
+			 drawAxis(axis,translate,"custom"+$scope.numberOfAxis);
+			 
+			 $scope.numberOfAxis++;
+			 marginRight = 2*$scope.composite.legend().itemWidth() + (50*(+$scope.numberOfAxis))
+
+		 }
+		 
+		 var redrawAllAxis = function(){
+			 for(var i = 0; i < storedAxis.length; i++){
+				 var axis = storedAxis[i].axis;
+				 var translate = storedAxis[i].translate;
+				 
+				 drawAxis(axis, translate,"#custom"+i);
+			 }
+		 }
+		 
+		 var drawAxis = function(axis, translate,id){			
+			 var svg = d3.select("svg");
+			 
+			 console.log(d3.select(id));
+			 
+			 svg.append("g")
+			   .attr("class","axis")
+			   .attr("transform",translate)
+			   .attr("id",id)
+			   .call(axis); 	 
+		 }
+		 
 		 $scope.$on('assetNameSet',function(){
 			 if(checkForAllThree() === true){
 				 getAllMyTickets();
@@ -768,10 +840,10 @@ angular.module('myApp.eventPage', ['ngRoute'])
 		 
 		 if($scope.stationName !== undefined && $scope.myAsset !== undefined && $scope.myTicketType !== undefined){
 			 getAllMyTickets();
-		 }else if($scope.workOrderNumber !== undefined){
+		 }else if($scope.workOrderNumber !== undefined && $scope.allMyTickets === undefined){
 			 requestFromWorkOrder();
 		 }
-		 
+		 		 
 		 //TODO highlight based on active alarms
 		 //TODO cleanup!!
   }])
