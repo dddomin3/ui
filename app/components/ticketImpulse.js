@@ -562,5 +562,15 @@ function($scope, $location, chartService, dataService, $timeout) {
 		controller: 'ticketImpulseCtrl'
 	}
 }])
+.run(['directiveService', function(directiveService){
+	directiveService.addFullComponent({
+		tag: function(){return 'ticket-impulse';},
+		configTag: function(){return 'ticket-impulse-config';},
+		tagHtml: function(){return "<ticket-impulse></ticket-impulse>";},
+		directiveName: function(){return 'ticketImpulse';},
+		namespace: function(){return 'impulse'},
+		paletteImage: function(){return 'tickImp.png';}
+		});
+}])
 ;
 
