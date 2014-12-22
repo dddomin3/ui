@@ -830,22 +830,37 @@ angular.module('myApp.equipmentInFaults', ['ngRoute'])
 				
 				var ndx  = crossfilter(vm.data._tickets);
 				  
-				    var  dateDimension        = ndx.dimension(function(d) {return d[2];});
+				    var  dateDimension        = ndx.dimension(function(d) {
+				    	var date = new Date(d[2]);
+				    	
+				    	
+				    	return date;});
 				    
-				    var dateGroup = dateDimension.group(function(date){
+			/*	    var dateGroup = dateDimension.group(function(date){
 				    	var date = new Date(date);
 				    	return date.getDate();
 				    	
-				    }).reduceCount();
+				    }).reduceCount();*/
 				    
-				    console.log(dateGroup);
+				    
+				    var dateGroup = dateDimension.group(d3.time.day);
+				    console.log(dateGroup.size());
 				    
 				    
 								      
-				   chart =  chart.dimension(dataDimension)
-				   	   .x(d3.scale.linear().domain([0,3]))
-				   	   .group(dateGroup);
-				  
+				   chart =  chart.dimension(dateDimension)
+				   	   .x(d3.time.scale().domain([new Date().setDate(new Date().getDate()-8),new Date()])
+				   			)
+				   	   .group(dateGroup)
+				   	   .gap(35)
+				   	   .height(500)
+				   	   .width(600)
+				   	   .margins({top:10,right:50,bottom:30,left:40})
+				   	   .elasticY(true)
+				   	   .centerBar(true)
+				   	   .xUnits(d3.time.days);
+				   
+				   chart.xAxis().
 				    chart.render();
 				
 
