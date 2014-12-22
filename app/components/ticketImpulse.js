@@ -1,7 +1,7 @@
 'use strict';
 angular.module('myApp.ticketImpulse', ['ngRoute'])
 
-.factory('ticketImpulseChartService', ['$http', function($http){
+.factory('ticketImpulseChartService', ['$http', function ($http) {
 
 	var _initFlatten = function (bar, unflattenedData, userParameters) {
 		var flattenedData = [];
@@ -15,7 +15,7 @@ angular.module('myApp.ticketImpulse', ['ngRoute'])
 		return _init(bar, flattenedData, userParameters);
 	}; 
 	var _init = function (bar, sortedData, userParameters) {
-		var getDaysBetween = function(endDate, startDate){
+		var getDaysBetween = function(endDate, startDate) {
 			return Math.round((endDate - startDate)/(1000*60*60*24));
 		};
 		var chartHelper = {};
@@ -71,7 +71,6 @@ angular.module('myApp.ticketImpulse', ['ngRoute'])
 			var bottomDate = ( new Date(chartHelper._dimensions.masterDimension.bottom(1)[0].createdTime) ).setDate(1);
 			topDate = (new Date((new Date(topDate)).setMonth(topMonth + 1))).setDate(0);
 			
-			console.log({topDate: topDate, bottomDate: bottomDate, topMonth: topMonth});
 			chartHelper._chartParameters.domainX = d3.time.scale().domain([(new Date(bottomDate)), new Date(topDate)]);
 				//above sets the domain of the chart to the first day of the motnh of the first
 				//ticket, and the last day of the month of the last ticket
@@ -268,7 +267,7 @@ angular.module('myApp.ticketImpulse', ['ngRoute'])
 			}
 		}
 		else { //if query is specified
-			console.log(['type', (typeof query), query]);
+			//console.log(['type', (typeof query), query]);
 			if (typeof query === "string") { query = JSON.parse(query); }
 			var or = [];
 			for (var i = 0, len = query.assets.length; i < len; i++) {
@@ -288,7 +287,7 @@ angular.module('myApp.ticketImpulse', ['ngRoute'])
 				"$or": or
 			};
 		}
-		console.log('reqStr', requestString);
+		//console.log('reqStr', requestString);
 		var config = {
 				method: 'POST',
 				headers: {'Collection': 'Event'},
@@ -297,7 +296,7 @@ angular.module('myApp.ticketImpulse', ['ngRoute'])
 		};
 		var promise = $http(config).success(_successData)
 		.error ( 
-			function(e){console.error(e); return false;}
+			function(e) {console.error(e); return false;}
 		);
 		return promise;
 	};
@@ -352,7 +351,7 @@ angular.module('myApp.ticketImpulse', ['ngRoute'])
 		//then populate the missing properties. This is so any userParameter manipulation in this controller is
 		//propagated outwardly
 		var defaultUserParameters = dataService.getDefaultUserParameters();
-		console.log(defaultUserParameters);
+		//console.log(defaultUserParameters);
 		for(var property in defaultUserParameters) {
 			if( $scope.inputUserParameters[property] === undefined ) {
 				$scope.inputUserParameters[property] = defaultUserParameters[property];
@@ -368,8 +367,7 @@ angular.module('myApp.ticketImpulse', ['ngRoute'])
 	if($scope.inputRawData !== undefined) {	
 		$scope.rawData = $scope.inputRawData;
 	}
-	
-	console.log($scope);
+
 	var bar;
 		//populated by drawChart
 	
@@ -416,12 +414,13 @@ angular.module('myApp.ticketImpulse', ['ngRoute'])
 	
 	$scope.initDataStartChartDraw = function () {
 		$scope.chartInit = true;
-		if($scope.inputRawData !== undefined) {
+		console.log($scope.dom);
+		if($scope.inputRawData !== undefined) {//if inputData is passed in, there is no need to fetch data
 			$scope.showButtons = false;
 			$scope.drawChart();
 			userParameterWatches(); //TODO: make this set chartInit, and only execute if chart init if false if doing this over and over messes things up.
 			$scope.showButtons = true;
-		}	//if inputData is passed in, there is no need to fetch data
+		}	
 		else {
 			dataService.getData($scope.userParameters, $scope.active).then (
 				httpCallback, 
@@ -519,12 +518,9 @@ angular.module('myApp.ticketImpulse', ['ngRoute'])
 	$scope.debug = function () {
 		console.log($scope);
 	};
-
-	if($scope.query !== undefined) { $scope.initDataStartChartDraw(); }
-	else if($scope.inputRawData !== undefined) {$scope.initDataStartChartDraw();}
-	else { $scope.queryData($scope.userParameters); }
+	console.log($scope.dom + " ctrl is all done here!");
 }])
-.directive('ticketImpulse', ['chartIdService', function (chartIdService) {
+.directive('ticketImpulse', ['chartIdService', '$timeout', function (chartIdService, $timeout) {
 	return {
 		restrict: "E",
 		scope: {
@@ -536,7 +532,7 @@ angular.module('myApp.ticketImpulse', ['ngRoute'])
 			query: "="
 		},
 		compile : function (element, attrs) {
-		console.log(attrs);
+			//console.log(attrs);
 			if ( !attrs.hasOwnProperty('dom') ) {
 				attrs.dom = chartIdService.getNewId();
 			}
@@ -553,6 +549,19 @@ angular.module('myApp.ticketImpulse', ['ngRoute'])
 			}
 			if ( attrs.hasOwnProperty('data') ) {
 				attrs.organizationSidebar = 'false'; //mostly because I don't want to deal with this usecase.
+			}
+			return {
+				post: function postLink(scope, iElement, iAttrs, controller) {
+					console.log("heya "+scope.dom);
+					console.log(scope);
+					
+					$timeout(
+					function () {
+						if(scope.query !== undefined) { scope.initDataStartChartDraw(); }
+						else if(scope.inputRawData !== undefined) {scope.initDataStartChartDraw();}
+						else { scope.queryData(scope.userParameters); }
+					}, 0);
+				}
 			}
 		},
 		templateUrl : "views/ticketImpulse.html",

@@ -513,8 +513,7 @@ angular.module('myApp.intervalDemand', ['ngRoute'])
 	
 	return _servObj;
 }])
-.controller('intervalDemandCtrl', ['$scope', '$location', 'intervalDemandChartService', 'intervalDemandDataService', 
-                    function($scope, $location, chartService, dataService) {
+.controller('intervalDemandCtrl', ['$scope', '$location', 'intervalDemandChartService', 'intervalDemandDataService', function($scope, $location, chartService, dataService) {
 	$scope.timeSeries = 'ticketImpulse';
 	$scope.showButtons = true;
 	$scope.chartInit = false;
@@ -546,16 +545,16 @@ angular.module('myApp.intervalDemand', ['ngRoute'])
 			$scope.userParameters
 		);
 		$scope.showButtons = false;
-		//try {
-			//populateScope();
+		try {
+			populateScope();
 			series = $scope.chartHelper.drawChart(false);
-		//}
-		//catch (e) {
-		//	console.error(e); // pass exception object to error handler
-		//}
-		//finally {
+		}
+		catch (e) {
+			console.error(e); // pass exception object to error handler
+		}
+		finally {
 			$scope.showButtons = true;
-		//}
+		}
     };
 	
 	$scope.drawHttpChart = function () {
@@ -648,4 +647,40 @@ angular.module('myApp.intervalDemand', ['ngRoute'])
 	};
 
 	$scope.queryOrganizations();
-}]);
+}])
+.directive('intervalDemand', ['chartIdService', function (chartIdService) {
+	return {
+		restrict: "E",
+		scope: {
+			dom: "@", // allows the name of the chart to be assigned.  this name is the new scope variable created once a date is selected
+			userParametersSidebar: "@",	//bool: true to show, false to hide. default true
+			organizationSidebar: "@",
+			inputUserParameters: "=userParameters",
+			inputRawData: "=data",
+			query: "="
+		},
+		compile : function (element, attrs) {
+		console.log(attrs);
+			if ( !attrs.hasOwnProperty('dom') ) {
+				attrs.dom = chartIdService.getNewId();
+			}
+			if ( !attrs.hasOwnProperty('userParametersSidebar') ) {
+				attrs.userParametersSidebar = 'true';
+			}
+			if ( !attrs.hasOwnProperty('organizationSidebar') ) {
+				attrs.organizationSidebar = 'true';
+			}
+			if ( !attrs.hasOwnProperty('query') ) {
+				attrs.query = undefined;	//TODO: give dataService a getDefaultQuery option?
+											//this can fetch user permissions, and return the best default query for user.
+											//something like the first asset on the first facility the user has access to
+			}
+			if ( attrs.hasOwnProperty('data') ) {
+				attrs.organizationSidebar = 'false'; //mostly because I don't want to deal with this usecase.
+			}
+		},
+		templateUrl : "views/intervalDemand.html",
+		controller: 'intervalDemandCtrl'
+	}
+}])
+;
