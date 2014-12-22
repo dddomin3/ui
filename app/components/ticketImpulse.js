@@ -338,7 +338,8 @@ angular.module('myApp.ticketImpulse', ['ngRoute'])
 	
 	return _servObj;
 }])
-.controller('ticketImpulseCtrl', ['$scope', '$location', 'ticketImpulseChartService', 'ticketImpulseDataService', function($scope, $location, chartService, dataService) {
+.controller('ticketImpulseCtrl', ['$scope', '$location', 'ticketImpulseChartService', 'ticketImpulseDataService', '$timeout',
+function($scope, $location, chartService, dataService, $timeout) {
 	$scope.timeSeries = 'ticketImpulse: '+$scope.dom;
 	$scope.showButtons = true;
 	$scope.chartInit = false;
@@ -519,6 +520,12 @@ angular.module('myApp.ticketImpulse', ['ngRoute'])
 		console.log($scope);
 	};
 	console.log($scope.dom + " ctrl is all done here!");
+	$timeout(
+					function () {
+						if($scope.query !== undefined) { $scope.initDataStartChartDraw(); }
+						else if($scope.inputRawData !== undefined) {$scope.initDataStartChartDraw();}
+						else { $scope.queryData($scope.userParameters); }
+					}, 0);
 }])
 .directive('ticketImpulse', ['chartIdService', '$timeout', function (chartIdService, $timeout) {
 	return {
@@ -549,19 +556,6 @@ angular.module('myApp.ticketImpulse', ['ngRoute'])
 			}
 			if ( attrs.hasOwnProperty('data') ) {
 				attrs.organizationSidebar = 'false'; //mostly because I don't want to deal with this usecase.
-			}
-			return {
-				post: function postLink(scope, iElement, iAttrs, controller) {
-					console.log("heya "+scope.dom);
-					console.log(scope);
-					
-					$timeout(
-					function () {
-						if(scope.query !== undefined) { scope.initDataStartChartDraw(); }
-						else if(scope.inputRawData !== undefined) {scope.initDataStartChartDraw();}
-						else { scope.queryData(scope.userParameters); }
-					}, 0);
-				}
 			}
 		},
 		templateUrl : "views/ticketImpulse.html",
