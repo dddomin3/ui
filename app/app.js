@@ -77,7 +77,6 @@ config(['$routeProvider', function($routeProvider) {
 	}).
 	when('/eventPage',{
 		templateUrl: 'views/eventPage.html',
-		controller: 'eventPageCtrl'
 	}).
 	when('/equipmentTickets', {
 		templateUrl: 'views/equipmentTickets.html',
