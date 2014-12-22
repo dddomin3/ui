@@ -513,7 +513,8 @@ angular.module('myApp.intervalDemand', ['ngRoute'])
 	
 	return _servObj;
 }])
-.controller('intervalDemandCtrl', ['$scope', '$location', 'intervalDemandChartService', 'intervalDemandDataService', function($scope, $location, chartService, dataService) {
+.controller('intervalDemandCtrl', ['$scope', '$location', 'intervalDemandChartService', 'intervalDemandDataService', '$timeout',
+function($scope, $location, chartService, dataService, $timeout) {
 	$scope.timeSeries = 'ticketImpulse';
 	$scope.showButtons = true;
 	$scope.chartInit = false;

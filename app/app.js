@@ -26,7 +26,8 @@ angular.module('myApp', [
   'myApp.equipmentTickets',
   'myApp.eventPage',
   'myApp.equipmentInFaults',
-  'myApp.ticketImpulseTest'
+  'myApp.ticketImpulseTest',
+  'myApp.intervalDemandTest'
 ]).
 
 config(['$routeProvider', function($routeProvider) {
@@ -47,8 +48,8 @@ config(['$routeProvider', function($routeProvider) {
 		controller: 'eventOccurrencesCtrl'
 	}).
 	when('/intervalDemand', {
-		templateUrl: 'views/intervalDemand.html',
-		controller: 'intervalDemandCtrl'
+		templateUrl: 'views/intervalDemandTest.html',
+		controller: 'intervalDemandTestCtrl'
 	}).
 	when('/facilityDetails', {
 		templateUrl: 'views/facilityDetails.html',
