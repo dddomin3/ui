@@ -513,15 +513,29 @@ angular.module('myApp.intervalDemand', ['ngRoute'])
 	
 	return _servObj;
 }])
-.controller('intervalDemandCtrl', ['$scope', '$location', 'intervalDemandChartService', 'intervalDemandDataService', '$timeout',
-function($scope, $location, chartService, dataService, $timeout) {
+.controller('intervalDemandCtrl', 
+['$scope', '$location', 'intervalDemandChartService',
+'intervalDemandDataService', '$timeout', 'userIdService',
+function($scope, $location, chartService, dataService, $timeout, userIdService) {
 	$scope.showButtons = true;
 	$scope.chartInit = false;
-	
-	if ($scope.inputUserParameters === undefined) {
+	var savedUserDetailsHelper;
+	if ($scope.userId !== undefined) {
+	//should saved user parameters override any "compilation time" parameters?
+	//the answer to that question will change this process
+		savedUserDetailsHelper = userIdService.init($scope.userId);
+		savedUserDetailsHelper.setParameters({
+			"userParameters": $scope.userParameters,
+			"userParametersSidebar": $scope.userParametersSidebar,	//bool: true to show, false to hide. default true
+			"organizationSidebar": $scope.organizationSidebar,
+			"directiveInputtedData": $scope.directiveInputtedData,
+			"query": $scope.query
+		});
+	}
+	if ( ($scope.inputUserParameters === undefined)&&($scope.userParameters === undefined) ) {
 		$scope.userParameters = dataService.getDefaultUserParameters();
 	}
-	else {
+	else if ($scope.userParameters === undefined) {
 		//this is VERY specific functionality. The controller will copy the reference of the inputUserParameters,
 		//then populate the missing properties. This is so any userParameter manipulation in this controller is
 		//propagated outwardly
@@ -535,14 +549,12 @@ function($scope, $location, chartService, dataService, $timeout) {
 		$scope.userParameters = $scope.inputUserParameters;
 	}
 	
-	$scope.treatedData = {};
-	$scope.directiveInputtedData = [];
-	$scope.active = {};
 	
-	if($scope.inputRawData !== undefined) {	
+	if ( ($scope.inputRawData !== undefined)&&($scope.directiveInputtedData === undefined) ) {	
 		$scope.directiveInputtedData = $scope.inputRawData;
 	}
-	
+	$scope.treatedData = {};
+	$scope.active = {};
 	$scope.activeOrganizations = {};
 	$scope.inactiveOrganizations = {};
 	console.log($scope.activeOrganizations);
@@ -592,7 +604,7 @@ function($scope, $location, chartService, dataService, $timeout) {
 		else {
 			$scope.showButtons = false;
 			try {
-				$timeout( function () {
+				$timeout( function () {	//timeout necessary to make sure the DOM for chart has been fully instantiated
 					series = dc.seriesChart("#"+$scope.dom); 
 					$scope.chartHelper = chartService.init(
 						series,
@@ -702,6 +714,25 @@ function($scope, $location, chartService, dataService, $timeout) {
 		$scope.initDataDrawChart();
 	}
 }])
+.factory('userIdService', ['$http', function($http) {
+	var _init = function (userId) {
+		var helperObj = {};
+		helperObj.userParametersSidebar = false;	//bool: true to show, false to hide. default true
+		helperObj.organizationSidebar = false;
+		helperObj.inputUserParameters = {
+				"height": 300
+			};
+		helperObj.setParameters = function (input) {
+			console.log("Parameters Set!");
+			return true;
+		}
+		return helperObj;
+	};
+	
+	return {
+		init : _init
+	};
+}])
 .directive('intervalDemand', ['chartIdService', function (chartIdService) {
 	return {
 		restrict: "E",
@@ -711,7 +742,8 @@ function($scope, $location, chartService, dataService, $timeout) {
 			organizationSidebar: "@",
 			inputUserParameters: "=userParameters",
 			inputRawData: "=data",
-			query: "="
+			query: "=",
+			userId: "@"
 		},
 		compile : function (element, attrs) {
 		console.log(attrs);
