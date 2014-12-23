@@ -519,34 +519,46 @@ angular.module('myApp.intervalDemand', ['ngRoute'])
 function($scope, $location, chartService, dataService, $timeout, userIdService) {
 	$scope.showButtons = true;
 	$scope.chartInit = false;
-	var savedUserDetailsHelper;
+	
+	var savedUserDetailsHelper; 
 	if ($scope.userId !== undefined) {
 	//should saved user parameters override any "compilation time" parameters?
 	//the answer to that question will change this process
-		savedUserDetailsHelper = userIdService.init($scope.userId);
-		savedUserDetailsHelper.setParameters({
-			"userParameters": $scope.userParameters,
-			"userParametersSidebar": $scope.userParametersSidebar,	//bool: true to show, false to hide. default true
-			"organizationSidebar": $scope.organizationSidebar,
-			"directiveInputtedData": $scope.directiveInputtedData,
-			"query": $scope.query
-		});
+		savedUserDetailsHelper = userIdService.init($scope.userId);	//inits users specific version of widget
+		
+		var savedUserConfigs = savedUserDetailsHelper.getSavedParameters();
+		console.log(savedUserConfigs);
+		$scope.userParameters = savedUserConfigs.userParameters;
+		$scope.userParametersSidebar = savedUserConfigs.userParametersSidebar;
+		$scope.organizationSidebar = savedUserConfigs.organizationSidebar;
 	}
+	
 	if ( ($scope.inputUserParameters === undefined)&&($scope.userParameters === undefined) ) {
 		$scope.userParameters = dataService.getDefaultUserParameters();
 	}
-	else if ($scope.userParameters === undefined) {
+	else {
 		//this is VERY specific functionality. The controller will copy the reference of the inputUserParameters,
 		//then populate the missing properties. This is so any userParameter manipulation in this controller is
 		//propagated outwardly
 		var defaultUserParameters = dataService.getDefaultUserParameters();
 		//console.log(defaultUserParameters);
-		for(var property in defaultUserParameters) {
-			if( $scope.inputUserParameters[property] === undefined ) {
-				$scope.inputUserParameters[property] = defaultUserParameters[property];
+		if ($scope.userParameters === undefined) {
+			for(var property in defaultUserParameters) {
+				if( $scope.inputUserParameters[property] === undefined ) {
+					$scope.inputUserParameters[property] = defaultUserParameters[property];
+				}
+				
+			}
+			$scope.userParameters = $scope.inputUserParameters;
+		}
+		else { //user parameters defined by saved user details flow
+			for(var property in defaultUserParameters) {
+				if( $scope.userParameters[property] === undefined ) {
+					$scope.userParameters[property] = defaultUserParameters[property];
+				}
+				
 			}
 		}
-		$scope.userParameters = $scope.inputUserParameters;
 	}
 	
 	
@@ -716,15 +728,21 @@ function($scope, $location, chartService, dataService, $timeout, userIdService) 
 }])
 .factory('userIdService', ['$http', function($http) {
 	var _init = function (userId) {
+		//TODO: query database for user ID to populate variables between TODOs
 		var helperObj = {};
 		helperObj.userParametersSidebar = false;	//bool: true to show, false to hide. default true
 		helperObj.organizationSidebar = false;
 		helperObj.inputUserParameters = {
-				"height": 300
+				"height": 500
 			};
-		helperObj.setParameters = function (input) {
-			console.log("Parameters Set!");
-			return true;
+		//END TODO
+		helperObj.getSavedParameters = function () {
+			return {
+				"userParameters": helperObj.inputUserParameters,
+				"userParametersSidebar": helperObj.userParametersSidebar,
+				"organizationSidebar": helperObj.organizationSidebar
+			}
+
 		}
 		return helperObj;
 	};

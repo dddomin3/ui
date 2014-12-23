@@ -1,6 +1,6 @@
 <div>Hello, {{timeSeries}}</div>
 
-<div class="panel panel-default col-md-3 col-sm-4 col-xs-6 col-lg-2">
+<div class="panel panel-default col-md-3 col-sm-4 col-xs-6 col-lg-2" ng-if="userParametersSidebar">
 	<div class="panel-heading">
 		<h3 class="panel-title">User Configuration Zone</h3>
 	</div>
@@ -46,7 +46,7 @@
 	<div class="row"><div class = "col-md-6 col-sm-8 col-xs-12 col-lg-4" id="{{chartId}}"></div></div>
 </div>
 <!-- dropdowns -->
-<div class="col-md-3">
+<div class="col-md-3" ng-if="organizationSidebar">
 	<!-- org -->
 	<div class="btn-group" dropdown>
 		<button type="button" ng-click="queryOrganizations()" class="btn btn-primary dropdown-toggle">
