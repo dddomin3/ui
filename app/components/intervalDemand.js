@@ -517,7 +517,31 @@ angular.module('myApp.intervalDemand', ['ngRoute'])
 function($scope, $location, chartService, dataService, $timeout) {
 	$scope.showButtons = true;
 	$scope.chartInit = false;
-	$scope.userParameters = dataService.getDefaultUserParameters();
+	
+	if ($scope.inputUserParameters === undefined) {
+		$scope.userParameters = dataService.getDefaultUserParameters();
+	}
+	else {
+		//this is VERY specific functionality. The controller will copy the reference of the inputUserParameters,
+		//then populate the missing properties. This is so any userParameter manipulation in this controller is
+		//propagated outwardly
+		var defaultUserParameters = dataService.getDefaultUserParameters();
+		//console.log(defaultUserParameters);
+		for(var property in defaultUserParameters) {
+			if( $scope.inputUserParameters[property] === undefined ) {
+				$scope.inputUserParameters[property] = defaultUserParameters[property];
+			}
+		}
+		$scope.userParameters = $scope.inputUserParameters;
+	}
+	
+	$scope.treatedData = {};
+	$scope.directiveInputtedData = [];
+	$scope.active = {};
+	
+	if($scope.inputRawData !== undefined) {	
+		$scope.directiveInputtedData = $scope.inputRawData;
+	}
 	
 	$scope.activeOrganizations = {};
 	$scope.inactiveOrganizations = {};
@@ -542,7 +566,6 @@ function($scope, $location, chartService, dataService, $timeout) {
 	};
 	
 	var http = function(response) {
-		series = dc.seriesChart("#"+$scope.dom); 
 		$scope.chartHelper = chartService.init(
 			series,
 			$scope.activeOrganizations,
@@ -561,9 +584,32 @@ function($scope, $location, chartService, dataService, $timeout) {
 		}
     };
 	
-	$scope.drawHttpChart = function () {
+	$scope.initDataDrawChart = function () {
 		$scope.chartInit = true;
-		dataService.getData($scope.activeOrganizations, $scope.userParameters).then( http, function () {alert("epicfail");} );
+		if ($scope.directiveInputtedData === undefined) { //if there is no inputted data
+			dataService.getData($scope.activeOrganizations, $scope.userParameters).then( http, function () {alert("epicfail");} );
+		}
+		else {
+			$scope.showButtons = false;
+			try {
+				$timeout( function () {
+					series = dc.seriesChart("#"+$scope.dom); 
+					$scope.chartHelper = chartService.init(
+						series,
+						$scope.activeOrganizations,
+						$scope.directiveInputtedData,
+						$scope.userParameters
+					);
+					series = $scope.chartHelper.drawChart(false);
+				}, 0 );
+			}
+			catch (e) {
+				console.error(e); // pass exception object to error handler
+			}
+			finally {
+				$scope.showButtons = true;
+			}
+		}
 	};
 	$scope.redrawChart = function () {
 		series = $scope.chartHelper.drawChart(false);
@@ -649,8 +695,12 @@ function($scope, $location, chartService, dataService, $timeout) {
 	$scope.debug = function () {
 		console.log($scope.activeOrganizations);
 	};
-
-	$scope.queryOrganizations();
+	if ($scope.directiveInputtedData === undefined) {
+		$scope.queryOrganizations();
+	}
+	else {
+		$scope.initDataDrawChart();
+	}
 }])
 .directive('intervalDemand', ['chartIdService', function (chartIdService) {
 	return {

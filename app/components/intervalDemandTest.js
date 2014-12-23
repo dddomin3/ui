@@ -3,217 +3,6160 @@ angular.module('myApp.intervalDemandTest', ['ngRoute'])
 						function($scope, dataService) {
 	$scope.custQuery= "{\"assets\":[{\"asset\":\"AHU2\",\"organization\":\"DEU\"}],\"highDate\":\"Wed Dec 10 2014 11:38:39 GMT-0500 (Eastern Standard Time)\",\"lowDate\":\"Wed Jun 25 2014 11:38:39 GMT-0500 (Eastern Standard Time)\"}";
 	$scope.custQuery = JSON.parse($scope.custQuery);
-	$scope.custParams = {"height": 300};
+	$scope.custParams = {
+		"height": 300
+	};
 	$scope.logScope = function () {
 		console.log($scope);
 	};
 	$scope.custRawData = [
 		{
-			"eventID": "DEU-0145973",
-			"facility": "60 Wall Street",
-			"asset": "AHU3",
-			"anomaly": "Chiller Efficiency Below Expected",
-			"status": "Closed",
-			"cause": "null",
-			"effect": "null",
-			"source": "Analytic",
-			"returnStatus": "No Feedback Provided",
-			"comments": "referred to CARRIER Request has been closed. by Engineers 60w at",
-			"createdTime": "Mon Jul 07 19:35:45 EDT 2014",
-			"closedTime": "Tue Aug 12 10:16:11 EDT 2014",
-			"stationName": "WLST",
-			"organization": "DEU",
-			"pointUsed": [
-				"DAT",
-				"MAT",
-				"ST"
-			],
-			"waste": "55",
-			"potentialSaving": "124"
+		"timestamp":"12/15/2014 0:00",
+		"value":590.6530722
 		},
 		{
-			"eventID": "DEU-0152015",
-			"facility": "60 Wall Street",
-			"asset": "AHU3",
-			"anomaly": "Chiller Efficiency Below Expected",
-			"status": "Closed",
-			"cause": "null",
-			"effect": "null",
-			"source": "Analytic",
-			"returnStatus": "No Feedback Provided",
-			"comments": "refer to CARRIER Request has been closed. by Engineers 60w at",
-			"createdTime": "Fri Jul 25 14:56:57 EDT 2014",
-			"closedTime": "Tue Aug 12 10:17:13 EDT 2014",
-			"stationName": "WLST",
-			"organization": "DEU",
-			"pointUsed": [
-				"DAT",
-				"MAT",
-				"ST"
-			],
-			"waste": "32",
-			"potentialSaving": "115"
+		"timestamp":"12/15/2014 0:15",
+		"value":60.51206707
 		},
 		{
-			"eventID": "DEU-0147261",
-			"facility": "60 Wall Street",
-			"asset": "AHU3",
-			"anomaly": "Status Not Equal to Command",
-			"status": "Closed",
-			"cause": "null",
-			"effect": "null",
-			"source": "Analytic",
-			"returnStatus": "Good Feedback",
-			"comments": "The fan was found off at the disconnect that day. Engineer and IBC tech was able to put unit in auto to allow the fan to start. Request has been closed. by IBC Albert Yulo at",
-			"createdTime": "Sat Jul 12 07:13:42 EDT 2014",
-			"closedTime": "Wed Jul 30 14:37:44 EDT 2014",
-			"stationName": "WLST",
-			"organization": "DEU",
-			"pointUsed": [
-				"DAT",
-				"MAT",
-				"ST"
-			],
-			"waste": "72.5",
-			"potentialSaving": "954.3333333"
+		"timestamp":"12/15/2014 0:30",
+		"value":675.6161395
 		},
 		{
-			"eventID": "DEU-0158423",
-			"facility": "60 Wall Street",
-			"asset": "AHU3",
-			"anomaly": "DAT Below Set Point - Heating Control Logic Failure",
-			"status": "Open",
-			"cause": "null",
-			"effect": "null",
-			"source": "Analytic",
-			"returnStatus": "null",
-			"comments": "null",
-			"createdTime": "Thu Aug 14 21:32:57 EDT 2014",
-			"closedTime": "null",
-			"stationName": "WLST",
-			"organization": "DEU",
-			"pointUsed": [
-				"DAT",
-				"MAT",
-				"ST"
-			],
-			"waste": "55",
-			"potentialSaving": "830.5619048"
+		"timestamp":"12/15/2014 0:45",
+		"value":363.2014336
 		},
 		{
-			"eventID": "DEU-0159345",
-			"facility": "60 Wall Street",
-			"asset": "AHU3",
-			"anomaly": "DAT Above Set Point - Cooling Control Logic Failure",
-			"status": "Closed",
-			"cause": "null",
-			"effect": "null",
-			"source": "Analytic",
-			"returnStatus": "Good Feedback",
-			"comments": "Made changes to the damper program to assist in reaching setpoint faster. Request has been closed. by  IBC Albert Yulo at",
-			"createdTime": "Mon Aug 18 05:01:09 EDT 2014",
-			"closedTime": "Mon Aug 18 14:23:22 EDT 2014",
-			"stationName": "WLST",
-			"organization": "DEU",
-			"pointUsed": [
-				"DAT",
-				"MAT",
-				"ST"
-			],
-			"waste": "21.5",
-			"potentialSaving": "169"
+		"timestamp":"12/15/2014 1:00",
+		"value":186.383877
 		},
 		{
-			"eventID": "DEU-0179547",
-			"facility": "60 Wall Street",
-			"asset": "AHU3",
-			"anomaly": "DAT Below Set Point - Heating Control Logic Failure",
-			"status": "Closed",
-			"cause": "null",
-			"effect": "NoBackground",
-			"source": "Analytic",
-			"returnStatus": "Good Feedback",
-			"comments": "tighten deadband in CO to allow tighter control. Request has been closed. by IBC Albert Yulo at",
-			"createdTime": "Sat Oct 11 09:05:24 EDT 2014",
-			"closedTime": "Mon Oct 13 13:13:26 EDT 2014",
-			"stationName": "WLST",
-			"organization": "DEU",
-			"pointUsed": [
-				"DAT",
-				"MAT",
-				"ST"
-			],
-			"waste": "11",
-			"potentialSaving": "885.9333333"
+		"timestamp":"12/15/2014 1:15",
+		"value":724.8736467
 		},
 		{
-			"eventID": "DEU-0177303",
-			"facility": "60 Wall Street",
-			"asset": "AHU3",
-			"anomaly": "Set Point Deviation",
-			"status": "Closed",
-			"cause": "null",
-			"effect": "NoBackground",
-			"source": "Analytic",
-			"returnStatus": "Good Feedback",
-			"comments": "Found points in override. Request has been closed. by IBC Albert Yulo at",
-			"createdTime": "Sun Oct 05 03:40:15 EDT 2014",
-			"closedTime": "Mon Oct 13 13:46:27 EDT 2014",
-			"stationName": "WLST",
-			"organization": "DEU",
-			"pointUsed": [
-				"DAT",
-				"MAT",
-				"ST"
-			],
-			"waste": "11",
-			"potentialSaving": "882.6761905"
+		"timestamp":"12/15/2014 1:30",
+		"value":563.5187754
 		},
 		{
-			"eventID": "DEU-0169963",
-			"facility": "60 Wall Street",
-			"asset": "AHU3",
-			"anomaly": "Status Not Equal to Command",
-			"status": "Closed",
-			"cause": "null",
-			"effect": "NoBackground",
-			"source": "Analytic",
-			"returnStatus": "Good Feedback",
-			"comments": "Found unit OFF at motor starter.  Placed to auto and checked operation. Request has been closed. by IBC Albert Yulo at",
-			"createdTime": "Sat Sep 13 01:25:10 EDT 2014",
-			"closedTime": "Wed Sep 24 08:16:04 EDT 2014",
-			"stationName": "WLST",
-			"organization": "DEU",
-			"pointUsed": [
-				"DAT",
-				"MAT",
-				"ST"
-			],
-			"waste": "11",
-			"potentialSaving": "872.9047619"
+		"timestamp":"12/15/2014 1:45",
+		"value":106.5026159
 		},
 		{
-			"eventID": "DEU-0173235",
-			"facility": "60 Wall Street",
-			"asset": "AHU3",
-			"anomaly": "Status Not Equal to Command",
-			"status": "Closed",
-			"cause": "null",
-			"effect": "NoBackground",
-			"source": "Analytic",
-			"returnStatus": "Good Feedback",
-			"comments": "Duplicate Ticket Request has been closed. by IBC Albert Yulo at",
-			"createdTime": "Mon Sep 22 19:18:07 EDT 2014",
-			"closedTime": "Fri Sep 26 09:18:41 EDT 2014",
-			"stationName": "WLST",
-			"organization": "DEU",
-			"pointUsed": [
-				"DAT",
-				"MAT",
-				"ST"
-			],
-			"waste": "11",
-			"potentialSaving": "869.647619"
+		"timestamp":"12/15/2014 2:00",
+		"value":220.4679398
+		},
+		{
+		"timestamp":"12/15/2014 2:15",
+		"value":31.23124787
+		},
+		{
+		"timestamp":"12/15/2014 2:30",
+		"value":769.2146114
+		},
+		{
+		"timestamp":"12/15/2014 2:45",
+		"value":692.908176
+		},
+		{
+		"timestamp":"12/15/2014 3:00",
+		"value":131.2385803
+		},
+		{
+		"timestamp":"12/15/2014 3:15",
+		"value":601.692465
+		},
+		{
+		"timestamp":"12/15/2014 3:30",
+		"value":8.724521627
+		},
+		{
+		"timestamp":"12/15/2014 3:45",
+		"value":691.2382767
+		},
+		{
+		"timestamp":"12/15/2014 4:00",
+		"value":861.6090444
+		},
+		{
+		"timestamp":"12/15/2014 4:15",
+		"value":414.7100648
+		},
+		{
+		"timestamp":"12/15/2014 4:30",
+		"value":565.0721644
+		},
+		{
+		"timestamp":"12/15/2014 4:45",
+		"value":689.948903
+		},
+		{
+		"timestamp":"12/15/2014 5:00",
+		"value":323.9865861
+		},
+		{
+		"timestamp":"12/15/2014 5:15",
+		"value":633.0342984
+		},
+		{
+		"timestamp":"12/15/2014 5:30",
+		"value":285.0656776
+		},
+		{
+		"timestamp":"12/15/2014 5:45",
+		"value":467.0142202
+		},
+		{
+		"timestamp":"12/15/2014 6:00",
+		"value":627.7530251
+		},
+		{
+		"timestamp":"12/15/2014 6:15",
+		"value":642.7020491
+		},
+		{
+		"timestamp":"12/15/2014 6:30",
+		"value":562.9709596
+		},
+		{
+		"timestamp":"12/15/2014 6:45",
+		"value":658.4580822
+		},
+		{
+		"timestamp":"12/15/2014 7:00",
+		"value":172.63656
+		},
+		{
+		"timestamp":"12/15/2014 7:15",
+		"value":844.5226918
+		},
+		{
+		"timestamp":"12/15/2014 7:30",
+		"value":684.9108549
+		},
+		{
+		"timestamp":"12/15/2014 7:45",
+		"value":158.727734
+		},
+		{
+		"timestamp":"12/15/2014 8:00",
+		"value":814.9262505
+		},
+		{
+		"timestamp":"12/15/2014 8:15",
+		"value":859.8286209
+		},
+		{
+		"timestamp":"12/15/2014 8:30",
+		"value":418.0476214
+		},
+		{
+		"timestamp":"12/15/2014 8:45",
+		"value":358.7596537
+		},
+		{
+		"timestamp":"12/15/2014 9:00",
+		"value":352.6618664
+		},
+		{
+		"timestamp":"12/15/2014 9:15",
+		"value":409.0945901
+		},
+		{
+		"timestamp":"12/15/2014 9:30",
+		"value":179.2249397
+		},
+		{
+		"timestamp":"12/15/2014 9:45",
+		"value":36.74093904
+		},
+		{
+		"timestamp":"12/15/2014 10:00",
+		"value":382.5635614
+		},
+		{
+		"timestamp":"12/15/2014 10:15",
+		"value":16.63450495
+		},
+		{
+		"timestamp":"12/15/2014 10:30",
+		"value":308.0926253
+		},
+		{
+		"timestamp":"12/15/2014 10:45",
+		"value":712.985656
+		},
+		{
+		"timestamp":"12/15/2014 11:00",
+		"value":562.3616613
+		},
+		{
+		"timestamp":"12/15/2014 11:15",
+		"value":488.4225621
+		},
+		{
+		"timestamp":"12/15/2014 11:30",
+		"value":954.9503846
+		},
+		{
+		"timestamp":"12/15/2014 11:45",
+		"value":432.6158909
+		},
+		{
+		"timestamp":"12/15/2014 12:00",
+		"value":361.2516508
+		},
+		{
+		"timestamp":"12/15/2014 12:15",
+		"value":702.8413017
+		},
+		{
+		"timestamp":"12/15/2014 12:30",
+		"value":556.5666528
+		},
+		{
+		"timestamp":"12/15/2014 12:45",
+		"value":622.2022203
+		},
+		{
+		"timestamp":"12/15/2014 13:00",
+		"value":378.0109382
+		},
+		{
+		"timestamp":"12/15/2014 13:15",
+		"value":23.14952707
+		},
+		{
+		"timestamp":"12/15/2014 13:30",
+		"value":935.6902173
+		},
+		{
+		"timestamp":"12/15/2014 13:45",
+		"value":28.51225739
+		},
+		{
+		"timestamp":"12/15/2014 14:00",
+		"value":84.1473782
+		},
+		{
+		"timestamp":"12/15/2014 14:15",
+		"value":604.0712547
+		},
+		{
+		"timestamp":"12/15/2014 14:30",
+		"value":445.0240286
+		},
+		{
+		"timestamp":"12/15/2014 14:45",
+		"value":358.0685344
+		},
+		{
+		"timestamp":"12/15/2014 15:00",
+		"value":811.3733483
+		},
+		{
+		"timestamp":"12/15/2014 15:15",
+		"value":944.2457967
+		},
+		{
+		"timestamp":"12/15/2014 15:30",
+		"value":773.4786242
+		},
+		{
+		"timestamp":"12/15/2014 15:45",
+		"value":236.8036954
+		},
+		{
+		"timestamp":"12/15/2014 16:00",
+		"value":703.6536617
+		},
+		{
+		"timestamp":"12/15/2014 16:15",
+		"value":15.11363154
+		},
+		{
+		"timestamp":"12/15/2014 16:30",
+		"value":756.8219905
+		},
+		{
+		"timestamp":"12/15/2014 16:45",
+		"value":693.3411229
+		},
+		{
+		"timestamp":"12/15/2014 17:00",
+		"value":67.83946118
+		},
+		{
+		"timestamp":"12/15/2014 17:15",
+		"value":830.8575574
+		},
+		{
+		"timestamp":"12/15/2014 17:30",
+		"value":522.3007439
+		},
+		{
+		"timestamp":"12/15/2014 17:45",
+		"value":709.0726307
+		},
+		{
+		"timestamp":"12/15/2014 18:00",
+		"value":280.5976242
+		},
+		{
+		"timestamp":"12/15/2014 18:15",
+		"value":16.14188669
+		},
+		{
+		"timestamp":"12/15/2014 18:30",
+		"value":699.340932
+		},
+		{
+		"timestamp":"12/15/2014 18:45",
+		"value":951.5254673
+		},
+		{
+		"timestamp":"12/15/2014 19:00",
+		"value":332.106928
+		},
+		{
+		"timestamp":"12/15/2014 19:15",
+		"value":168.9333162
+		},
+		{
+		"timestamp":"12/15/2014 19:30",
+		"value":363.1138414
+		},
+		{
+		"timestamp":"12/15/2014 19:45",
+		"value":377.5209317
+		},
+		{
+		"timestamp":"12/15/2014 20:00",
+		"value":237.2165879
+		},
+		{
+		"timestamp":"12/15/2014 20:15",
+		"value":64.93932069
+		},
+		{
+		"timestamp":"12/15/2014 20:30",
+		"value":968.8630861
+		},
+		{
+		"timestamp":"12/15/2014 20:45",
+		"value":73.97116487
+		},
+		{
+		"timestamp":"12/15/2014 21:00",
+		"value":86.15630012
+		},
+		{
+		"timestamp":"12/15/2014 21:15",
+		"value":697.2555713
+		},
+		{
+		"timestamp":"12/15/2014 21:30",
+		"value":393.05632
+		},
+		{
+		"timestamp":"12/15/2014 21:45",
+		"value":282.8550458
+		},
+		{
+		"timestamp":"12/15/2014 22:00",
+		"value":182.6717335
+		},
+		{
+		"timestamp":"12/15/2014 22:15",
+		"value":268.781105
+		},
+		{
+		"timestamp":"12/15/2014 22:30",
+		"value":51.5090025
+		},
+		{
+		"timestamp":"12/15/2014 22:45",
+		"value":785.0524943
+		},
+		{
+		"timestamp":"12/15/2014 23:00",
+		"value":327.7566828
+		},
+		{
+		"timestamp":"12/15/2014 23:15",
+		"value":805.3636327
+		},
+		{
+		"timestamp":"12/15/2014 23:30",
+		"value":570.9334956
+		},
+		{
+		"timestamp":"12/15/2014 23:45",
+		"value":520.259825
+		},
+		{
+		"timestamp":"12/16/2014 0:00",
+		"value":517.4212503
+		},
+		{
+		"timestamp":"12/16/2014 0:15",
+		"value":87.59226227
+		},
+		{
+		"timestamp":"12/16/2014 0:30",
+		"value":580.91975
+		},
+		{
+		"timestamp":"12/16/2014 0:45",
+		"value":151.569355
+		},
+		{
+		"timestamp":"12/16/2014 1:00",
+		"value":795.197955
+		},
+		{
+		"timestamp":"12/16/2014 1:15",
+		"value":173.545871
+		},
+		{
+		"timestamp":"12/16/2014 1:30",
+		"value":435.4608272
+		},
+		{
+		"timestamp":"12/16/2014 1:45",
+		"value":638.3229571
+		},
+		{
+		"timestamp":"12/16/2014 2:00",
+		"value":228.9321374
+		},
+		{
+		"timestamp":"12/16/2014 2:15",
+		"value":805.7748092
+		},
+		{
+		"timestamp":"12/16/2014 2:30",
+		"value":506.0077317
+		},
+		{
+		"timestamp":"12/16/2014 2:45",
+		"value":460.0439616
+		},
+		{
+		"timestamp":"12/16/2014 3:00",
+		"value":57.22218538
+		},
+		{
+		"timestamp":"12/16/2014 3:15",
+		"value":538.3462087
+		},
+		{
+		"timestamp":"12/16/2014 3:30",
+		"value":428.7611934
+		},
+		{
+		"timestamp":"12/16/2014 3:45",
+		"value":14.17607224
+		},
+		{
+		"timestamp":"12/16/2014 4:00",
+		"value":938.8105065
+		},
+		{
+		"timestamp":"12/16/2014 4:15",
+		"value":120.246165
+		},
+		{
+		"timestamp":"12/16/2014 4:30",
+		"value":244.5122525
+		},
+		{
+		"timestamp":"12/16/2014 4:45",
+		"value":599.6687133
+		},
+		{
+		"timestamp":"12/16/2014 5:00",
+		"value":609.3535904
+		},
+		{
+		"timestamp":"12/16/2014 5:15",
+		"value":988.338976
+		},
+		{
+		"timestamp":"12/16/2014 5:30",
+		"value":939.024226
+		},
+		{
+		"timestamp":"12/16/2014 5:45",
+		"value":207.6255419
+		},
+		{
+		"timestamp":"12/16/2014 6:00",
+		"value":696.2897097
+		},
+		{
+		"timestamp":"12/16/2014 6:15",
+		"value":970.0180118
+		},
+		{
+		"timestamp":"12/16/2014 6:30",
+		"value":350.6794491
+		},
+		{
+		"timestamp":"12/16/2014 6:45",
+		"value":988.394188
+		},
+		{
+		"timestamp":"12/16/2014 7:00",
+		"value":711.74379
+		},
+		{
+		"timestamp":"12/16/2014 7:15",
+		"value":381.5184005
+		},
+		{
+		"timestamp":"12/16/2014 7:30",
+		"value":420.5023592
+		},
+		{
+		"timestamp":"12/16/2014 7:45",
+		"value":685.4901019
+		},
+		{
+		"timestamp":"12/16/2014 8:00",
+		"value":512.4887741
+		},
+		{
+		"timestamp":"12/16/2014 8:15",
+		"value":522.1182806
+		},
+		{
+		"timestamp":"12/16/2014 8:30",
+		"value":51.60892693
+		},
+		{
+		"timestamp":"12/16/2014 8:45",
+		"value":562.622971
+		},
+		{
+		"timestamp":"12/16/2014 9:00",
+		"value":770.0465984
+		},
+		{
+		"timestamp":"12/16/2014 9:15",
+		"value":966.5785843
+		},
+		{
+		"timestamp":"12/16/2014 9:30",
+		"value":10.71136757
+		},
+		{
+		"timestamp":"12/16/2014 9:45",
+		"value":726.845159
+		},
+		{
+		"timestamp":"12/16/2014 10:00",
+		"value":776.3099874
+		},
+		{
+		"timestamp":"12/16/2014 10:15",
+		"value":431.1271621
+		},
+		{
+		"timestamp":"12/16/2014 10:30",
+		"value":158.0923894
+		},
+		{
+		"timestamp":"12/16/2014 10:45",
+		"value":196.4491634
+		},
+		{
+		"timestamp":"12/16/2014 11:00",
+		"value":203.2115999
+		},
+		{
+		"timestamp":"12/16/2014 11:15",
+		"value":444.9560478
+		},
+		{
+		"timestamp":"12/16/2014 11:30",
+		"value":828.7336183
+		},
+		{
+		"timestamp":"12/16/2014 11:45",
+		"value":624.9633726
+		},
+		{
+		"timestamp":"12/16/2014 12:00",
+		"value":141.2544696
+		},
+		{
+		"timestamp":"12/16/2014 12:15",
+		"value":918.9251643
+		},
+		{
+		"timestamp":"12/16/2014 12:30",
+		"value":121.8316336
+		},
+		{
+		"timestamp":"12/16/2014 12:45",
+		"value":169.9304893
+		},
+		{
+		"timestamp":"12/16/2014 13:00",
+		"value":615.7137901
+		},
+		{
+		"timestamp":"12/16/2014 13:15",
+		"value":189.186017
+		},
+		{
+		"timestamp":"12/16/2014 13:30",
+		"value":61.48787737
+		},
+		{
+		"timestamp":"12/16/2014 13:45",
+		"value":886.4863791
+		},
+		{
+		"timestamp":"12/16/2014 14:00",
+		"value":737.9031684
+		},
+		{
+		"timestamp":"12/16/2014 14:15",
+		"value":133.0889249
+		},
+		{
+		"timestamp":"12/16/2014 14:30",
+		"value":754.7847025
+		},
+		{
+		"timestamp":"12/16/2014 14:45",
+		"value":61.49857782
+		},
+		{
+		"timestamp":"12/16/2014 15:00",
+		"value":429.6827027
+		},
+		{
+		"timestamp":"12/16/2014 15:15",
+		"value":961.4871831
+		},
+		{
+		"timestamp":"12/16/2014 15:30",
+		"value":865.6325852
+		},
+		{
+		"timestamp":"12/16/2014 15:45",
+		"value":208.2809128
+		},
+		{
+		"timestamp":"12/16/2014 16:00",
+		"value":721.6764508
+		},
+		{
+		"timestamp":"12/16/2014 16:15",
+		"value":560.1463408
+		},
+		{
+		"timestamp":"12/16/2014 16:30",
+		"value":314.8233468
+		},
+		{
+		"timestamp":"12/16/2014 16:45",
+		"value":295.7043991
+		},
+		{
+		"timestamp":"12/16/2014 17:00",
+		"value":799.2793168
+		},
+		{
+		"timestamp":"12/16/2014 17:15",
+		"value":828.881887
+		},
+		{
+		"timestamp":"12/16/2014 17:30",
+		"value":880.7321385
+		},
+		{
+		"timestamp":"12/16/2014 17:45",
+		"value":707.9717826
+		},
+		{
+		"timestamp":"12/16/2014 18:00",
+		"value":303.1732632
+		},
+		{
+		"timestamp":"12/16/2014 18:15",
+		"value":938.1121641
+		},
+		{
+		"timestamp":"12/16/2014 18:30",
+		"value":401.9128888
+		},
+		{
+		"timestamp":"12/16/2014 18:45",
+		"value":64.21997246
+		},
+		{
+		"timestamp":"12/16/2014 19:00",
+		"value":545.8213905
+		},
+		{
+		"timestamp":"12/16/2014 19:15",
+		"value":901.7963577
+		},
+		{
+		"timestamp":"12/16/2014 19:30",
+		"value":124.2205645
+		},
+		{
+		"timestamp":"12/16/2014 19:45",
+		"value":170.713223
+		},
+		{
+		"timestamp":"12/16/2014 20:00",
+		"value":876.9428731
+		},
+		{
+		"timestamp":"12/16/2014 20:15",
+		"value":647.2584843
+		},
+		{
+		"timestamp":"12/16/2014 20:30",
+		"value":215.3936452
+		},
+		{
+		"timestamp":"12/16/2014 20:45",
+		"value":81.94041199
+		},
+		{
+		"timestamp":"12/16/2014 21:00",
+		"value":410.1737393
+		},
+		{
+		"timestamp":"12/16/2014 21:15",
+		"value":458.0991169
+		},
+		{
+		"timestamp":"12/16/2014 21:30",
+		"value":778.6518066
+		},
+		{
+		"timestamp":"12/16/2014 21:45",
+		"value":604.4595407
+		},
+		{
+		"timestamp":"12/16/2014 22:00",
+		"value":325.8468161
+		},
+		{
+		"timestamp":"12/16/2014 22:15",
+		"value":345.6343763
+		},
+		{
+		"timestamp":"12/16/2014 22:30",
+		"value":221.4941776
+		},
+		{
+		"timestamp":"12/16/2014 22:45",
+		"value":596.5026865
+		},
+		{
+		"timestamp":"12/16/2014 23:00",
+		"value":642.7371854
+		},
+		{
+		"timestamp":"12/16/2014 23:15",
+		"value":798.753632
+		},
+		{
+		"timestamp":"12/16/2014 23:30",
+		"value":161.3388051
+		},
+		{
+		"timestamp":"12/16/2014 23:45",
+		"value":325.0122092
+		},
+		{
+		"timestamp":"12/17/2014 0:00",
+		"value":809.9308496
+		},
+		{
+		"timestamp":"12/17/2014 0:15",
+		"value":243.585049
+		},
+		{
+		"timestamp":"12/17/2014 0:30",
+		"value":670.5519806
+		},
+		{
+		"timestamp":"12/17/2014 0:45",
+		"value":492.1648763
+		},
+		{
+		"timestamp":"12/17/2014 1:00",
+		"value":558.8392566
+		},
+		{
+		"timestamp":"12/17/2014 1:15",
+		"value":808.1485274
+		},
+		{
+		"timestamp":"12/17/2014 1:30",
+		"value":692.1873081
+		},
+		{
+		"timestamp":"12/17/2014 1:45",
+		"value":505.825724
+		},
+		{
+		"timestamp":"12/17/2014 2:00",
+		"value":711.831424
+		},
+		{
+		"timestamp":"12/17/2014 2:15",
+		"value":100.187383
+		},
+		{
+		"timestamp":"12/17/2014 2:30",
+		"value":196.5299721
+		},
+		{
+		"timestamp":"12/17/2014 2:45",
+		"value":777.2925669
+		},
+		{
+		"timestamp":"12/17/2014 3:00",
+		"value":722.7772392
+		},
+		{
+		"timestamp":"12/17/2014 3:15",
+		"value":660.2824069
+		},
+		{
+		"timestamp":"12/17/2014 3:30",
+		"value":950.9723079
+		},
+		{
+		"timestamp":"12/17/2014 3:45",
+		"value":386.6786926
+		},
+		{
+		"timestamp":"12/17/2014 4:00",
+		"value":308.6489351
+		},
+		{
+		"timestamp":"12/17/2014 4:15",
+		"value":160.5263971
+		},
+		{
+		"timestamp":"12/17/2014 4:30",
+		"value":687.0309015
+		},
+		{
+		"timestamp":"12/17/2014 4:45",
+		"value":642.228115
+		},
+		{
+		"timestamp":"12/17/2014 5:00",
+		"value":490.6207589
+		},
+		{
+		"timestamp":"12/17/2014 5:15",
+		"value":313.2175806
+		},
+		{
+		"timestamp":"12/17/2014 5:30",
+		"value":182.2661749
+		},
+		{
+		"timestamp":"12/17/2014 5:45",
+		"value":382.4178452
+		},
+		{
+		"timestamp":"12/17/2014 6:00",
+		"value":802.8564786
+		},
+		{
+		"timestamp":"12/17/2014 6:15",
+		"value":457.9657613
+		},
+		{
+		"timestamp":"12/17/2014 6:30",
+		"value":677.3301955
+		},
+		{
+		"timestamp":"12/17/2014 6:45",
+		"value":92.64908438
+		},
+		{
+		"timestamp":"12/17/2014 7:00",
+		"value":721.1388679
+		},
+		{
+		"timestamp":"12/17/2014 7:15",
+		"value":715.1226126
+		},
+		{
+		"timestamp":"12/17/2014 7:30",
+		"value":256.3167464
+		},
+		{
+		"timestamp":"12/17/2014 7:45",
+		"value":366.8066492
+		},
+		{
+		"timestamp":"12/17/2014 8:00",
+		"value":681.2595699
+		},
+		{
+		"timestamp":"12/17/2014 8:15",
+		"value":626.3001721
+		},
+		{
+		"timestamp":"12/17/2014 8:30",
+		"value":531.1477823
+		},
+		{
+		"timestamp":"12/17/2014 8:45",
+		"value":173.8107952
+		},
+		{
+		"timestamp":"12/17/2014 9:00",
+		"value":657.2561376
+		},
+		{
+		"timestamp":"12/17/2014 9:15",
+		"value":178.996993
+		},
+		{
+		"timestamp":"12/17/2014 9:30",
+		"value":504.3774431
+		},
+		{
+		"timestamp":"12/17/2014 9:45",
+		"value":182.7591132
+		},
+		{
+		"timestamp":"12/17/2014 10:00",
+		"value":204.1837805
+		},
+		{
+		"timestamp":"12/17/2014 10:15",
+		"value":547.9140466
+		},
+		{
+		"timestamp":"12/17/2014 10:30",
+		"value":207.9162683
+		},
+		{
+		"timestamp":"12/17/2014 10:45",
+		"value":756.5356648
+		},
+		{
+		"timestamp":"12/17/2014 11:00",
+		"value":874.5866136
+		},
+		{
+		"timestamp":"12/17/2014 11:15",
+		"value":130.2536107
+		},
+		{
+		"timestamp":"12/17/2014 11:30",
+		"value":939.7699039
+		},
+		{
+		"timestamp":"12/17/2014 11:45",
+		"value":77.18895475
+		},
+		{
+		"timestamp":"12/17/2014 12:00",
+		"value":709.994074
+		},
+		{
+		"timestamp":"12/17/2014 12:15",
+		"value":679.4192561
+		},
+		{
+		"timestamp":"12/17/2014 12:30",
+		"value":745.0206237
+		},
+		{
+		"timestamp":"12/17/2014 12:45",
+		"value":745.4228336
+		},
+		{
+		"timestamp":"12/17/2014 13:00",
+		"value":420.0297775
+		},
+		{
+		"timestamp":"12/17/2014 13:15",
+		"value":930.6724623
+		},
+		{
+		"timestamp":"12/17/2014 13:30",
+		"value":702.7914392
+		},
+		{
+		"timestamp":"12/17/2014 13:45",
+		"value":74.74272568
+		},
+		{
+		"timestamp":"12/17/2014 14:00",
+		"value":729.2937909
+		},
+		{
+		"timestamp":"12/17/2014 14:15",
+		"value":436.6269411
+		},
+		{
+		"timestamp":"12/17/2014 14:30",
+		"value":797.423443
+		},
+		{
+		"timestamp":"12/17/2014 14:45",
+		"value":526.1560993
+		},
+		{
+		"timestamp":"12/17/2014 15:00",
+		"value":120.6061713
+		},
+		{
+		"timestamp":"12/17/2014 15:15",
+		"value":427.6513979
+		},
+		{
+		"timestamp":"12/17/2014 15:30",
+		"value":174.0358919
+		},
+		{
+		"timestamp":"12/17/2014 15:45",
+		"value":510.8242745
+		},
+		{
+		"timestamp":"12/17/2014 16:00",
+		"value":624.9736847
+		},
+		{
+		"timestamp":"12/17/2014 16:15",
+		"value":787.3064301
+		},
+		{
+		"timestamp":"12/17/2014 16:30",
+		"value":180.8174079
+		},
+		{
+		"timestamp":"12/17/2014 16:45",
+		"value":646.7095818
+		},
+		{
+		"timestamp":"12/17/2014 17:00",
+		"value":225.6693546
+		},
+		{
+		"timestamp":"12/17/2014 17:15",
+		"value":159.5013961
+		},
+		{
+		"timestamp":"12/17/2014 17:30",
+		"value":299.217094
+		},
+		{
+		"timestamp":"12/17/2014 17:45",
+		"value":791.6965557
+		},
+		{
+		"timestamp":"12/17/2014 18:00",
+		"value":429.6377163
+		},
+		{
+		"timestamp":"12/17/2014 18:15",
+		"value":538.35463
+		},
+		{
+		"timestamp":"12/17/2014 18:30",
+		"value":869.4961977
+		},
+		{
+		"timestamp":"12/17/2014 18:45",
+		"value":418.0335217
+		},
+		{
+		"timestamp":"12/17/2014 19:00",
+		"value":459.2394533
+		},
+		{
+		"timestamp":"12/17/2014 19:15",
+		"value":411.6231261
+		},
+		{
+		"timestamp":"12/17/2014 19:30",
+		"value":529.6121141
+		},
+		{
+		"timestamp":"12/17/2014 19:45",
+		"value":169.5003094
+		},
+		{
+		"timestamp":"12/17/2014 20:00",
+		"value":228.7350373
+		},
+		{
+		"timestamp":"12/17/2014 20:15",
+		"value":131.8131734
+		},
+		{
+		"timestamp":"12/17/2014 20:30",
+		"value":0.343945621
+		},
+		{
+		"timestamp":"12/17/2014 20:45",
+		"value":908.7082497
+		},
+		{
+		"timestamp":"12/17/2014 21:00",
+		"value":503.3305001
+		},
+		{
+		"timestamp":"12/17/2014 21:15",
+		"value":382.7672604
+		},
+		{
+		"timestamp":"12/17/2014 21:30",
+		"value":322.2451811
+		},
+		{
+		"timestamp":"12/17/2014 21:45",
+		"value":190.7589082
+		},
+		{
+		"timestamp":"12/17/2014 22:00",
+		"value":275.7556388
+		},
+		{
+		"timestamp":"12/17/2014 22:15",
+		"value":632.7916701
+		},
+		{
+		"timestamp":"12/17/2014 22:30",
+		"value":778.0786196
+		},
+		{
+		"timestamp":"12/17/2014 22:45",
+		"value":834.6635904
+		},
+		{
+		"timestamp":"12/17/2014 23:00",
+		"value":731.5953025
+		},
+		{
+		"timestamp":"12/17/2014 23:15",
+		"value":398.51659
+		},
+		{
+		"timestamp":"12/17/2014 23:30",
+		"value":630.247991
+		},
+		{
+		"timestamp":"12/17/2014 23:45",
+		"value":757.9220825
+		},
+		{
+		"timestamp":"12/18/2014 0:00",
+		"value":503.5510973
+		},
+		{
+		"timestamp":"12/18/2014 0:15",
+		"value":255.2328903
+		},
+		{
+		"timestamp":"12/18/2014 0:30",
+		"value":694.5856303
+		},
+		{
+		"timestamp":"12/18/2014 0:45",
+		"value":805.8323159
+		},
+		{
+		"timestamp":"12/18/2014 1:00",
+		"value":551.623562
+		},
+		{
+		"timestamp":"12/18/2014 1:15",
+		"value":24.56986744
+		},
+		{
+		"timestamp":"12/18/2014 1:30",
+		"value":795.0422238
+		},
+		{
+		"timestamp":"12/18/2014 1:45",
+		"value":111.8465681
+		},
+		{
+		"timestamp":"12/18/2014 2:00",
+		"value":885.5050793
+		},
+		{
+		"timestamp":"12/18/2014 2:15",
+		"value":562.101384
+		},
+		{
+		"timestamp":"12/18/2014 2:30",
+		"value":998.9881597
+		},
+		{
+		"timestamp":"12/18/2014 2:45",
+		"value":181.9291972
+		},
+		{
+		"timestamp":"12/18/2014 3:00",
+		"value":941.6767635
+		},
+		{
+		"timestamp":"12/18/2014 3:15",
+		"value":742.1456561
+		},
+		{
+		"timestamp":"12/18/2014 3:30",
+		"value":581.9641869
+		},
+		{
+		"timestamp":"12/18/2014 3:45",
+		"value":180.5190186
+		},
+		{
+		"timestamp":"12/18/2014 4:00",
+		"value":832.5061337
+		},
+		{
+		"timestamp":"12/18/2014 4:15",
+		"value":230.7965996
+		},
+		{
+		"timestamp":"12/18/2014 4:30",
+		"value":855.3840069
+		},
+		{
+		"timestamp":"12/18/2014 4:45",
+		"value":562.6795971
+		},
+		{
+		"timestamp":"12/18/2014 5:00",
+		"value":646.8506905
+		},
+		{
+		"timestamp":"12/18/2014 5:15",
+		"value":927.4533672
+		},
+		{
+		"timestamp":"12/18/2014 5:30",
+		"value":262.6364472
+		},
+		{
+		"timestamp":"12/18/2014 5:45",
+		"value":741.0248947
+		},
+		{
+		"timestamp":"12/18/2014 6:00",
+		"value":878.0215787
+		},
+		{
+		"timestamp":"12/18/2014 6:15",
+		"value":718.8603173
+		},
+		{
+		"timestamp":"12/18/2014 6:30",
+		"value":943.3444899
+		},
+		{
+		"timestamp":"12/18/2014 6:45",
+		"value":851.2530056
+		},
+		{
+		"timestamp":"12/18/2014 7:00",
+		"value":876.0025979
+		},
+		{
+		"timestamp":"12/18/2014 7:15",
+		"value":718.7418758
+		},
+		{
+		"timestamp":"12/18/2014 7:30",
+		"value":948.132125
+		},
+		{
+		"timestamp":"12/18/2014 7:45",
+		"value":694.5788756
+		},
+		{
+		"timestamp":"12/18/2014 8:00",
+		"value":840.6430627
+		},
+		{
+		"timestamp":"12/18/2014 8:15",
+		"value":646.979124
+		},
+		{
+		"timestamp":"12/18/2014 8:30",
+		"value":191.8878574
+		},
+		{
+		"timestamp":"12/18/2014 8:45",
+		"value":659.9727136
+		},
+		{
+		"timestamp":"12/18/2014 9:00",
+		"value":982.0404855
+		},
+		{
+		"timestamp":"12/18/2014 9:15",
+		"value":227.6714713
+		},
+		{
+		"timestamp":"12/18/2014 9:30",
+		"value":375.3969291
+		},
+		{
+		"timestamp":"12/18/2014 9:45",
+		"value":331.9279026
+		},
+		{
+		"timestamp":"12/18/2014 10:00",
+		"value":655.9556446
+		},
+		{
+		"timestamp":"12/18/2014 10:15",
+		"value":172.1021017
+		},
+		{
+		"timestamp":"12/18/2014 10:30",
+		"value":672.2109401
+		},
+		{
+		"timestamp":"12/18/2014 10:45",
+		"value":507.4449065
+		},
+		{
+		"timestamp":"12/18/2014 11:00",
+		"value":704.7092856
+		},
+		{
+		"timestamp":"12/18/2014 11:15",
+		"value":950.4497549
+		},
+		{
+		"timestamp":"12/18/2014 11:30",
+		"value":69.97279177
+		},
+		{
+		"timestamp":"12/18/2014 11:45",
+		"value":872.9365833
+		},
+		{
+		"timestamp":"12/18/2014 12:00",
+		"value":447.549507
+		},
+		{
+		"timestamp":"12/18/2014 12:15",
+		"value":637.8575561
+		},
+		{
+		"timestamp":"12/18/2014 12:30",
+		"value":764.9672582
+		},
+		{
+		"timestamp":"12/18/2014 12:45",
+		"value":435.441683
+		},
+		{
+		"timestamp":"12/18/2014 13:00",
+		"value":643.1769656
+		},
+		{
+		"timestamp":"12/18/2014 13:15",
+		"value":626.1555415
+		},
+		{
+		"timestamp":"12/18/2014 13:30",
+		"value":454.6947592
+		},
+		{
+		"timestamp":"12/18/2014 13:45",
+		"value":400.966468
+		},
+		{
+		"timestamp":"12/18/2014 14:00",
+		"value":229.3025835
+		},
+		{
+		"timestamp":"12/18/2014 14:15",
+		"value":470.2914739
+		},
+		{
+		"timestamp":"12/18/2014 14:30",
+		"value":794.9690911
+		},
+		{
+		"timestamp":"12/18/2014 14:45",
+		"value":617.9428835
+		},
+		{
+		"timestamp":"12/18/2014 15:00",
+		"value":494.8030666
+		},
+		{
+		"timestamp":"12/18/2014 15:15",
+		"value":692.6330786
+		},
+		{
+		"timestamp":"12/18/2014 15:30",
+		"value":598.4346731
+		},
+		{
+		"timestamp":"12/18/2014 15:45",
+		"value":413.4221706
+		},
+		{
+		"timestamp":"12/18/2014 16:00",
+		"value":297.9280398
+		},
+		{
+		"timestamp":"12/18/2014 16:15",
+		"value":880.3806148
+		},
+		{
+		"timestamp":"12/18/2014 16:30",
+		"value":518.9157514
+		},
+		{
+		"timestamp":"12/18/2014 16:45",
+		"value":604.4271569
+		},
+		{
+		"timestamp":"12/18/2014 17:00",
+		"value":461.2225665
+		},
+		{
+		"timestamp":"12/18/2014 17:15",
+		"value":235.2869538
+		},
+		{
+		"timestamp":"12/18/2014 17:30",
+		"value":94.84980613
+		},
+		{
+		"timestamp":"12/18/2014 17:45",
+		"value":269.0362406
+		},
+		{
+		"timestamp":"12/18/2014 18:00",
+		"value":380.5554942
+		},
+		{
+		"timestamp":"12/18/2014 18:15",
+		"value":75.69272869
+		},
+		{
+		"timestamp":"12/18/2014 18:30",
+		"value":812.1479706
+		},
+		{
+		"timestamp":"12/18/2014 18:45",
+		"value":604.2571455
+		},
+		{
+		"timestamp":"12/18/2014 19:00",
+		"value":847.3967284
+		},
+		{
+		"timestamp":"12/18/2014 19:15",
+		"value":891.9302006
+		},
+		{
+		"timestamp":"12/18/2014 19:30",
+		"value":509.9963232
+		},
+		{
+		"timestamp":"12/18/2014 19:45",
+		"value":539.3780489
+		},
+		{
+		"timestamp":"12/18/2014 20:00",
+		"value":509.6683604
+		},
+		{
+		"timestamp":"12/18/2014 20:15",
+		"value":302.4828916
+		},
+		{
+		"timestamp":"12/18/2014 20:30",
+		"value":811.0591654
+		},
+		{
+		"timestamp":"12/18/2014 20:45",
+		"value":703.6003572
+		},
+		{
+		"timestamp":"12/18/2014 21:00",
+		"value":358.0587885
+		},
+		{
+		"timestamp":"12/18/2014 21:15",
+		"value":969.5007116
+		},
+		{
+		"timestamp":"12/18/2014 21:30",
+		"value":496.117256
+		},
+		{
+		"timestamp":"12/18/2014 21:45",
+		"value":120.2995564
+		},
+		{
+		"timestamp":"12/18/2014 22:00",
+		"value":584.8943764
+		},
+		{
+		"timestamp":"12/18/2014 22:15",
+		"value":268.5786383
+		},
+		{
+		"timestamp":"12/18/2014 22:30",
+		"value":705.5955665
+		},
+		{
+		"timestamp":"12/18/2014 22:45",
+		"value":118.5193026
+		},
+		{
+		"timestamp":"12/18/2014 23:00",
+		"value":911.1105301
+		},
+		{
+		"timestamp":"12/18/2014 23:15",
+		"value":753.7404944
+		},
+		{
+		"timestamp":"12/18/2014 23:30",
+		"value":767.6531858
+		},
+		{
+		"timestamp":"12/18/2014 23:45",
+		"value":985.3504119
+		},
+		{
+		"timestamp":"12/19/2014 0:00",
+		"value":195.937384
+		},
+		{
+		"timestamp":"12/19/2014 0:15",
+		"value":649.2241438
+		},
+		{
+		"timestamp":"12/19/2014 0:30",
+		"value":602.3753091
+		},
+		{
+		"timestamp":"12/19/2014 0:45",
+		"value":209.35725
+		},
+		{
+		"timestamp":"12/19/2014 1:00",
+		"value":98.9111316
+		},
+		{
+		"timestamp":"12/19/2014 1:15",
+		"value":398.2135689
+		},
+		{
+		"timestamp":"12/19/2014 1:30",
+		"value":769.5714487
+		},
+		{
+		"timestamp":"12/19/2014 1:45",
+		"value":718.6700396
+		},
+		{
+		"timestamp":"12/19/2014 2:00",
+		"value":780.3481492
+		},
+		{
+		"timestamp":"12/19/2014 2:15",
+		"value":209.4224174
+		},
+		{
+		"timestamp":"12/19/2014 2:30",
+		"value":193.4733017
+		},
+		{
+		"timestamp":"12/19/2014 2:45",
+		"value":240.9284399
+		},
+		{
+		"timestamp":"12/19/2014 3:00",
+		"value":380.9893559
+		},
+		{
+		"timestamp":"12/19/2014 3:15",
+		"value":439.6012287
+		},
+		{
+		"timestamp":"12/19/2014 3:30",
+		"value":915.8083653
+		},
+		{
+		"timestamp":"12/19/2014 3:45",
+		"value":405.377315
+		},
+		{
+		"timestamp":"12/19/2014 4:00",
+		"value":355.6867121
+		},
+		{
+		"timestamp":"12/19/2014 4:15",
+		"value":962.9200623
+		},
+		{
+		"timestamp":"12/19/2014 4:30",
+		"value":992.9485043
+		},
+		{
+		"timestamp":"12/19/2014 4:45",
+		"value":616.631379
+		},
+		{
+		"timestamp":"12/19/2014 5:00",
+		"value":988.5493397
+		},
+		{
+		"timestamp":"12/19/2014 5:15",
+		"value":584.6842255
+		},
+		{
+		"timestamp":"12/19/2014 5:30",
+		"value":229.2950185
+		},
+		{
+		"timestamp":"12/19/2014 5:45",
+		"value":10.07632533
+		},
+		{
+		"timestamp":"12/19/2014 6:00",
+		"value":926.8280209
+		},
+		{
+		"timestamp":"12/19/2014 6:15",
+		"value":720.8288167
+		},
+		{
+		"timestamp":"12/19/2014 6:30",
+		"value":942.1550709
+		},
+		{
+		"timestamp":"12/19/2014 6:45",
+		"value":595.9334007
+		},
+		{
+		"timestamp":"12/19/2014 7:00",
+		"value":500.4718832
+		},
+		{
+		"timestamp":"12/19/2014 7:15",
+		"value":953.6879303
+		},
+		{
+		"timestamp":"12/19/2014 7:30",
+		"value":120.633607
+		},
+		{
+		"timestamp":"12/19/2014 7:45",
+		"value":699.2324749
+		},
+		{
+		"timestamp":"12/19/2014 8:00",
+		"value":975.1071775
+		},
+		{
+		"timestamp":"12/19/2014 8:15",
+		"value":672.0666614
+		},
+		{
+		"timestamp":"12/19/2014 8:30",
+		"value":225.2046067
+		},
+		{
+		"timestamp":"12/19/2014 8:45",
+		"value":119.9939393
+		},
+		{
+		"timestamp":"12/19/2014 9:00",
+		"value":620.2385353
+		},
+		{
+		"timestamp":"12/19/2014 9:15",
+		"value":578.9254381
+		},
+		{
+		"timestamp":"12/19/2014 9:30",
+		"value":287.3084256
+		},
+		{
+		"timestamp":"12/19/2014 9:45",
+		"value":584.1803155
+		},
+		{
+		"timestamp":"12/19/2014 10:00",
+		"value":299.6954182
+		},
+		{
+		"timestamp":"12/19/2014 10:15",
+		"value":553.1912879
+		},
+		{
+		"timestamp":"12/19/2014 10:30",
+		"value":386.671268
+		},
+		{
+		"timestamp":"12/19/2014 10:45",
+		"value":145.770781
+		},
+		{
+		"timestamp":"12/19/2014 11:00",
+		"value":736.2439759
+		},
+		{
+		"timestamp":"12/19/2014 11:15",
+		"value":793.2247195
+		},
+		{
+		"timestamp":"12/19/2014 11:30",
+		"value":1.717482814
+		},
+		{
+		"timestamp":"12/19/2014 11:45",
+		"value":752.635467
+		},
+		{
+		"timestamp":"12/19/2014 12:00",
+		"value":809.7348181
+		},
+		{
+		"timestamp":"12/19/2014 12:15",
+		"value":131.1880418
+		},
+		{
+		"timestamp":"12/19/2014 12:30",
+		"value":781.377919
+		},
+		{
+		"timestamp":"12/19/2014 12:45",
+		"value":429.7398171
+		},
+		{
+		"timestamp":"12/19/2014 13:00",
+		"value":54.04898532
+		},
+		{
+		"timestamp":"12/19/2014 13:15",
+		"value":366.3518836
+		},
+		{
+		"timestamp":"12/19/2014 13:30",
+		"value":654.8368669
+		},
+		{
+		"timestamp":"12/19/2014 13:45",
+		"value":322.3735405
+		},
+		{
+		"timestamp":"12/19/2014 14:00",
+		"value":519.581782
+		},
+		{
+		"timestamp":"12/19/2014 14:15",
+		"value":876.1651749
+		},
+		{
+		"timestamp":"12/19/2014 14:30",
+		"value":143.4937099
+		},
+		{
+		"timestamp":"12/19/2014 14:45",
+		"value":227.7427504
+		},
+		{
+		"timestamp":"12/19/2014 15:00",
+		"value":124.7419028
+		},
+		{
+		"timestamp":"12/19/2014 15:15",
+		"value":545.6022453
+		},
+		{
+		"timestamp":"12/19/2014 15:30",
+		"value":926.5357559
+		},
+		{
+		"timestamp":"12/19/2014 15:45",
+		"value":749.0561035
+		},
+		{
+		"timestamp":"12/19/2014 16:00",
+		"value":460.0382262
+		},
+		{
+		"timestamp":"12/19/2014 16:15",
+		"value":573.8145675
+		},
+		{
+		"timestamp":"12/19/2014 16:30",
+		"value":308.0044398
+		},
+		{
+		"timestamp":"12/19/2014 16:45",
+		"value":875.2269437
+		},
+		{
+		"timestamp":"12/19/2014 17:00",
+		"value":108.4171815
+		},
+		{
+		"timestamp":"12/19/2014 17:15",
+		"value":710.1279027
+		},
+		{
+		"timestamp":"12/19/2014 17:30",
+		"value":374.0854183
+		},
+		{
+		"timestamp":"12/19/2014 17:45",
+		"value":305.5584329
+		},
+		{
+		"timestamp":"12/19/2014 18:00",
+		"value":67.13618507
+		},
+		{
+		"timestamp":"12/19/2014 18:15",
+		"value":681.5515808
+		},
+		{
+		"timestamp":"12/19/2014 18:30",
+		"value":673.7306867
+		},
+		{
+		"timestamp":"12/19/2014 18:45",
+		"value":924.7914841
+		},
+		{
+		"timestamp":"12/19/2014 19:00",
+		"value":397.9710517
+		},
+		{
+		"timestamp":"12/19/2014 19:15",
+		"value":376.1247176
+		},
+		{
+		"timestamp":"12/19/2014 19:30",
+		"value":417.1655675
+		},
+		{
+		"timestamp":"12/19/2014 19:45",
+		"value":861.2916157
+		},
+		{
+		"timestamp":"12/19/2014 20:00",
+		"value":548.5043124
+		},
+		{
+		"timestamp":"12/19/2014 20:15",
+		"value":67.507168
+		},
+		{
+		"timestamp":"12/19/2014 20:30",
+		"value":347.2754014
+		},
+		{
+		"timestamp":"12/19/2014 20:45",
+		"value":307.2111586
+		},
+		{
+		"timestamp":"12/19/2014 21:00",
+		"value":48.13514938
+		},
+		{
+		"timestamp":"12/19/2014 21:15",
+		"value":943.1979531
+		},
+		{
+		"timestamp":"12/19/2014 21:30",
+		"value":526.7656611
+		},
+		{
+		"timestamp":"12/19/2014 21:45",
+		"value":212.7123936
+		},
+		{
+		"timestamp":"12/19/2014 22:00",
+		"value":797.2897357
+		},
+		{
+		"timestamp":"12/19/2014 22:15",
+		"value":486.2940014
+		},
+		{
+		"timestamp":"12/19/2014 22:30",
+		"value":164.2518655
+		},
+		{
+		"timestamp":"12/19/2014 22:45",
+		"value":365.8036043
+		},
+		{
+		"timestamp":"12/19/2014 23:00",
+		"value":415.1580246
+		},
+		{
+		"timestamp":"12/19/2014 23:15",
+		"value":476.1978071
+		},
+		{
+		"timestamp":"12/19/2014 23:30",
+		"value":617.1803175
+		},
+		{
+		"timestamp":"12/19/2014 23:45",
+		"value":63.12315391
+		},
+		{
+		"timestamp":"12/20/2014 0:00",
+		"value":842.5082081
+		},
+		{
+		"timestamp":"12/20/2014 0:15",
+		"value":843.5670175
+		},
+		{
+		"timestamp":"12/20/2014 0:30",
+		"value":645.6945123
+		},
+		{
+		"timestamp":"12/20/2014 0:45",
+		"value":421.6618063
+		},
+		{
+		"timestamp":"12/20/2014 1:00",
+		"value":271.7973459
+		},
+		{
+		"timestamp":"12/20/2014 1:15",
+		"value":40.71763871
+		},
+		{
+		"timestamp":"12/20/2014 1:30",
+		"value":445.5461969
+		},
+		{
+		"timestamp":"12/20/2014 1:45",
+		"value":555.4026698
+		},
+		{
+		"timestamp":"12/20/2014 2:00",
+		"value":783.5282351
+		},
+		{
+		"timestamp":"12/20/2014 2:15",
+		"value":759.9747454
+		},
+		{
+		"timestamp":"12/20/2014 2:30",
+		"value":641.1107751
+		},
+		{
+		"timestamp":"12/20/2014 2:45",
+		"value":812.6386608
+		},
+		{
+		"timestamp":"12/20/2014 3:00",
+		"value":217.0958177
+		},
+		{
+		"timestamp":"12/20/2014 3:15",
+		"value":832.832163
+		},
+		{
+		"timestamp":"12/20/2014 3:30",
+		"value":737.9204544
+		},
+		{
+		"timestamp":"12/20/2014 3:45",
+		"value":285.7920779
+		},
+		{
+		"timestamp":"12/20/2014 4:00",
+		"value":914.8140661
+		},
+		{
+		"timestamp":"12/20/2014 4:15",
+		"value":222.433564
+		},
+		{
+		"timestamp":"12/20/2014 4:30",
+		"value":201.4538862
+		},
+		{
+		"timestamp":"12/20/2014 4:45",
+		"value":377.1466607
+		},
+		{
+		"timestamp":"12/20/2014 5:00",
+		"value":603.9715672
+		},
+		{
+		"timestamp":"12/20/2014 5:15",
+		"value":545.2119138
+		},
+		{
+		"timestamp":"12/20/2014 5:30",
+		"value":492.6749144
+		},
+		{
+		"timestamp":"12/20/2014 5:45",
+		"value":349.6765046
+		},
+		{
+		"timestamp":"12/20/2014 6:00",
+		"value":795.2745781
+		},
+		{
+		"timestamp":"12/20/2014 6:15",
+		"value":464.935542
+		},
+		{
+		"timestamp":"12/20/2014 6:30",
+		"value":325.8287663
+		},
+		{
+		"timestamp":"12/20/2014 6:45",
+		"value":769.2347601
+		},
+		{
+		"timestamp":"12/20/2014 7:00",
+		"value":842.9054574
+		},
+		{
+		"timestamp":"12/20/2014 7:15",
+		"value":469.3626268
+		},
+		{
+		"timestamp":"12/20/2014 7:30",
+		"value":369.4261699
+		},
+		{
+		"timestamp":"12/20/2014 7:45",
+		"value":637.7505745
+		},
+		{
+		"timestamp":"12/20/2014 8:00",
+		"value":267.7971026
+		},
+		{
+		"timestamp":"12/20/2014 8:15",
+		"value":630.3246527
+		},
+		{
+		"timestamp":"12/20/2014 8:30",
+		"value":691.7248178
+		},
+		{
+		"timestamp":"12/20/2014 8:45",
+		"value":966.5325256
+		},
+		{
+		"timestamp":"12/20/2014 9:00",
+		"value":287.8193977
+		},
+		{
+		"timestamp":"12/20/2014 9:15",
+		"value":529.2623654
+		},
+		{
+		"timestamp":"12/20/2014 9:30",
+		"value":270.9392474
+		},
+		{
+		"timestamp":"12/20/2014 9:45",
+		"value":913.775527
+		},
+		{
+		"timestamp":"12/20/2014 10:00",
+		"value":701.7803942
+		},
+		{
+		"timestamp":"12/20/2014 10:15",
+		"value":813.653832
+		},
+		{
+		"timestamp":"12/20/2014 10:30",
+		"value":404.0659414
+		},
+		{
+		"timestamp":"12/20/2014 10:45",
+		"value":9.84714221
+		},
+		{
+		"timestamp":"12/20/2014 11:00",
+		"value":172.6526837
+		},
+		{
+		"timestamp":"12/20/2014 11:15",
+		"value":533.6806331
+		},
+		{
+		"timestamp":"12/20/2014 11:30",
+		"value":610.8603682
+		},
+		{
+		"timestamp":"12/20/2014 11:45",
+		"value":400.3775679
+		},
+		{
+		"timestamp":"12/20/2014 12:00",
+		"value":292.7103546
+		},
+		{
+		"timestamp":"12/20/2014 12:15",
+		"value":884.4940168
+		},
+		{
+		"timestamp":"12/20/2014 12:30",
+		"value":804.6765227
+		},
+		{
+		"timestamp":"12/20/2014 12:45",
+		"value":317.7995686
+		},
+		{
+		"timestamp":"12/20/2014 13:00",
+		"value":360.7854263
+		},
+		{
+		"timestamp":"12/20/2014 13:15",
+		"value":260.2143707
+		},
+		{
+		"timestamp":"12/20/2014 13:30",
+		"value":766.0695603
+		},
+		{
+		"timestamp":"12/20/2014 13:45",
+		"value":130.0579718
+		},
+		{
+		"timestamp":"12/20/2014 14:00",
+		"value":69.02978385
+		},
+		{
+		"timestamp":"12/20/2014 14:15",
+		"value":50.42121953
+		},
+		{
+		"timestamp":"12/20/2014 14:30",
+		"value":470.9039938
+		},
+		{
+		"timestamp":"12/20/2014 14:45",
+		"value":363.8292278
+		},
+		{
+		"timestamp":"12/20/2014 15:00",
+		"value":829.6587963
+		},
+		{
+		"timestamp":"12/20/2014 15:15",
+		"value":769.740705
+		},
+		{
+		"timestamp":"12/20/2014 15:30",
+		"value":656.916171
+		},
+		{
+		"timestamp":"12/20/2014 15:45",
+		"value":928.1562675
+		},
+		{
+		"timestamp":"12/20/2014 16:00",
+		"value":695.8589363
+		},
+		{
+		"timestamp":"12/20/2014 16:15",
+		"value":604.1788943
+		},
+		{
+		"timestamp":"12/20/2014 16:30",
+		"value":7.994939216
+		},
+		{
+		"timestamp":"12/20/2014 16:45",
+		"value":599.9654908
+		},
+		{
+		"timestamp":"12/20/2014 17:00",
+		"value":769.4326364
+		},
+		{
+		"timestamp":"12/20/2014 17:15",
+		"value":432.3513324
+		},
+		{
+		"timestamp":"12/20/2014 17:30",
+		"value":489.7585332
+		},
+		{
+		"timestamp":"12/20/2014 17:45",
+		"value":618.4243725
+		},
+		{
+		"timestamp":"12/20/2014 18:00",
+		"value":235.8246236
+		},
+		{
+		"timestamp":"12/20/2014 18:15",
+		"value":707.594765
+		},
+		{
+		"timestamp":"12/20/2014 18:30",
+		"value":390.0374833
+		},
+		{
+		"timestamp":"12/20/2014 18:45",
+		"value":218.3563007
+		},
+		{
+		"timestamp":"12/20/2014 19:00",
+		"value":798.8332371
+		},
+		{
+		"timestamp":"12/20/2014 19:15",
+		"value":418.0304085
+		},
+		{
+		"timestamp":"12/20/2014 19:30",
+		"value":406.9858276
+		},
+		{
+		"timestamp":"12/20/2014 19:45",
+		"value":177.7739298
+		},
+		{
+		"timestamp":"12/20/2014 20:00",
+		"value":673.2538389
+		},
+		{
+		"timestamp":"12/20/2014 20:15",
+		"value":168.4945503
+		},
+		{
+		"timestamp":"12/20/2014 20:30",
+		"value":364.5254772
+		},
+		{
+		"timestamp":"12/20/2014 20:45",
+		"value":943.9135356
+		},
+		{
+		"timestamp":"12/20/2014 21:00",
+		"value":240.7732473
+		},
+		{
+		"timestamp":"12/20/2014 21:15",
+		"value":741.7175761
+		},
+		{
+		"timestamp":"12/20/2014 21:30",
+		"value":914.827435
+		},
+		{
+		"timestamp":"12/20/2014 21:45",
+		"value":363.7114759
+		},
+		{
+		"timestamp":"12/20/2014 22:00",
+		"value":253.0120102
+		},
+		{
+		"timestamp":"12/20/2014 22:15",
+		"value":28.59432411
+		},
+		{
+		"timestamp":"12/20/2014 22:30",
+		"value":125.0681949
+		},
+		{
+		"timestamp":"12/20/2014 22:45",
+		"value":203.7898656
+		},
+		{
+		"timestamp":"12/20/2014 23:00",
+		"value":931.5830484
+		},
+		{
+		"timestamp":"12/20/2014 23:15",
+		"value":889.5663392
+		},
+		{
+		"timestamp":"12/20/2014 23:30",
+		"value":488.2981925
+		},
+		{
+		"timestamp":"12/20/2014 23:45",
+		"value":389.9423837
+		},
+		{
+		"timestamp":"12/21/2014 0:00",
+		"value":429.1760382
+		},
+		{
+		"timestamp":"12/21/2014 0:15",
+		"value":79.18021596
+		},
+		{
+		"timestamp":"12/21/2014 0:30",
+		"value":37.98339617
+		},
+		{
+		"timestamp":"12/21/2014 0:45",
+		"value":298.5636562
+		},
+		{
+		"timestamp":"12/21/2014 1:00",
+		"value":951.3836329
+		},
+		{
+		"timestamp":"12/21/2014 1:15",
+		"value":144.4495379
+		},
+		{
+		"timestamp":"12/21/2014 1:30",
+		"value":584.0121618
+		},
+		{
+		"timestamp":"12/21/2014 1:45",
+		"value":352.5858767
+		},
+		{
+		"timestamp":"12/21/2014 2:00",
+		"value":418.9774242
+		},
+		{
+		"timestamp":"12/21/2014 2:15",
+		"value":278.6920336
+		},
+		{
+		"timestamp":"12/21/2014 2:30",
+		"value":91.10321764
+		},
+		{
+		"timestamp":"12/21/2014 2:45",
+		"value":241.9474713
+		},
+		{
+		"timestamp":"12/21/2014 3:00",
+		"value":445.0287992
+		},
+		{
+		"timestamp":"12/21/2014 3:15",
+		"value":351.3121163
+		},
+		{
+		"timestamp":"12/21/2014 3:30",
+		"value":400.5611913
+		},
+		{
+		"timestamp":"12/21/2014 3:45",
+		"value":66.26334668
+		},
+		{
+		"timestamp":"12/21/2014 4:00",
+		"value":201.7414959
+		},
+		{
+		"timestamp":"12/21/2014 4:15",
+		"value":380.3489173
+		},
+		{
+		"timestamp":"12/21/2014 4:30",
+		"value":486.8065371
+		},
+		{
+		"timestamp":"12/21/2014 4:45",
+		"value":51.40495021
+		},
+		{
+		"timestamp":"12/21/2014 5:00",
+		"value":972.0229586
+		},
+		{
+		"timestamp":"12/21/2014 5:15",
+		"value":355.1156557
+		},
+		{
+		"timestamp":"12/21/2014 5:30",
+		"value":614.913821
+		},
+		{
+		"timestamp":"12/21/2014 5:45",
+		"value":620.8029571
+		},
+		{
+		"timestamp":"12/21/2014 6:00",
+		"value":802.755141
+		},
+		{
+		"timestamp":"12/21/2014 6:15",
+		"value":937.8629794
+		},
+		{
+		"timestamp":"12/21/2014 6:30",
+		"value":176.1411286
+		},
+		{
+		"timestamp":"12/21/2014 6:45",
+		"value":898.7940548
+		},
+		{
+		"timestamp":"12/21/2014 7:00",
+		"value":49.41736045
+		},
+		{
+		"timestamp":"12/21/2014 7:15",
+		"value":754.3799634
+		},
+		{
+		"timestamp":"12/21/2014 7:30",
+		"value":76.64294295
+		},
+		{
+		"timestamp":"12/21/2014 7:45",
+		"value":860.3292407
+		},
+		{
+		"timestamp":"12/21/2014 8:00",
+		"value":505.0711162
+		},
+		{
+		"timestamp":"12/21/2014 8:15",
+		"value":729.1578382
+		},
+		{
+		"timestamp":"12/21/2014 8:30",
+		"value":894.649108
+		},
+		{
+		"timestamp":"12/21/2014 8:45",
+		"value":377.1523263
+		},
+		{
+		"timestamp":"12/21/2014 9:00",
+		"value":219.4786392
+		},
+		{
+		"timestamp":"12/21/2014 9:15",
+		"value":719.6348282
+		},
+		{
+		"timestamp":"12/21/2014 9:30",
+		"value":323.0741957
+		},
+		{
+		"timestamp":"12/21/2014 9:45",
+		"value":915.5015072
+		},
+		{
+		"timestamp":"12/21/2014 10:00",
+		"value":30.94913244
+		},
+		{
+		"timestamp":"12/21/2014 10:15",
+		"value":752.8336106
+		},
+		{
+		"timestamp":"12/21/2014 10:30",
+		"value":280.2435091
+		},
+		{
+		"timestamp":"12/21/2014 10:45",
+		"value":897.0822656
+		},
+		{
+		"timestamp":"12/21/2014 11:00",
+		"value":733.724818
+		},
+		{
+		"timestamp":"12/21/2014 11:15",
+		"value":871.2507876
+		},
+		{
+		"timestamp":"12/21/2014 11:30",
+		"value":842.5869028
+		},
+		{
+		"timestamp":"12/21/2014 11:45",
+		"value":435.8193806
+		},
+		{
+		"timestamp":"12/21/2014 12:00",
+		"value":782.2824495
+		},
+		{
+		"timestamp":"12/21/2014 12:15",
+		"value":818.8538304
+		},
+		{
+		"timestamp":"12/21/2014 12:30",
+		"value":346.1667416
+		},
+		{
+		"timestamp":"12/21/2014 12:45",
+		"value":920.1350898
+		},
+		{
+		"timestamp":"12/21/2014 13:00",
+		"value":690.9214475
+		},
+		{
+		"timestamp":"12/21/2014 13:15",
+		"value":233.3642622
+		},
+		{
+		"timestamp":"12/21/2014 13:30",
+		"value":480.9813582
+		},
+		{
+		"timestamp":"12/21/2014 13:45",
+		"value":876.6698841
+		},
+		{
+		"timestamp":"12/21/2014 14:00",
+		"value":921.2026276
+		},
+		{
+		"timestamp":"12/21/2014 14:15",
+		"value":961.7914877
+		},
+		{
+		"timestamp":"12/21/2014 14:30",
+		"value":654.0717605
+		},
+		{
+		"timestamp":"12/21/2014 14:45",
+		"value":547.635648
+		},
+		{
+		"timestamp":"12/21/2014 15:00",
+		"value":319.7106801
+		},
+		{
+		"timestamp":"12/21/2014 15:15",
+		"value":738.84021
+		},
+		{
+		"timestamp":"12/21/2014 15:30",
+		"value":659.5679173
+		},
+		{
+		"timestamp":"12/21/2014 15:45",
+		"value":754.1786428
+		},
+		{
+		"timestamp":"12/21/2014 16:00",
+		"value":224.4552761
+		},
+		{
+		"timestamp":"12/21/2014 16:15",
+		"value":591.9658415
+		},
+		{
+		"timestamp":"12/21/2014 16:30",
+		"value":316.9840001
+		},
+		{
+		"timestamp":"12/21/2014 16:45",
+		"value":284.8232493
+		},
+		{
+		"timestamp":"12/21/2014 17:00",
+		"value":587.7252662
+		},
+		{
+		"timestamp":"12/21/2014 17:15",
+		"value":870.3506654
+		},
+		{
+		"timestamp":"12/21/2014 17:30",
+		"value":701.1891352
+		},
+		{
+		"timestamp":"12/21/2014 17:45",
+		"value":88.36664203
+		},
+		{
+		"timestamp":"12/21/2014 18:00",
+		"value":380.6050812
+		},
+		{
+		"timestamp":"12/21/2014 18:15",
+		"value":529.5460011
+		},
+		{
+		"timestamp":"12/21/2014 18:30",
+		"value":444.1862767
+		},
+		{
+		"timestamp":"12/21/2014 18:45",
+		"value":821.9583123
+		},
+		{
+		"timestamp":"12/21/2014 19:00",
+		"value":603.3377845
+		},
+		{
+		"timestamp":"12/21/2014 19:15",
+		"value":782.1276707
+		},
+		{
+		"timestamp":"12/21/2014 19:30",
+		"value":549.0555764
+		},
+		{
+		"timestamp":"12/21/2014 19:45",
+		"value":956.0319081
+		},
+		{
+		"timestamp":"12/21/2014 20:00",
+		"value":239.382532
+		},
+		{
+		"timestamp":"12/21/2014 20:15",
+		"value":992.4477249
+		},
+		{
+		"timestamp":"12/21/2014 20:30",
+		"value":22.87569144
+		},
+		{
+		"timestamp":"12/21/2014 20:45",
+		"value":148.2086114
+		},
+		{
+		"timestamp":"12/21/2014 21:00",
+		"value":202.6795042
+		},
+		{
+		"timestamp":"12/21/2014 21:15",
+		"value":810.4703329
+		},
+		{
+		"timestamp":"12/21/2014 21:30",
+		"value":68.9527128
+		},
+		{
+		"timestamp":"12/21/2014 21:45",
+		"value":684.1971449
+		},
+		{
+		"timestamp":"12/21/2014 22:00",
+		"value":893.6484626
+		},
+		{
+		"timestamp":"12/21/2014 22:15",
+		"value":775.3160577
+		},
+		{
+		"timestamp":"12/21/2014 22:30",
+		"value":696.9060774
+		},
+		{
+		"timestamp":"12/21/2014 22:45",
+		"value":497.6587015
+		},
+		{
+		"timestamp":"12/21/2014 23:00",
+		"value":361.6780622
+		},
+		{
+		"timestamp":"12/21/2014 23:15",
+		"value":690.3695286
+		},
+		{
+		"timestamp":"12/21/2014 23:30",
+		"value":437.1546549
+		},
+		{
+		"timestamp":"12/21/2014 23:45",
+		"value":217.4866593
+		},
+		{
+		"timestamp":"12/22/2014 0:00",
+		"value":721.9111942
+		},
+		{
+		"timestamp":"12/22/2014 0:15",
+		"value":836.2867825
+		},
+		{
+		"timestamp":"12/22/2014 0:30",
+		"value":369.7782459
+		},
+		{
+		"timestamp":"12/22/2014 0:45",
+		"value":409.125743
+		},
+		{
+		"timestamp":"12/22/2014 1:00",
+		"value":12.34819205
+		},
+		{
+		"timestamp":"12/22/2014 1:15",
+		"value":673.4616112
+		},
+		{
+		"timestamp":"12/22/2014 1:30",
+		"value":535.8874161
+		},
+		{
+		"timestamp":"12/22/2014 1:45",
+		"value":808.7357093
+		},
+		{
+		"timestamp":"12/22/2014 2:00",
+		"value":776.9373668
+		},
+		{
+		"timestamp":"12/22/2014 2:15",
+		"value":119.2866276
+		},
+		{
+		"timestamp":"12/22/2014 2:30",
+		"value":499.5090418
+		},
+		{
+		"timestamp":"12/22/2014 2:45",
+		"value":907.589782
+		},
+		{
+		"timestamp":"12/22/2014 3:00",
+		"value":20.19708337
+		},
+		{
+		"timestamp":"12/22/2014 3:15",
+		"value":980.5527041
+		},
+		{
+		"timestamp":"12/22/2014 3:30",
+		"value":449.646182
+		},
+		{
+		"timestamp":"12/22/2014 3:45",
+		"value":781.0548468
+		},
+		{
+		"timestamp":"12/22/2014 4:00",
+		"value":941.9683332
+		},
+		{
+		"timestamp":"12/22/2014 4:15",
+		"value":702.9342011
+		},
+		{
+		"timestamp":"12/22/2014 4:30",
+		"value":839.3710161
+		},
+		{
+		"timestamp":"12/22/2014 4:45",
+		"value":992.0727106
+		},
+		{
+		"timestamp":"12/22/2014 5:00",
+		"value":18.18102972
+		},
+		{
+		"timestamp":"12/22/2014 5:15",
+		"value":654.2507884
+		},
+		{
+		"timestamp":"12/22/2014 5:30",
+		"value":484.3431112
+		},
+		{
+		"timestamp":"12/22/2014 5:45",
+		"value":372.191608
+		},
+		{
+		"timestamp":"12/22/2014 6:00",
+		"value":666.3127127
+		},
+		{
+		"timestamp":"12/22/2014 6:15",
+		"value":18.76641082
+		},
+		{
+		"timestamp":"12/22/2014 6:30",
+		"value":222.8109007
+		},
+		{
+		"timestamp":"12/22/2014 6:45",
+		"value":773.1144222
+		},
+		{
+		"timestamp":"12/22/2014 7:00",
+		"value":542.3932
+		},
+		{
+		"timestamp":"12/22/2014 7:15",
+		"value":434.4723653
+		},
+		{
+		"timestamp":"12/22/2014 7:30",
+		"value":55.12032089
+		},
+		{
+		"timestamp":"12/22/2014 7:45",
+		"value":586.8920953
+		},
+		{
+		"timestamp":"12/22/2014 8:00",
+		"value":210.384021
+		},
+		{
+		"timestamp":"12/22/2014 8:15",
+		"value":171.3150547
+		},
+		{
+		"timestamp":"12/22/2014 8:30",
+		"value":605.5152466
+		},
+		{
+		"timestamp":"12/22/2014 8:45",
+		"value":848.0397097
+		},
+		{
+		"timestamp":"12/22/2014 9:00",
+		"value":559.4078209
+		},
+		{
+		"timestamp":"12/22/2014 9:15",
+		"value":35.40336492
+		},
+		{
+		"timestamp":"12/22/2014 9:30",
+		"value":974.8454174
+		},
+		{
+		"timestamp":"12/22/2014 9:45",
+		"value":889.1956886
+		},
+		{
+		"timestamp":"12/22/2014 10:00",
+		"value":874.5438375
+		},
+		{
+		"timestamp":"12/22/2014 10:15",
+		"value":0.641892356
+		},
+		{
+		"timestamp":"12/22/2014 10:30",
+		"value":373.4324305
+		},
+		{
+		"timestamp":"12/22/2014 10:45",
+		"value":910.3180115
+		},
+		{
+		"timestamp":"12/22/2014 11:00",
+		"value":465.4263689
+		},
+		{
+		"timestamp":"12/22/2014 11:15",
+		"value":215.1480033
+		},
+		{
+		"timestamp":"12/22/2014 11:30",
+		"value":942.492617
+		},
+		{
+		"timestamp":"12/22/2014 11:45",
+		"value":896.0921106
+		},
+		{
+		"timestamp":"12/22/2014 12:00",
+		"value":98.25595935
+		},
+		{
+		"timestamp":"12/22/2014 12:15",
+		"value":962.9235682
+		},
+		{
+		"timestamp":"12/22/2014 12:30",
+		"value":1.498986338
+		},
+		{
+		"timestamp":"12/22/2014 12:45",
+		"value":646.3814716
+		},
+		{
+		"timestamp":"12/22/2014 13:00",
+		"value":921.2441812
+		},
+		{
+		"timestamp":"12/22/2014 13:15",
+		"value":567.8710874
+		},
+		{
+		"timestamp":"12/22/2014 13:30",
+		"value":110.0485815
+		},
+		{
+		"timestamp":"12/22/2014 13:45",
+		"value":425.9402115
+		},
+		{
+		"timestamp":"12/22/2014 14:00",
+		"value":784.8423112
+		},
+		{
+		"timestamp":"12/22/2014 14:15",
+		"value":0.326997984
+		},
+		{
+		"timestamp":"12/22/2014 14:30",
+		"value":256.8015861
+		},
+		{
+		"timestamp":"12/22/2014 14:45",
+		"value":740.204012
+		},
+		{
+		"timestamp":"12/22/2014 15:00",
+		"value":184.2234009
+		},
+		{
+		"timestamp":"12/22/2014 15:15",
+		"value":399.2128823
+		},
+		{
+		"timestamp":"12/22/2014 15:30",
+		"value":893.6967064
+		},
+		{
+		"timestamp":"12/22/2014 15:45",
+		"value":31.389061
+		},
+		{
+		"timestamp":"12/22/2014 16:00",
+		"value":955.5991086
+		},
+		{
+		"timestamp":"12/22/2014 16:15",
+		"value":607.1304023
+		},
+		{
+		"timestamp":"12/22/2014 16:30",
+		"value":569.4056866
+		},
+		{
+		"timestamp":"12/22/2014 16:45",
+		"value":720.3765736
+		},
+		{
+		"timestamp":"12/22/2014 17:00",
+		"value":101.3964116
+		},
+		{
+		"timestamp":"12/22/2014 17:15",
+		"value":871.3782872
+		},
+		{
+		"timestamp":"12/22/2014 17:30",
+		"value":33.27572505
+		},
+		{
+		"timestamp":"12/22/2014 17:45",
+		"value":898.7637088
+		},
+		{
+		"timestamp":"12/22/2014 18:00",
+		"value":568.3253414
+		},
+		{
+		"timestamp":"12/22/2014 18:15",
+		"value":723.4069145
+		},
+		{
+		"timestamp":"12/22/2014 18:30",
+		"value":640.9722973
+		},
+		{
+		"timestamp":"12/22/2014 18:45",
+		"value":576.897503
+		},
+		{
+		"timestamp":"12/22/2014 19:00",
+		"value":428.892572
+		},
+		{
+		"timestamp":"12/22/2014 19:15",
+		"value":938.1487903
+		},
+		{
+		"timestamp":"12/22/2014 19:30",
+		"value":383.1394305
+		},
+		{
+		"timestamp":"12/22/2014 19:45",
+		"value":509.4540833
+		},
+		{
+		"timestamp":"12/22/2014 20:00",
+		"value":724.6556505
+		},
+		{
+		"timestamp":"12/22/2014 20:15",
+		"value":580.662104
+		},
+		{
+		"timestamp":"12/22/2014 20:30",
+		"value":367.1173106
+		},
+		{
+		"timestamp":"12/22/2014 20:45",
+		"value":301.7038646
+		},
+		{
+		"timestamp":"12/22/2014 21:00",
+		"value":159.2356569
+		},
+		{
+		"timestamp":"12/22/2014 21:15",
+		"value":99.435989
+		},
+		{
+		"timestamp":"12/22/2014 21:30",
+		"value":740.7377887
+		},
+		{
+		"timestamp":"12/22/2014 21:45",
+		"value":550.0773498
+		},
+		{
+		"timestamp":"12/22/2014 22:00",
+		"value":766.2586689
+		},
+		{
+		"timestamp":"12/22/2014 22:15",
+		"value":75.91865258
+		},
+		{
+		"timestamp":"12/22/2014 22:30",
+		"value":819.0480223
+		},
+		{
+		"timestamp":"12/22/2014 22:45",
+		"value":444.8789106
+		},
+		{
+		"timestamp":"12/22/2014 23:00",
+		"value":407.5242247
+		},
+		{
+		"timestamp":"12/22/2014 23:15",
+		"value":688.1330408
+		},
+		{
+		"timestamp":"12/22/2014 23:30",
+		"value":511.8025933
+		},
+		{
+		"timestamp":"12/22/2014 23:45",
+		"value":383.2872385
+		},
+		{
+		"timestamp":"12/23/2014 0:00",
+		"value":780.2387726
+		},
+		{
+		"timestamp":"12/23/2014 0:15",
+		"value":72.59174553
+		},
+		{
+		"timestamp":"12/23/2014 0:30",
+		"value":306.0401896
+		},
+		{
+		"timestamp":"12/23/2014 0:45",
+		"value":391.0891096
+		},
+		{
+		"timestamp":"12/23/2014 1:00",
+		"value":189.6444505
+		},
+		{
+		"timestamp":"12/23/2014 1:15",
+		"value":781.0103289
+		},
+		{
+		"timestamp":"12/23/2014 1:30",
+		"value":582.6436947
+		},
+		{
+		"timestamp":"12/23/2014 1:45",
+		"value":631.5650266
+		},
+		{
+		"timestamp":"12/23/2014 2:00",
+		"value":446.294056
+		},
+		{
+		"timestamp":"12/23/2014 2:15",
+		"value":28.08055019
+		},
+		{
+		"timestamp":"12/23/2014 2:30",
+		"value":5.206017249
+		},
+		{
+		"timestamp":"12/23/2014 2:45",
+		"value":709.0637348
+		},
+		{
+		"timestamp":"12/23/2014 3:00",
+		"value":154.8165694
+		},
+		{
+		"timestamp":"12/23/2014 3:15",
+		"value":882.1006084
+		},
+		{
+		"timestamp":"12/23/2014 3:30",
+		"value":758.6577829
+		},
+		{
+		"timestamp":"12/23/2014 3:45",
+		"value":556.8644086
+		},
+		{
+		"timestamp":"12/23/2014 4:00",
+		"value":350.8723413
+		},
+		{
+		"timestamp":"12/23/2014 4:15",
+		"value":396.3217675
+		},
+		{
+		"timestamp":"12/23/2014 4:30",
+		"value":972.0014976
+		},
+		{
+		"timestamp":"12/23/2014 4:45",
+		"value":354.3097216
+		},
+		{
+		"timestamp":"12/23/2014 5:00",
+		"value":43.55503682
+		},
+		{
+		"timestamp":"12/23/2014 5:15",
+		"value":263.477337
+		},
+		{
+		"timestamp":"12/23/2014 5:30",
+		"value":972.1333063
+		},
+		{
+		"timestamp":"12/23/2014 5:45",
+		"value":123.8982565
+		},
+		{
+		"timestamp":"12/23/2014 6:00",
+		"value":242.0544294
+		},
+		{
+		"timestamp":"12/23/2014 6:15",
+		"value":127.9076475
+		},
+		{
+		"timestamp":"12/23/2014 6:30",
+		"value":138.9542695
+		},
+		{
+		"timestamp":"12/23/2014 6:45",
+		"value":862.7286313
+		},
+		{
+		"timestamp":"12/23/2014 7:00",
+		"value":832.7613745
+		},
+		{
+		"timestamp":"12/23/2014 7:15",
+		"value":861.4756586
+		},
+		{
+		"timestamp":"12/23/2014 7:30",
+		"value":155.245416
+		},
+		{
+		"timestamp":"12/23/2014 7:45",
+		"value":934.994663
+		},
+		{
+		"timestamp":"12/23/2014 8:00",
+		"value":294.3438044
+		},
+		{
+		"timestamp":"12/23/2014 8:15",
+		"value":714.6081067
+		},
+		{
+		"timestamp":"12/23/2014 8:30",
+		"value":185.8985714
+		},
+		{
+		"timestamp":"12/23/2014 8:45",
+		"value":853.602837
+		},
+		{
+		"timestamp":"12/23/2014 9:00",
+		"value":281.9283712
+		},
+		{
+		"timestamp":"12/23/2014 9:15",
+		"value":330.2714245
+		},
+		{
+		"timestamp":"12/23/2014 9:30",
+		"value":393.1668528
+		},
+		{
+		"timestamp":"12/23/2014 9:45",
+		"value":732.2868885
+		},
+		{
+		"timestamp":"12/23/2014 10:00",
+		"value":201.3211939
+		},
+		{
+		"timestamp":"12/23/2014 10:15",
+		"value":24.03901873
+		},
+		{
+		"timestamp":"12/23/2014 10:30",
+		"value":619.5920345
+		},
+		{
+		"timestamp":"12/23/2014 10:45",
+		"value":505.2719077
+		},
+		{
+		"timestamp":"12/23/2014 11:00",
+		"value":609.3285619
+		},
+		{
+		"timestamp":"12/23/2014 11:15",
+		"value":460.8314214
+		},
+		{
+		"timestamp":"12/23/2014 11:30",
+		"value":400.4864057
+		},
+		{
+		"timestamp":"12/23/2014 11:45",
+		"value":155.0992679
+		},
+		{
+		"timestamp":"12/23/2014 12:00",
+		"value":981.0870046
+		},
+		{
+		"timestamp":"12/23/2014 12:15",
+		"value":448.9216052
+		},
+		{
+		"timestamp":"12/23/2014 12:30",
+		"value":925.6154806
+		},
+		{
+		"timestamp":"12/23/2014 12:45",
+		"value":276.5273597
+		},
+		{
+		"timestamp":"12/23/2014 13:00",
+		"value":676.0566742
+		},
+		{
+		"timestamp":"12/23/2014 13:15",
+		"value":813.2087082
+		},
+		{
+		"timestamp":"12/23/2014 13:30",
+		"value":930.1551261
+		},
+		{
+		"timestamp":"12/23/2014 13:45",
+		"value":795.3017444
+		},
+		{
+		"timestamp":"12/23/2014 14:00",
+		"value":841.5934626
+		},
+		{
+		"timestamp":"12/23/2014 14:15",
+		"value":290.750944
+		},
+		{
+		"timestamp":"12/23/2014 14:30",
+		"value":800.9862776
+		},
+		{
+		"timestamp":"12/23/2014 14:45",
+		"value":543.9889349
+		},
+		{
+		"timestamp":"12/23/2014 15:00",
+		"value":414.0304347
+		},
+		{
+		"timestamp":"12/23/2014 15:15",
+		"value":847.2310027
+		},
+		{
+		"timestamp":"12/23/2014 15:30",
+		"value":258.1925884
+		},
+		{
+		"timestamp":"12/23/2014 15:45",
+		"value":665.8162595
+		},
+		{
+		"timestamp":"12/23/2014 16:00",
+		"value":600.5758238
+		},
+		{
+		"timestamp":"12/23/2014 16:15",
+		"value":102.5205097
+		},
+		{
+		"timestamp":"12/23/2014 16:30",
+		"value":834.0791577
+		},
+		{
+		"timestamp":"12/23/2014 16:45",
+		"value":520.1607242
+		},
+		{
+		"timestamp":"12/23/2014 17:00",
+		"value":937.4811428
+		},
+		{
+		"timestamp":"12/23/2014 17:15",
+		"value":479.0050347
+		},
+		{
+		"timestamp":"12/23/2014 17:30",
+		"value":672.8949353
+		},
+		{
+		"timestamp":"12/23/2014 17:45",
+		"value":749.0915311
+		},
+		{
+		"timestamp":"12/23/2014 18:00",
+		"value":433.6160188
+		},
+		{
+		"timestamp":"12/23/2014 18:15",
+		"value":730.1610518
+		},
+		{
+		"timestamp":"12/23/2014 18:30",
+		"value":64.41944243
+		},
+		{
+		"timestamp":"12/23/2014 18:45",
+		"value":921.9411183
+		},
+		{
+		"timestamp":"12/23/2014 19:00",
+		"value":573.3150406
+		},
+		{
+		"timestamp":"12/23/2014 19:15",
+		"value":868.6368279
+		},
+		{
+		"timestamp":"12/23/2014 19:30",
+		"value":148.430114
+		},
+		{
+		"timestamp":"12/23/2014 19:45",
+		"value":215.7623194
+		},
+		{
+		"timestamp":"12/23/2014 20:00",
+		"value":165.3833673
+		},
+		{
+		"timestamp":"12/23/2014 20:15",
+		"value":919.6391717
+		},
+		{
+		"timestamp":"12/23/2014 20:30",
+		"value":380.1237117
+		},
+		{
+		"timestamp":"12/23/2014 20:45",
+		"value":572.4783491
+		},
+		{
+		"timestamp":"12/23/2014 21:00",
+		"value":552.8014549
+		},
+		{
+		"timestamp":"12/23/2014 21:15",
+		"value":952.3435075
+		},
+		{
+		"timestamp":"12/23/2014 21:30",
+		"value":332.2158217
+		},
+		{
+		"timestamp":"12/23/2014 21:45",
+		"value":634.8001785
+		},
+		{
+		"timestamp":"12/23/2014 22:00",
+		"value":421.7674202
+		},
+		{
+		"timestamp":"12/23/2014 22:15",
+		"value":773.8480076
+		},
+		{
+		"timestamp":"12/23/2014 22:30",
+		"value":862.1837803
+		},
+		{
+		"timestamp":"12/23/2014 22:45",
+		"value":95.7051646
+		},
+		{
+		"timestamp":"12/23/2014 23:00",
+		"value":40.01346553
+		},
+		{
+		"timestamp":"12/23/2014 23:15",
+		"value":202.970056
+		},
+		{
+		"timestamp":"12/23/2014 23:30",
+		"value":212.8837466
+		},
+		{
+		"timestamp":"12/23/2014 23:45",
+		"value":777.483217
+		},
+		{
+		"timestamp":"12/24/2014 0:00",
+		"value":892.1908003
+		},
+		{
+		"timestamp":"12/24/2014 0:15",
+		"value":361.1548604
+		},
+		{
+		"timestamp":"12/24/2014 0:30",
+		"value":968.3679348
+		},
+		{
+		"timestamp":"12/24/2014 0:45",
+		"value":703.3787889
+		},
+		{
+		"timestamp":"12/24/2014 1:00",
+		"value":194.8026316
+		},
+		{
+		"timestamp":"12/24/2014 1:15",
+		"value":742.2122904
+		},
+		{
+		"timestamp":"12/24/2014 1:30",
+		"value":887.4608633
+		},
+		{
+		"timestamp":"12/24/2014 1:45",
+		"value":521.5124838
+		},
+		{
+		"timestamp":"12/24/2014 2:00",
+		"value":528.8106229
+		},
+		{
+		"timestamp":"12/24/2014 2:15",
+		"value":7.988651957
+		},
+		{
+		"timestamp":"12/24/2014 2:30",
+		"value":939.1835125
+		},
+		{
+		"timestamp":"12/24/2014 2:45",
+		"value":67.99267107
+		},
+		{
+		"timestamp":"12/24/2014 3:00",
+		"value":139.5131819
+		},
+		{
+		"timestamp":"12/24/2014 3:15",
+		"value":769.984283
+		},
+		{
+		"timestamp":"12/24/2014 3:30",
+		"value":2.789898966
+		},
+		{
+		"timestamp":"12/24/2014 3:45",
+		"value":778.3327591
+		},
+		{
+		"timestamp":"12/24/2014 4:00",
+		"value":704.391873
+		},
+		{
+		"timestamp":"12/24/2014 4:15",
+		"value":149.3166442
+		},
+		{
+		"timestamp":"12/24/2014 4:30",
+		"value":423.0822095
+		},
+		{
+		"timestamp":"12/24/2014 4:45",
+		"value":637.3569401
+		},
+		{
+		"timestamp":"12/24/2014 5:00",
+		"value":286.6857649
+		},
+		{
+		"timestamp":"12/24/2014 5:15",
+		"value":577.3319389
+		},
+		{
+		"timestamp":"12/24/2014 5:30",
+		"value":320.5352537
+		},
+		{
+		"timestamp":"12/24/2014 5:45",
+		"value":993.7366799
+		},
+		{
+		"timestamp":"12/24/2014 6:00",
+		"value":450.0802096
+		},
+		{
+		"timestamp":"12/24/2014 6:15",
+		"value":957.0676593
+		},
+		{
+		"timestamp":"12/24/2014 6:30",
+		"value":190.9901762
+		},
+		{
+		"timestamp":"12/24/2014 6:45",
+		"value":669.8427461
+		},
+		{
+		"timestamp":"12/24/2014 7:00",
+		"value":826.7329776
+		},
+		{
+		"timestamp":"12/24/2014 7:15",
+		"value":283.627014
+		},
+		{
+		"timestamp":"12/24/2014 7:30",
+		"value":434.9318507
+		},
+		{
+		"timestamp":"12/24/2014 7:45",
+		"value":110.6225732
+		},
+		{
+		"timestamp":"12/24/2014 8:00",
+		"value":860.7277584
+		},
+		{
+		"timestamp":"12/24/2014 8:15",
+		"value":844.942597
+		},
+		{
+		"timestamp":"12/24/2014 8:30",
+		"value":88.72116737
+		},
+		{
+		"timestamp":"12/24/2014 8:45",
+		"value":343.4496069
+		},
+		{
+		"timestamp":"12/24/2014 9:00",
+		"value":698.158075
+		},
+		{
+		"timestamp":"12/24/2014 9:15",
+		"value":884.2411903
+		},
+		{
+		"timestamp":"12/24/2014 9:30",
+		"value":796.2007877
+		},
+		{
+		"timestamp":"12/24/2014 9:45",
+		"value":820.2262905
+		},
+		{
+		"timestamp":"12/24/2014 10:00",
+		"value":937.6844868
+		},
+		{
+		"timestamp":"12/24/2014 10:15",
+		"value":625.7847052
+		},
+		{
+		"timestamp":"12/24/2014 10:30",
+		"value":416.0727449
+		},
+		{
+		"timestamp":"12/24/2014 10:45",
+		"value":408.2472492
+		},
+		{
+		"timestamp":"12/24/2014 11:00",
+		"value":944.2778803
+		},
+		{
+		"timestamp":"12/24/2014 11:15",
+		"value":789.5596821
+		},
+		{
+		"timestamp":"12/24/2014 11:30",
+		"value":321.1935834
+		},
+		{
+		"timestamp":"12/24/2014 11:45",
+		"value":679.746567
+		},
+		{
+		"timestamp":"12/24/2014 12:00",
+		"value":885.2211003
+		},
+		{
+		"timestamp":"12/24/2014 12:15",
+		"value":758.8271202
+		},
+		{
+		"timestamp":"12/24/2014 12:30",
+		"value":211.0855059
+		},
+		{
+		"timestamp":"12/24/2014 12:45",
+		"value":135.8523142
+		},
+		{
+		"timestamp":"12/24/2014 13:00",
+		"value":529.6942956
+		},
+		{
+		"timestamp":"12/24/2014 13:15",
+		"value":781.4284031
+		},
+		{
+		"timestamp":"12/24/2014 13:30",
+		"value":441.6675013
+		},
+		{
+		"timestamp":"12/24/2014 13:45",
+		"value":70.5742779
+		},
+		{
+		"timestamp":"12/24/2014 14:00",
+		"value":60.59261202
+		},
+		{
+		"timestamp":"12/24/2014 14:15",
+		"value":932.4018774
+		},
+		{
+		"timestamp":"12/24/2014 14:30",
+		"value":139.5084495
+		},
+		{
+		"timestamp":"12/24/2014 14:45",
+		"value":451.4745032
+		},
+		{
+		"timestamp":"12/24/2014 15:00",
+		"value":342.1393053
+		},
+		{
+		"timestamp":"12/24/2014 15:15",
+		"value":486.523901
+		},
+		{
+		"timestamp":"12/24/2014 15:30",
+		"value":575.0910424
+		},
+		{
+		"timestamp":"12/24/2014 15:45",
+		"value":878.3144304
+		},
+		{
+		"timestamp":"12/24/2014 16:00",
+		"value":264.0654236
+		},
+		{
+		"timestamp":"12/24/2014 16:15",
+		"value":755.6625027
+		},
+		{
+		"timestamp":"12/24/2014 16:30",
+		"value":316.0383984
+		},
+		{
+		"timestamp":"12/24/2014 16:45",
+		"value":833.5367847
+		},
+		{
+		"timestamp":"12/24/2014 17:00",
+		"value":765.4499219
+		},
+		{
+		"timestamp":"12/24/2014 17:15",
+		"value":866.7873203
+		},
+		{
+		"timestamp":"12/24/2014 17:30",
+		"value":219.9368856
+		},
+		{
+		"timestamp":"12/24/2014 17:45",
+		"value":232.6213625
+		},
+		{
+		"timestamp":"12/24/2014 18:00",
+		"value":563.7361479
+		},
+		{
+		"timestamp":"12/24/2014 18:15",
+		"value":727.1520356
+		},
+		{
+		"timestamp":"12/24/2014 18:30",
+		"value":859.406744
+		},
+		{
+		"timestamp":"12/24/2014 18:45",
+		"value":858.4590663
+		},
+		{
+		"timestamp":"12/24/2014 19:00",
+		"value":403.7143801
+		},
+		{
+		"timestamp":"12/24/2014 19:15",
+		"value":388.9660372
+		},
+		{
+		"timestamp":"12/24/2014 19:30",
+		"value":744.0227192
+		},
+		{
+		"timestamp":"12/24/2014 19:45",
+		"value":3.120060688
+		},
+		{
+		"timestamp":"12/24/2014 20:00",
+		"value":493.3139261
+		},
+		{
+		"timestamp":"12/24/2014 20:15",
+		"value":224.2177056
+		},
+		{
+		"timestamp":"12/24/2014 20:30",
+		"value":454.5134904
+		},
+		{
+		"timestamp":"12/24/2014 20:45",
+		"value":736.2585787
+		},
+		{
+		"timestamp":"12/24/2014 21:00",
+		"value":124.4513191
+		},
+		{
+		"timestamp":"12/24/2014 21:15",
+		"value":687.045972
+		},
+		{
+		"timestamp":"12/24/2014 21:30",
+		"value":749.5436203
+		},
+		{
+		"timestamp":"12/24/2014 21:45",
+		"value":340.0615611
+		},
+		{
+		"timestamp":"12/24/2014 22:00",
+		"value":331.0874306
+		},
+		{
+		"timestamp":"12/24/2014 22:15",
+		"value":750.1520003
+		},
+		{
+		"timestamp":"12/24/2014 22:30",
+		"value":609.3330913
+		},
+		{
+		"timestamp":"12/24/2014 22:45",
+		"value":733.9323401
+		},
+		{
+		"timestamp":"12/24/2014 23:00",
+		"value":564.5611844
+		},
+		{
+		"timestamp":"12/24/2014 23:15",
+		"value":479.6410578
+		},
+		{
+		"timestamp":"12/24/2014 23:30",
+		"value":239.3056553
+		},
+		{
+		"timestamp":"12/24/2014 23:45",
+		"value":828.819827
+		},
+		{
+		"timestamp":"12/25/2014 0:00",
+		"value":256.0883103
+		},
+		{
+		"timestamp":"12/25/2014 0:15",
+		"value":863.1895702
+		},
+		{
+		"timestamp":"12/25/2014 0:30",
+		"value":33.79772693
+		},
+		{
+		"timestamp":"12/25/2014 0:45",
+		"value":91.9167797
+		},
+		{
+		"timestamp":"12/25/2014 1:00",
+		"value":432.207687
+		},
+		{
+		"timestamp":"12/25/2014 1:15",
+		"value":103.5913772
+		},
+		{
+		"timestamp":"12/25/2014 1:30",
+		"value":58.68000178
+		},
+		{
+		"timestamp":"12/25/2014 1:45",
+		"value":694.5703
+		},
+		{
+		"timestamp":"12/25/2014 2:00",
+		"value":940.2689122
+		},
+		{
+		"timestamp":"12/25/2014 2:15",
+		"value":673.4206035
+		},
+		{
+		"timestamp":"12/25/2014 2:30",
+		"value":394.6924656
+		},
+		{
+		"timestamp":"12/25/2014 2:45",
+		"value":890.4346671
+		},
+		{
+		"timestamp":"12/25/2014 3:00",
+		"value":125.8981609
+		},
+		{
+		"timestamp":"12/25/2014 3:15",
+		"value":753.2267304
+		},
+		{
+		"timestamp":"12/25/2014 3:30",
+		"value":954.7101117
+		},
+		{
+		"timestamp":"12/25/2014 3:45",
+		"value":120.2185885
+		},
+		{
+		"timestamp":"12/25/2014 4:00",
+		"value":974.4725007
+		},
+		{
+		"timestamp":"12/25/2014 4:15",
+		"value":926.1040677
+		},
+		{
+		"timestamp":"12/25/2014 4:30",
+		"value":806.1357727
+		},
+		{
+		"timestamp":"12/25/2014 4:45",
+		"value":227.6128402
+		},
+		{
+		"timestamp":"12/25/2014 5:00",
+		"value":969.3323316
+		},
+		{
+		"timestamp":"12/25/2014 5:15",
+		"value":585.5681167
+		},
+		{
+		"timestamp":"12/25/2014 5:30",
+		"value":39.12474248
+		},
+		{
+		"timestamp":"12/25/2014 5:45",
+		"value":865.7713624
+		},
+		{
+		"timestamp":"12/25/2014 6:00",
+		"value":869.9592974
+		},
+		{
+		"timestamp":"12/25/2014 6:15",
+		"value":362.8342903
+		},
+		{
+		"timestamp":"12/25/2014 6:30",
+		"value":486.1418962
+		},
+		{
+		"timestamp":"12/25/2014 6:45",
+		"value":679.5726153
+		},
+		{
+		"timestamp":"12/25/2014 7:00",
+		"value":775.6389391
+		},
+		{
+		"timestamp":"12/25/2014 7:15",
+		"value":914.4268018
+		},
+		{
+		"timestamp":"12/25/2014 7:30",
+		"value":932.3185424
+		},
+		{
+		"timestamp":"12/25/2014 7:45",
+		"value":284.6101099
+		},
+		{
+		"timestamp":"12/25/2014 8:00",
+		"value":618.8054228
+		},
+		{
+		"timestamp":"12/25/2014 8:15",
+		"value":135.3231622
+		},
+		{
+		"timestamp":"12/25/2014 8:30",
+		"value":271.5158603
+		},
+		{
+		"timestamp":"12/25/2014 8:45",
+		"value":148.3373299
+		},
+		{
+		"timestamp":"12/25/2014 9:00",
+		"value":34.80878022
+		},
+		{
+		"timestamp":"12/25/2014 9:15",
+		"value":281.8606367
+		},
+		{
+		"timestamp":"12/25/2014 9:30",
+		"value":718.8662434
+		},
+		{
+		"timestamp":"12/25/2014 9:45",
+		"value":634.579668
+		},
+		{
+		"timestamp":"12/25/2014 10:00",
+		"value":454.9256018
+		},
+		{
+		"timestamp":"12/25/2014 10:15",
+		"value":641.1613037
+		},
+		{
+		"timestamp":"12/25/2014 10:30",
+		"value":561.6657544
+		},
+		{
+		"timestamp":"12/25/2014 10:45",
+		"value":936.8719927
+		},
+		{
+		"timestamp":"12/25/2014 11:00",
+		"value":145.4255722
+		},
+		{
+		"timestamp":"12/25/2014 11:15",
+		"value":603.2294145
+		},
+		{
+		"timestamp":"12/25/2014 11:30",
+		"value":432.1695794
+		},
+		{
+		"timestamp":"12/25/2014 11:45",
+		"value":490.1824882
+		},
+		{
+		"timestamp":"12/25/2014 12:00",
+		"value":76.14164769
+		},
+		{
+		"timestamp":"12/25/2014 12:15",
+		"value":789.2681289
+		},
+		{
+		"timestamp":"12/25/2014 12:30",
+		"value":820.0619016
+		},
+		{
+		"timestamp":"12/25/2014 12:45",
+		"value":249.6895845
+		},
+		{
+		"timestamp":"12/25/2014 13:00",
+		"value":597.8819927
+		},
+		{
+		"timestamp":"12/25/2014 13:15",
+		"value":845.7612227
+		},
+		{
+		"timestamp":"12/25/2014 13:30",
+		"value":310.7587042
+		},
+		{
+		"timestamp":"12/25/2014 13:45",
+		"value":613.8850444
+		},
+		{
+		"timestamp":"12/25/2014 14:00",
+		"value":721.677513
+		},
+		{
+		"timestamp":"12/25/2014 14:15",
+		"value":85.0854009
+		},
+		{
+		"timestamp":"12/25/2014 14:30",
+		"value":596.7751032
+		},
+		{
+		"timestamp":"12/25/2014 14:45",
+		"value":310.3447122
+		},
+		{
+		"timestamp":"12/25/2014 15:00",
+		"value":669.4606136
+		},
+		{
+		"timestamp":"12/25/2014 15:15",
+		"value":679.2553872
+		},
+		{
+		"timestamp":"12/25/2014 15:30",
+		"value":0.198173375
+		},
+		{
+		"timestamp":"12/25/2014 15:45",
+		"value":890.3388938
+		},
+		{
+		"timestamp":"12/25/2014 16:00",
+		"value":5.504757924
+		},
+		{
+		"timestamp":"12/25/2014 16:15",
+		"value":525.1651458
+		},
+		{
+		"timestamp":"12/25/2014 16:30",
+		"value":486.301948
+		},
+		{
+		"timestamp":"12/25/2014 16:45",
+		"value":207.9404897
+		},
+		{
+		"timestamp":"12/25/2014 17:00",
+		"value":863.9634042
+		},
+		{
+		"timestamp":"12/25/2014 17:15",
+		"value":962.2606466
+		},
+		{
+		"timestamp":"12/25/2014 17:30",
+		"value":139.9785608
+		},
+		{
+		"timestamp":"12/25/2014 17:45",
+		"value":439.9289813
+		},
+		{
+		"timestamp":"12/25/2014 18:00",
+		"value":128.5728232
+		},
+		{
+		"timestamp":"12/25/2014 18:15",
+		"value":622.4294892
+		},
+		{
+		"timestamp":"12/25/2014 18:30",
+		"value":192.3162443
+		},
+		{
+		"timestamp":"12/25/2014 18:45",
+		"value":491.9930101
+		},
+		{
+		"timestamp":"12/25/2014 19:00",
+		"value":577.1070887
+		},
+		{
+		"timestamp":"12/25/2014 19:15",
+		"value":459.1380948
+		},
+		{
+		"timestamp":"12/25/2014 19:30",
+		"value":26.16602798
+		},
+		{
+		"timestamp":"12/25/2014 19:45",
+		"value":124.5877105
+		},
+		{
+		"timestamp":"12/25/2014 20:00",
+		"value":736.2438589
+		},
+		{
+		"timestamp":"12/25/2014 20:15",
+		"value":83.40889286
+		},
+		{
+		"timestamp":"12/25/2014 20:30",
+		"value":215.0551629
+		},
+		{
+		"timestamp":"12/25/2014 20:45",
+		"value":70.03926258
+		},
+		{
+		"timestamp":"12/25/2014 21:00",
+		"value":910.2005724
+		},
+		{
+		"timestamp":"12/25/2014 21:15",
+		"value":476.1157359
+		},
+		{
+		"timestamp":"12/25/2014 21:30",
+		"value":879.0538838
+		},
+		{
+		"timestamp":"12/25/2014 21:45",
+		"value":71.22167303
+		},
+		{
+		"timestamp":"12/25/2014 22:00",
+		"value":344.841035
+		},
+		{
+		"timestamp":"12/25/2014 22:15",
+		"value":427.2606639
+		},
+		{
+		"timestamp":"12/25/2014 22:30",
+		"value":707.6409834
+		},
+		{
+		"timestamp":"12/25/2014 22:45",
+		"value":686.970331
+		},
+		{
+		"timestamp":"12/25/2014 23:00",
+		"value":757.8905979
+		},
+		{
+		"timestamp":"12/25/2014 23:15",
+		"value":699.4734567
+		},
+		{
+		"timestamp":"12/25/2014 23:30",
+		"value":473.1525743
+		},
+		{
+		"timestamp":"12/25/2014 23:45",
+		"value":841.5939531
+		},
+		{
+		"timestamp":"12/26/2014 0:00",
+		"value":611.6580138
+		},
+		{
+		"timestamp":"12/26/2014 0:15",
+		"value":697.4285536
+		},
+		{
+		"timestamp":"12/26/2014 0:30",
+		"value":898.2910952
+		},
+		{
+		"timestamp":"12/26/2014 0:45",
+		"value":274.813459
+		},
+		{
+		"timestamp":"12/26/2014 1:00",
+		"value":502.7712584
+		},
+		{
+		"timestamp":"12/26/2014 1:15",
+		"value":713.7813812
+		},
+		{
+		"timestamp":"12/26/2014 1:30",
+		"value":371.7181881
+		},
+		{
+		"timestamp":"12/26/2014 1:45",
+		"value":521.2368759
+		},
+		{
+		"timestamp":"12/26/2014 2:00",
+		"value":657.0856647
+		},
+		{
+		"timestamp":"12/26/2014 2:15",
+		"value":338.636956
+		},
+		{
+		"timestamp":"12/26/2014 2:30",
+		"value":777.8265939
+		},
+		{
+		"timestamp":"12/26/2014 2:45",
+		"value":171.6929277
+		},
+		{
+		"timestamp":"12/26/2014 3:00",
+		"value":720.3429229
+		},
+		{
+		"timestamp":"12/26/2014 3:15",
+		"value":813.3382758
+		},
+		{
+		"timestamp":"12/26/2014 3:30",
+		"value":776.5683827
+		},
+		{
+		"timestamp":"12/26/2014 3:45",
+		"value":533.4802383
+		},
+		{
+		"timestamp":"12/26/2014 4:00",
+		"value":567.6003
+		},
+		{
+		"timestamp":"12/26/2014 4:15",
+		"value":712.7590707
+		},
+		{
+		"timestamp":"12/26/2014 4:30",
+		"value":933.8899843
+		},
+		{
+		"timestamp":"12/26/2014 4:45",
+		"value":174.2901198
+		},
+		{
+		"timestamp":"12/26/2014 5:00",
+		"value":393.1605114
+		},
+		{
+		"timestamp":"12/26/2014 5:15",
+		"value":912.4310976
+		},
+		{
+		"timestamp":"12/26/2014 5:30",
+		"value":734.6981569
+		},
+		{
+		"timestamp":"12/26/2014 5:45",
+		"value":919.5785876
+		},
+		{
+		"timestamp":"12/26/2014 6:00",
+		"value":912.58704
+		},
+		{
+		"timestamp":"12/26/2014 6:15",
+		"value":107.0414989
+		},
+		{
+		"timestamp":"12/26/2014 6:30",
+		"value":227.6693239
+		},
+		{
+		"timestamp":"12/26/2014 6:45",
+		"value":354.3433997
+		},
+		{
+		"timestamp":"12/26/2014 7:00",
+		"value":814.4140326
+		},
+		{
+		"timestamp":"12/26/2014 7:15",
+		"value":364.9642786
+		},
+		{
+		"timestamp":"12/26/2014 7:30",
+		"value":354.6115681
+		},
+		{
+		"timestamp":"12/26/2014 7:45",
+		"value":571.6504825
+		},
+		{
+		"timestamp":"12/26/2014 8:00",
+		"value":367.0082058
+		},
+		{
+		"timestamp":"12/26/2014 8:15",
+		"value":169.9187689
+		},
+		{
+		"timestamp":"12/26/2014 8:30",
+		"value":960.8444613
+		},
+		{
+		"timestamp":"12/26/2014 8:45",
+		"value":745.9204128
+		},
+		{
+		"timestamp":"12/26/2014 9:00",
+		"value":450.3040401
+		},
+		{
+		"timestamp":"12/26/2014 9:15",
+		"value":31.84443369
+		},
+		{
+		"timestamp":"12/26/2014 9:30",
+		"value":443.9328152
+		},
+		{
+		"timestamp":"12/26/2014 9:45",
+		"value":439.925045
+		},
+		{
+		"timestamp":"12/26/2014 10:00",
+		"value":737.6565399
+		},
+		{
+		"timestamp":"12/26/2014 10:15",
+		"value":230.4059426
+		},
+		{
+		"timestamp":"12/26/2014 10:30",
+		"value":444.3408313
+		},
+		{
+		"timestamp":"12/26/2014 10:45",
+		"value":801.4609413
+		},
+		{
+		"timestamp":"12/26/2014 11:00",
+		"value":968.128893
+		},
+		{
+		"timestamp":"12/26/2014 11:15",
+		"value":5.211239
+		},
+		{
+		"timestamp":"12/26/2014 11:30",
+		"value":699.7364001
+		},
+		{
+		"timestamp":"12/26/2014 11:45",
+		"value":589.7556168
+		},
+		{
+		"timestamp":"12/26/2014 12:00",
+		"value":771.3716485
+		},
+		{
+		"timestamp":"12/26/2014 12:15",
+		"value":757.0242567
+		},
+		{
+		"timestamp":"12/26/2014 12:30",
+		"value":841.6530972
+		},
+		{
+		"timestamp":"12/26/2014 12:45",
+		"value":793.2580497
+		},
+		{
+		"timestamp":"12/26/2014 13:00",
+		"value":668.9017224
+		},
+		{
+		"timestamp":"12/26/2014 13:15",
+		"value":192.3762526
+		},
+		{
+		"timestamp":"12/26/2014 13:30",
+		"value":979.3055562
+		},
+		{
+		"timestamp":"12/26/2014 13:45",
+		"value":453.3575172
+		},
+		{
+		"timestamp":"12/26/2014 14:00",
+		"value":697.4211929
+		},
+		{
+		"timestamp":"12/26/2014 14:15",
+		"value":929.9986868
+		},
+		{
+		"timestamp":"12/26/2014 14:30",
+		"value":266.1219711
+		},
+		{
+		"timestamp":"12/26/2014 14:45",
+		"value":463.3847568
+		},
+		{
+		"timestamp":"12/26/2014 15:00",
+		"value":785.3554678
+		},
+		{
+		"timestamp":"12/26/2014 15:15",
+		"value":834.5268819
+		},
+		{
+		"timestamp":"12/26/2014 15:30",
+		"value":53.13009624
+		},
+		{
+		"timestamp":"12/26/2014 15:45",
+		"value":551.7268541
+		},
+		{
+		"timestamp":"12/26/2014 16:00",
+		"value":497.6794192
+		},
+		{
+		"timestamp":"12/26/2014 16:15",
+		"value":926.7972926
+		},
+		{
+		"timestamp":"12/26/2014 16:30",
+		"value":179.1451604
+		},
+		{
+		"timestamp":"12/26/2014 16:45",
+		"value":679.4557161
+		},
+		{
+		"timestamp":"12/26/2014 17:00",
+		"value":215.5400899
+		},
+		{
+		"timestamp":"12/26/2014 17:15",
+		"value":354.6634496
+		},
+		{
+		"timestamp":"12/26/2014 17:30",
+		"value":188.4271911
+		},
+		{
+		"timestamp":"12/26/2014 17:45",
+		"value":500.5801827
+		},
+		{
+		"timestamp":"12/26/2014 18:00",
+		"value":802.3870704
+		},
+		{
+		"timestamp":"12/26/2014 18:15",
+		"value":819.5302318
+		},
+		{
+		"timestamp":"12/26/2014 18:30",
+		"value":205.9640091
+		},
+		{
+		"timestamp":"12/26/2014 18:45",
+		"value":489.939192
+		},
+		{
+		"timestamp":"12/26/2014 19:00",
+		"value":346.064229
+		},
+		{
+		"timestamp":"12/26/2014 19:15",
+		"value":374.7718573
+		},
+		{
+		"timestamp":"12/26/2014 19:30",
+		"value":817.0137496
+		},
+		{
+		"timestamp":"12/26/2014 19:45",
+		"value":666.5983164
+		},
+		{
+		"timestamp":"12/26/2014 20:00",
+		"value":940.2584758
+		},
+		{
+		"timestamp":"12/26/2014 20:15",
+		"value":737.0305882
+		},
+		{
+		"timestamp":"12/26/2014 20:30",
+		"value":832.7140322
+		},
+		{
+		"timestamp":"12/26/2014 20:45",
+		"value":401.3205115
+		},
+		{
+		"timestamp":"12/26/2014 21:00",
+		"value":436.0737133
+		},
+		{
+		"timestamp":"12/26/2014 21:15",
+		"value":952.6991827
+		},
+		{
+		"timestamp":"12/26/2014 21:30",
+		"value":785.0581136
+		},
+		{
+		"timestamp":"12/26/2014 21:45",
+		"value":19.01921188
+		},
+		{
+		"timestamp":"12/26/2014 22:00",
+		"value":448.0934287
+		},
+		{
+		"timestamp":"12/26/2014 22:15",
+		"value":403.1502517
+		},
+		{
+		"timestamp":"12/26/2014 22:30",
+		"value":140.6031882
+		},
+		{
+		"timestamp":"12/26/2014 22:45",
+		"value":308.80651
+		},
+		{
+		"timestamp":"12/26/2014 23:00",
+		"value":581.1596066
+		},
+		{
+		"timestamp":"12/26/2014 23:15",
+		"value":268.3422006
+		},
+		{
+		"timestamp":"12/26/2014 23:30",
+		"value":348.5442964
+		},
+		{
+		"timestamp":"12/26/2014 23:45",
+		"value":623.0474799
+		},
+		{
+		"timestamp":"12/27/2014 0:00",
+		"value":985.7064726
+		},
+		{
+		"timestamp":"12/27/2014 0:15",
+		"value":362.7160021
+		},
+		{
+		"timestamp":"12/27/2014 0:30",
+		"value":394.0125909
+		},
+		{
+		"timestamp":"12/27/2014 0:45",
+		"value":977.5296251
+		},
+		{
+		"timestamp":"12/27/2014 1:00",
+		"value":804.4837109
+		},
+		{
+		"timestamp":"12/27/2014 1:15",
+		"value":788.0160643
+		},
+		{
+		"timestamp":"12/27/2014 1:30",
+		"value":92.51931412
+		},
+		{
+		"timestamp":"12/27/2014 1:45",
+		"value":633.9953842
+		},
+		{
+		"timestamp":"12/27/2014 2:00",
+		"value":1.74299761
+		},
+		{
+		"timestamp":"12/27/2014 2:15",
+		"value":261.8924331
+		},
+		{
+		"timestamp":"12/27/2014 2:30",
+		"value":609.2952254
+		},
+		{
+		"timestamp":"12/27/2014 2:45",
+		"value":940.01556
+		},
+		{
+		"timestamp":"12/27/2014 3:00",
+		"value":931.1470949
+		},
+		{
+		"timestamp":"12/27/2014 3:15",
+		"value":601.6343743
+		},
+		{
+		"timestamp":"12/27/2014 3:30",
+		"value":391.7486968
+		},
+		{
+		"timestamp":"12/27/2014 3:45",
+		"value":264.6981702
+		},
+		{
+		"timestamp":"12/27/2014 4:00",
+		"value":135.0764631
+		},
+		{
+		"timestamp":"12/27/2014 4:15",
+		"value":608.9059957
+		},
+		{
+		"timestamp":"12/27/2014 4:30",
+		"value":343.1357688
+		},
+		{
+		"timestamp":"12/27/2014 4:45",
+		"value":931.9286613
+		},
+		{
+		"timestamp":"12/27/2014 5:00",
+		"value":170.8671579
+		},
+		{
+		"timestamp":"12/27/2014 5:15",
+		"value":421.6259432
+		},
+		{
+		"timestamp":"12/27/2014 5:30",
+		"value":564.1410991
+		},
+		{
+		"timestamp":"12/27/2014 5:45",
+		"value":777.4050517
+		},
+		{
+		"timestamp":"12/27/2014 6:00",
+		"value":289.8172436
+		},
+		{
+		"timestamp":"12/27/2014 6:15",
+		"value":258.8570015
+		},
+		{
+		"timestamp":"12/27/2014 6:30",
+		"value":601.9749653
+		},
+		{
+		"timestamp":"12/27/2014 6:45",
+		"value":926.8355476
+		},
+		{
+		"timestamp":"12/27/2014 7:00",
+		"value":288.9072059
+		},
+		{
+		"timestamp":"12/27/2014 7:15",
+		"value":27.67335689
+		},
+		{
+		"timestamp":"12/27/2014 7:30",
+		"value":859.3514919
+		},
+		{
+		"timestamp":"12/27/2014 7:45",
+		"value":700.5405277
+		},
+		{
+		"timestamp":"12/27/2014 8:00",
+		"value":510.6507603
+		},
+		{
+		"timestamp":"12/27/2014 8:15",
+		"value":721.995741
+		},
+		{
+		"timestamp":"12/27/2014 8:30",
+		"value":276.9891551
+		},
+		{
+		"timestamp":"12/27/2014 8:45",
+		"value":321.8453715
+		},
+		{
+		"timestamp":"12/27/2014 9:00",
+		"value":351.6481412
+		},
+		{
+		"timestamp":"12/27/2014 9:15",
+		"value":806.6528784
+		},
+		{
+		"timestamp":"12/27/2014 9:30",
+		"value":701.3247016
+		},
+		{
+		"timestamp":"12/27/2014 9:45",
+		"value":625.1908268
+		},
+		{
+		"timestamp":"12/27/2014 10:00",
+		"value":58.8498882
+		},
+		{
+		"timestamp":"12/27/2014 10:15",
+		"value":214.0670179
+		},
+		{
+		"timestamp":"12/27/2014 10:30",
+		"value":734.4963454
+		},
+		{
+		"timestamp":"12/27/2014 10:45",
+		"value":851.9156311
+		},
+		{
+		"timestamp":"12/27/2014 11:00",
+		"value":322.0667326
+		},
+		{
+		"timestamp":"12/27/2014 11:15",
+		"value":817.8789784
+		},
+		{
+		"timestamp":"12/27/2014 11:30",
+		"value":98.1038253
+		},
+		{
+		"timestamp":"12/27/2014 11:45",
+		"value":517.5472855
+		},
+		{
+		"timestamp":"12/27/2014 12:00",
+		"value":227.144518
+		},
+		{
+		"timestamp":"12/27/2014 12:15",
+		"value":865.3047646
+		},
+		{
+		"timestamp":"12/27/2014 12:30",
+		"value":391.5543218
+		},
+		{
+		"timestamp":"12/27/2014 12:45",
+		"value":487.8778866
+		},
+		{
+		"timestamp":"12/27/2014 13:00",
+		"value":616.045287
+		},
+		{
+		"timestamp":"12/27/2014 13:15",
+		"value":766.7342876
+		},
+		{
+		"timestamp":"12/27/2014 13:30",
+		"value":903.3663015
+		},
+		{
+		"timestamp":"12/27/2014 13:45",
+		"value":827.152559
+		},
+		{
+		"timestamp":"12/27/2014 14:00",
+		"value":570.5851539
+		},
+		{
+		"timestamp":"12/27/2014 14:15",
+		"value":22.30187138
+		},
+		{
+		"timestamp":"12/27/2014 14:30",
+		"value":901.0833413
+		},
+		{
+		"timestamp":"12/27/2014 14:45",
+		"value":110.0832644
+		},
+		{
+		"timestamp":"12/27/2014 15:00",
+		"value":503.538845
+		},
+		{
+		"timestamp":"12/27/2014 15:15",
+		"value":172.8414767
+		},
+		{
+		"timestamp":"12/27/2014 15:30",
+		"value":365.8093431
+		},
+		{
+		"timestamp":"12/27/2014 15:45",
+		"value":162.3887219
+		},
+		{
+		"timestamp":"12/27/2014 16:00",
+		"value":792.0665433
+		},
+		{
+		"timestamp":"12/27/2014 16:15",
+		"value":337.5370638
+		},
+		{
+		"timestamp":"12/27/2014 16:30",
+		"value":903.8760163
+		},
+		{
+		"timestamp":"12/27/2014 16:45",
+		"value":44.67615309
+		},
+		{
+		"timestamp":"12/27/2014 17:00",
+		"value":67.83429891
+		},
+		{
+		"timestamp":"12/27/2014 17:15",
+		"value":944.2813137
+		},
+		{
+		"timestamp":"12/27/2014 17:30",
+		"value":895.8755571
+		},
+		{
+		"timestamp":"12/27/2014 17:45",
+		"value":353.2867842
+		},
+		{
+		"timestamp":"12/27/2014 18:00",
+		"value":153.7034001
+		},
+		{
+		"timestamp":"12/27/2014 18:15",
+		"value":695.4693572
+		},
+		{
+		"timestamp":"12/27/2014 18:30",
+		"value":757.8444575
+		},
+		{
+		"timestamp":"12/27/2014 18:45",
+		"value":963.450528
+		},
+		{
+		"timestamp":"12/27/2014 19:00",
+		"value":429.4263388
+		},
+		{
+		"timestamp":"12/27/2014 19:15",
+		"value":523.4387714
+		},
+		{
+		"timestamp":"12/27/2014 19:30",
+		"value":663.4815421
+		},
+		{
+		"timestamp":"12/27/2014 19:45",
+		"value":725.1585381
+		},
+		{
+		"timestamp":"12/27/2014 20:00",
+		"value":352.1975995
+		},
+		{
+		"timestamp":"12/27/2014 20:15",
+		"value":284.8034069
+		},
+		{
+		"timestamp":"12/27/2014 20:30",
+		"value":321.3146114
+		},
+		{
+		"timestamp":"12/27/2014 20:45",
+		"value":71.78341543
+		},
+		{
+		"timestamp":"12/27/2014 21:00",
+		"value":75.97277074
+		},
+		{
+		"timestamp":"12/27/2014 21:15",
+		"value":898.7716854
+		},
+		{
+		"timestamp":"12/27/2014 21:30",
+		"value":201.6890458
+		},
+		{
+		"timestamp":"12/27/2014 21:45",
+		"value":650.4552881
+		},
+		{
+		"timestamp":"12/27/2014 22:00",
+		"value":916.2644515
+		},
+		{
+		"timestamp":"12/27/2014 22:15",
+		"value":414.6436378
+		},
+		{
+		"timestamp":"12/27/2014 22:30",
+		"value":744.6516246
+		},
+		{
+		"timestamp":"12/27/2014 22:45",
+		"value":920.175601
+		},
+		{
+		"timestamp":"12/27/2014 23:00",
+		"value":209.7192158
+		},
+		{
+		"timestamp":"12/27/2014 23:15",
+		"value":556.3686818
+		},
+		{
+		"timestamp":"12/27/2014 23:30",
+		"value":119.882333
+		},
+		{
+		"timestamp":"12/27/2014 23:45",
+		"value":80.64663613
+		},
+		{
+		"timestamp":"12/28/2014 0:00",
+		"value":946.4482345
+		},
+		{
+		"timestamp":"12/28/2014 0:15",
+		"value":976.5434284
+		},
+		{
+		"timestamp":"12/28/2014 0:30",
+		"value":758.5726317
+		},
+		{
+		"timestamp":"12/28/2014 0:45",
+		"value":427.0540708
+		},
+		{
+		"timestamp":"12/28/2014 1:00",
+		"value":31.9568743
+		},
+		{
+		"timestamp":"12/28/2014 1:15",
+		"value":78.09773675
+		},
+		{
+		"timestamp":"12/28/2014 1:30",
+		"value":194.9886832
+		},
+		{
+		"timestamp":"12/28/2014 1:45",
+		"value":445.8680909
+		},
+		{
+		"timestamp":"12/28/2014 2:00",
+		"value":644.0157809
+		},
+		{
+		"timestamp":"12/28/2014 2:15",
+		"value":397.2480254
+		},
+		{
+		"timestamp":"12/28/2014 2:30",
+		"value":871.2656336
+		},
+		{
+		"timestamp":"12/28/2014 2:45",
+		"value":869.2073504
+		},
+		{
+		"timestamp":"12/28/2014 3:00",
+		"value":854.1293676
+		},
+		{
+		"timestamp":"12/28/2014 3:15",
+		"value":989.1263303
+		},
+		{
+		"timestamp":"12/28/2014 3:30",
+		"value":904.6184001
+		},
+		{
+		"timestamp":"12/28/2014 3:45",
+		"value":58.24948283
+		},
+		{
+		"timestamp":"12/28/2014 4:00",
+		"value":151.2886882
+		},
+		{
+		"timestamp":"12/28/2014 4:15",
+		"value":809.1787485
+		},
+		{
+		"timestamp":"12/28/2014 4:30",
+		"value":367.7391611
+		},
+		{
+		"timestamp":"12/28/2014 4:45",
+		"value":381.5063429
+		},
+		{
+		"timestamp":"12/28/2014 5:00",
+		"value":662.2328737
+		},
+		{
+		"timestamp":"12/28/2014 5:15",
+		"value":725.0401679
+		},
+		{
+		"timestamp":"12/28/2014 5:30",
+		"value":895.6115051
+		},
+		{
+		"timestamp":"12/28/2014 5:45",
+		"value":661.0419456
+		},
+		{
+		"timestamp":"12/28/2014 6:00",
+		"value":41.25409887
+		},
+		{
+		"timestamp":"12/28/2014 6:15",
+		"value":669.3005342
+		},
+		{
+		"timestamp":"12/28/2014 6:30",
+		"value":261.1516804
+		},
+		{
+		"timestamp":"12/28/2014 6:45",
+		"value":128.8918588
+		},
+		{
+		"timestamp":"12/28/2014 7:00",
+		"value":692.1668533
+		},
+		{
+		"timestamp":"12/28/2014 7:15",
+		"value":717.8598624
+		},
+		{
+		"timestamp":"12/28/2014 7:30",
+		"value":335.7142286
+		},
+		{
+		"timestamp":"12/28/2014 7:45",
+		"value":473.4271149
+		},
+		{
+		"timestamp":"12/28/2014 8:00",
+		"value":206.4853282
+		},
+		{
+		"timestamp":"12/28/2014 8:15",
+		"value":40.80279044
+		},
+		{
+		"timestamp":"12/28/2014 8:30",
+		"value":274.2701864
+		},
+		{
+		"timestamp":"12/28/2014 8:45",
+		"value":131.4210152
+		},
+		{
+		"timestamp":"12/28/2014 9:00",
+		"value":197.9600975
+		},
+		{
+		"timestamp":"12/28/2014 9:15",
+		"value":490.5674375
+		},
+		{
+		"timestamp":"12/28/2014 9:30",
+		"value":743.3012551
+		},
+		{
+		"timestamp":"12/28/2014 9:45",
+		"value":38.20157636
+		},
+		{
+		"timestamp":"12/28/2014 10:00",
+		"value":629.8801134
+		},
+		{
+		"timestamp":"12/28/2014 10:15",
+		"value":528.1645055
+		},
+		{
+		"timestamp":"12/28/2014 10:30",
+		"value":491.249118
+		},
+		{
+		"timestamp":"12/28/2014 10:45",
+		"value":486.8302804
+		},
+		{
+		"timestamp":"12/28/2014 11:00",
+		"value":583.6319775
+		},
+		{
+		"timestamp":"12/28/2014 11:15",
+		"value":763.2027208
+		},
+		{
+		"timestamp":"12/28/2014 11:30",
+		"value":407.7464543
+		},
+		{
+		"timestamp":"12/28/2014 11:45",
+		"value":947.7854532
+		},
+		{
+		"timestamp":"12/28/2014 12:00",
+		"value":72.58916655
+		},
+		{
+		"timestamp":"12/28/2014 12:15",
+		"value":533.6334232
+		},
+		{
+		"timestamp":"12/28/2014 12:30",
+		"value":821.1414438
+		},
+		{
+		"timestamp":"12/28/2014 12:45",
+		"value":859.7829665
+		},
+		{
+		"timestamp":"12/28/2014 13:00",
+		"value":505.6725223
+		},
+		{
+		"timestamp":"12/28/2014 13:15",
+		"value":348.163312
+		},
+		{
+		"timestamp":"12/28/2014 13:30",
+		"value":617.1058936
+		},
+		{
+		"timestamp":"12/28/2014 13:45",
+		"value":185.0264212
+		},
+		{
+		"timestamp":"12/28/2014 14:00",
+		"value":561.3358921
+		},
+		{
+		"timestamp":"12/28/2014 14:15",
+		"value":8.58171752
+		},
+		{
+		"timestamp":"12/28/2014 14:30",
+		"value":28.43501467
+		},
+		{
+		"timestamp":"12/28/2014 14:45",
+		"value":926.3634593
+		},
+		{
+		"timestamp":"12/28/2014 15:00",
+		"value":726.2905322
+		},
+		{
+		"timestamp":"12/28/2014 15:15",
+		"value":261.5239343
+		},
+		{
+		"timestamp":"12/28/2014 15:30",
+		"value":663.8106494
+		},
+		{
+		"timestamp":"12/28/2014 15:45",
+		"value":110.7706211
+		},
+		{
+		"timestamp":"12/28/2014 16:00",
+		"value":657.0906805
+		},
+		{
+		"timestamp":"12/28/2014 16:15",
+		"value":76.07468447
+		},
+		{
+		"timestamp":"12/28/2014 16:30",
+		"value":982.9846341
+		},
+		{
+		"timestamp":"12/28/2014 16:45",
+		"value":596.8885331
+		},
+		{
+		"timestamp":"12/28/2014 17:00",
+		"value":466.1364404
+		},
+		{
+		"timestamp":"12/28/2014 17:15",
+		"value":953.0316595
+		},
+		{
+		"timestamp":"12/28/2014 17:30",
+		"value":443.5055481
+		},
+		{
+		"timestamp":"12/28/2014 17:45",
+		"value":156.3343753
+		},
+		{
+		"timestamp":"12/28/2014 18:00",
+		"value":94.44908845
+		},
+		{
+		"timestamp":"12/28/2014 18:15",
+		"value":979.0326246
+		},
+		{
+		"timestamp":"12/28/2014 18:30",
+		"value":384.5785111
+		},
+		{
+		"timestamp":"12/28/2014 18:45",
+		"value":261.8566582
+		},
+		{
+		"timestamp":"12/28/2014 19:00",
+		"value":353.3380283
+		},
+		{
+		"timestamp":"12/28/2014 19:15",
+		"value":856.5925074
+		},
+		{
+		"timestamp":"12/28/2014 19:30",
+		"value":991.3772567
+		},
+		{
+		"timestamp":"12/28/2014 19:45",
+		"value":815.003834
+		},
+		{
+		"timestamp":"12/28/2014 20:00",
+		"value":54.94019879
+		},
+		{
+		"timestamp":"12/28/2014 20:15",
+		"value":138.9087001
+		},
+		{
+		"timestamp":"12/28/2014 20:30",
+		"value":945.0599785
+		},
+		{
+		"timestamp":"12/28/2014 20:45",
+		"value":234.9317073
+		},
+		{
+		"timestamp":"12/28/2014 21:00",
+		"value":914.9924169
+		},
+		{
+		"timestamp":"12/28/2014 21:15",
+		"value":236.2649567
+		},
+		{
+		"timestamp":"12/28/2014 21:30",
+		"value":341.161583
+		},
+		{
+		"timestamp":"12/28/2014 21:45",
+		"value":64.14688393
+		},
+		{
+		"timestamp":"12/28/2014 22:00",
+		"value":969.9494271
+		},
+		{
+		"timestamp":"12/28/2014 22:15",
+		"value":179.0025429
+		},
+		{
+		"timestamp":"12/28/2014 22:30",
+		"value":565.1782692
+		},
+		{
+		"timestamp":"12/28/2014 22:45",
+		"value":322.3364908
+		},
+		{
+		"timestamp":"12/28/2014 23:00",
+		"value":75.66842753
+		},
+		{
+		"timestamp":"12/28/2014 23:15",
+		"value":898.0110885
+		},
+		{
+		"timestamp":"12/28/2014 23:30",
+		"value":289.5023371
+		},
+		{
+		"timestamp":"12/28/2014 23:45",
+		"value":879.5362895
+		},
+		{
+		"timestamp":"12/29/2014 0:00",
+		"value":930.466425
+		},
+		{
+		"timestamp":"12/29/2014 0:15",
+		"value":215.512501
+		},
+		{
+		"timestamp":"12/29/2014 0:30",
+		"value":466.9010063
+		},
+		{
+		"timestamp":"12/29/2014 0:45",
+		"value":241.9916413
+		},
+		{
+		"timestamp":"12/29/2014 1:00",
+		"value":340.3188119
+		},
+		{
+		"timestamp":"12/29/2014 1:15",
+		"value":608.2645669
+		},
+		{
+		"timestamp":"12/29/2014 1:30",
+		"value":780.8822236
+		},
+		{
+		"timestamp":"12/29/2014 1:45",
+		"value":349.5463347
+		},
+		{
+		"timestamp":"12/29/2014 2:00",
+		"value":585.5252644
+		},
+		{
+		"timestamp":"12/29/2014 2:15",
+		"value":249.5480609
+		},
+		{
+		"timestamp":"12/29/2014 2:30",
+		"value":776.9301225
+		},
+		{
+		"timestamp":"12/29/2014 2:45",
+		"value":738.5370882
+		},
+		{
+		"timestamp":"12/29/2014 3:00",
+		"value":875.5873393
+		},
+		{
+		"timestamp":"12/29/2014 3:15",
+		"value":670.0969127
+		},
+		{
+		"timestamp":"12/29/2014 3:30",
+		"value":789.7038157
+		},
+		{
+		"timestamp":"12/29/2014 3:45",
+		"value":139.3275363
+		},
+		{
+		"timestamp":"12/29/2014 4:00",
+		"value":106.6601798
+		},
+		{
+		"timestamp":"12/29/2014 4:15",
+		"value":86.63137071
+		},
+		{
+		"timestamp":"12/29/2014 4:30",
+		"value":505.3459633
+		},
+		{
+		"timestamp":"12/29/2014 4:45",
+		"value":295.2829285
+		},
+		{
+		"timestamp":"12/29/2014 5:00",
+		"value":511.7248671
+		},
+		{
+		"timestamp":"12/29/2014 5:15",
+		"value":382.0193801
+		},
+		{
+		"timestamp":"12/29/2014 5:30",
+		"value":370.8174228
+		},
+		{
+		"timestamp":"12/29/2014 5:45",
+		"value":782.5944865
+		},
+		{
+		"timestamp":"12/29/2014 6:00",
+		"value":447.3100484
+		},
+		{
+		"timestamp":"12/29/2014 6:15",
+		"value":98.70616907
+		},
+		{
+		"timestamp":"12/29/2014 6:30",
+		"value":10.12282596
+		},
+		{
+		"timestamp":"12/29/2014 6:45",
+		"value":815.4212487
+		},
+		{
+		"timestamp":"12/29/2014 7:00",
+		"value":822.0168915
+		},
+		{
+		"timestamp":"12/29/2014 7:15",
+		"value":657.3828359
+		},
+		{
+		"timestamp":"12/29/2014 7:30",
+		"value":992.2408447
+		},
+		{
+		"timestamp":"12/29/2014 7:45",
+		"value":54.89721628
+		},
+		{
+		"timestamp":"12/29/2014 8:00",
+		"value":299.4615455
+		},
+		{
+		"timestamp":"12/29/2014 8:15",
+		"value":772.257502
+		},
+		{
+		"timestamp":"12/29/2014 8:30",
+		"value":793.8393841
+		},
+		{
+		"timestamp":"12/29/2014 8:45",
+		"value":212.8793049
+		},
+		{
+		"timestamp":"12/29/2014 9:00",
+		"value":642.2072154
+		},
+		{
+		"timestamp":"12/29/2014 9:15",
+		"value":412.8879673
+		},
+		{
+		"timestamp":"12/29/2014 9:30",
+		"value":548.3299875
+		},
+		{
+		"timestamp":"12/29/2014 9:45",
+		"value":483.2017066
+		},
+		{
+		"timestamp":"12/29/2014 10:00",
+		"value":854.8307733
+		},
+		{
+		"timestamp":"12/29/2014 10:15",
+		"value":499.2150862
+		},
+		{
+		"timestamp":"12/29/2014 10:30",
+		"value":222.692375
+		},
+		{
+		"timestamp":"12/29/2014 10:45",
+		"value":461.61366
+		},
+		{
+		"timestamp":"12/29/2014 11:00",
+		"value":875.837755
+		},
+		{
+		"timestamp":"12/29/2014 11:15",
+		"value":415.8419321
+		},
+		{
+		"timestamp":"12/29/2014 11:30",
+		"value":300.9779887
+		},
+		{
+		"timestamp":"12/29/2014 11:45",
+		"value":732.1803361
+		},
+		{
+		"timestamp":"12/29/2014 12:00",
+		"value":939.8807826
+		},
+		{
+		"timestamp":"12/29/2014 12:15",
+		"value":319.5366249
+		},
+		{
+		"timestamp":"12/29/2014 12:30",
+		"value":244.696761
+		},
+		{
+		"timestamp":"12/29/2014 12:45",
+		"value":532.5881076
+		},
+		{
+		"timestamp":"12/29/2014 13:00",
+		"value":513.0446029
+		},
+		{
+		"timestamp":"12/29/2014 13:15",
+		"value":755.5023357
+		},
+		{
+		"timestamp":"12/29/2014 13:30",
+		"value":288.4469307
+		},
+		{
+		"timestamp":"12/29/2014 13:45",
+		"value":56.61698072
+		},
+		{
+		"timestamp":"12/29/2014 14:00",
+		"value":381.5752226
+		},
+		{
+		"timestamp":"12/29/2014 14:15",
+		"value":541.3377337
+		},
+		{
+		"timestamp":"12/29/2014 14:30",
+		"value":272.6435436
+		},
+		{
+		"timestamp":"12/29/2014 14:45",
+		"value":544.4383108
+		},
+		{
+		"timestamp":"12/29/2014 15:00",
+		"value":132.9767587
+		},
+		{
+		"timestamp":"12/29/2014 15:15",
+		"value":889.9244422
+		},
+		{
+		"timestamp":"12/29/2014 15:30",
+		"value":958.7737123
+		},
+		{
+		"timestamp":"12/29/2014 15:45",
+		"value":611.6455265
+		},
+		{
+		"timestamp":"12/29/2014 16:00",
+		"value":83.69017723
+		},
+		{
+		"timestamp":"12/29/2014 16:15",
+		"value":348.880942
+		},
+		{
+		"timestamp":"12/29/2014 16:30",
+		"value":879.9569493
+		},
+		{
+		"timestamp":"12/29/2014 16:45",
+		"value":645.6625865
+		},
+		{
+		"timestamp":"12/29/2014 17:00",
+		"value":547.9523344
+		},
+		{
+		"timestamp":"12/29/2014 17:15",
+		"value":960.7304465
+		},
+		{
+		"timestamp":"12/29/2014 17:30",
+		"value":807.6818164
+		},
+		{
+		"timestamp":"12/29/2014 17:45",
+		"value":758.1899104
+		},
+		{
+		"timestamp":"12/29/2014 18:00",
+		"value":138.7052285
+		},
+		{
+		"timestamp":"12/29/2014 18:15",
+		"value":146.3361307
+		},
+		{
+		"timestamp":"12/29/2014 18:30",
+		"value":7.317145345
+		},
+		{
+		"timestamp":"12/29/2014 18:45",
+		"value":973.27244
+		},
+		{
+		"timestamp":"12/29/2014 19:00",
+		"value":184.5497965
+		},
+		{
+		"timestamp":"12/29/2014 19:15",
+		"value":583.4489213
+		},
+		{
+		"timestamp":"12/29/2014 19:30",
+		"value":762.1666672
+		},
+		{
+		"timestamp":"12/29/2014 19:45",
+		"value":115.1974655
+		},
+		{
+		"timestamp":"12/29/2014 20:00",
+		"value":204.8980135
+		},
+		{
+		"timestamp":"12/29/2014 20:15",
+		"value":10.15084834
+		},
+		{
+		"timestamp":"12/29/2014 20:30",
+		"value":166.8296553
+		},
+		{
+		"timestamp":"12/29/2014 20:45",
+		"value":623.9432863
+		},
+		{
+		"timestamp":"12/29/2014 21:00",
+		"value":586.4494274
+		},
+		{
+		"timestamp":"12/29/2014 21:15",
+		"value":54.33094084
+		},
+		{
+		"timestamp":"12/29/2014 21:30",
+		"value":681.13185
+		},
+		{
+		"timestamp":"12/29/2014 21:45",
+		"value":268.5745992
+		},
+		{
+		"timestamp":"12/29/2014 22:00",
+		"value":768.3893701
+		},
+		{
+		"timestamp":"12/29/2014 22:15",
+		"value":274.739576
+		},
+		{
+		"timestamp":"12/29/2014 22:30",
+		"value":69.80335768
+		},
+		{
+		"timestamp":"12/29/2014 22:45",
+		"value":170.5019674
+		},
+		{
+		"timestamp":"12/29/2014 23:00",
+		"value":393.4319379
+		},
+		{
+		"timestamp":"12/29/2014 23:15",
+		"value":33.61855548
+		},
+		{
+		"timestamp":"12/29/2014 23:30",
+		"value":579.0006451
+		},
+		{
+		"timestamp":"12/29/2014 23:45",
+		"value":478.9449409
+		},
+		{
+		"timestamp":"12/30/2014 0:00",
+		"value":329.4940551
+		},
+		{
+		"timestamp":"12/30/2014 0:15",
+		"value":712.4489951
+		},
+		{
+		"timestamp":"12/30/2014 0:30",
+		"value":697.6632525
+		},
+		{
+		"timestamp":"12/30/2014 0:45",
+		"value":403.3093606
+		},
+		{
+		"timestamp":"12/30/2014 1:00",
+		"value":966.2942019
+		},
+		{
+		"timestamp":"12/30/2014 1:15",
+		"value":412.1339195
+		},
+		{
+		"timestamp":"12/30/2014 1:30",
+		"value":334.5304392
+		},
+		{
+		"timestamp":"12/30/2014 1:45",
+		"value":470.6237192
+		},
+		{
+		"timestamp":"12/30/2014 2:00",
+		"value":782.0912475
+		},
+		{
+		"timestamp":"12/30/2014 2:15",
+		"value":545.9745492
+		},
+		{
+		"timestamp":"12/30/2014 2:30",
+		"value":161.2448379
+		},
+		{
+		"timestamp":"12/30/2014 2:45",
+		"value":336.2887413
+		},
+		{
+		"timestamp":"12/30/2014 3:00",
+		"value":584.5019242
+		},
+		{
+		"timestamp":"12/30/2014 3:15",
+		"value":581.1357894
+		},
+		{
+		"timestamp":"12/30/2014 3:30",
+		"value":652.2689496
+		},
+		{
+		"timestamp":"12/30/2014 3:45",
+		"value":512.5962306
+		},
+		{
+		"timestamp":"12/30/2014 4:00",
+		"value":203.9166771
+		},
+		{
+		"timestamp":"12/30/2014 4:15",
+		"value":556.4719452
+		},
+		{
+		"timestamp":"12/30/2014 4:30",
+		"value":657.2888012
+		},
+		{
+		"timestamp":"12/30/2014 4:45",
+		"value":214.6909209
+		},
+		{
+		"timestamp":"12/30/2014 5:00",
+		"value":326.0779282
+		},
+		{
+		"timestamp":"12/30/2014 5:15",
+		"value":996.7372066
+		},
+		{
+		"timestamp":"12/30/2014 5:30",
+		"value":822.6252424
+		},
+		{
+		"timestamp":"12/30/2014 5:45",
+		"value":913.1069449
+		},
+		{
+		"timestamp":"12/30/2014 6:00",
+		"value":889.5029317
+		},
+		{
+		"timestamp":"12/30/2014 6:15",
+		"value":345.7164649
+		},
+		{
+		"timestamp":"12/30/2014 6:30",
+		"value":170.4016699
+		},
+		{
+		"timestamp":"12/30/2014 6:45",
+		"value":389.8525759
+		},
+		{
+		"timestamp":"12/30/2014 7:00",
+		"value":109.994103
+		},
+		{
+		"timestamp":"12/30/2014 7:15",
+		"value":333.9955123
+		},
+		{
+		"timestamp":"12/30/2014 7:30",
+		"value":244.1495222
+		},
+		{
+		"timestamp":"12/30/2014 7:45",
+		"value":7.404508796
+		},
+		{
+		"timestamp":"12/30/2014 8:00",
+		"value":295.1979792
+		},
+		{
+		"timestamp":"12/30/2014 8:15",
+		"value":66.84554667
+		},
+		{
+		"timestamp":"12/30/2014 8:30",
+		"value":953.5384627
+		},
+		{
+		"timestamp":"12/30/2014 8:45",
+		"value":415.217293
+		},
+		{
+		"timestamp":"12/30/2014 9:00",
+		"value":702.8805633
+		},
+		{
+		"timestamp":"12/30/2014 9:15",
+		"value":500.6270446
+		},
+		{
+		"timestamp":"12/30/2014 9:30",
+		"value":77.45416594
+		},
+		{
+		"timestamp":"12/30/2014 9:45",
+		"value":864.504406
+		},
+		{
+		"timestamp":"12/30/2014 10:00",
+		"value":403.50771
+		},
+		{
+		"timestamp":"12/30/2014 10:15",
+		"value":477.462526
+		},
+		{
+		"timestamp":"12/30/2014 10:30",
+		"value":174.0219621
+		},
+		{
+		"timestamp":"12/30/2014 10:45",
+		"value":506.7357105
+		},
+		{
+		"timestamp":"12/30/2014 11:00",
+		"value":966.5512321
+		},
+		{
+		"timestamp":"12/30/2014 11:15",
+		"value":220.8049929
+		},
+		{
+		"timestamp":"12/30/2014 11:30",
+		"value":398.0769103
+		},
+		{
+		"timestamp":"12/30/2014 11:45",
+		"value":758.1048169
+		},
+		{
+		"timestamp":"12/30/2014 12:00",
+		"value":912.6843411
+		},
+		{
+		"timestamp":"12/30/2014 12:15",
+		"value":282.8812579
+		},
+		{
+		"timestamp":"12/30/2014 12:30",
+		"value":58.86934482
+		},
+		{
+		"timestamp":"12/30/2014 12:45",
+		"value":365.1897604
+		},
+		{
+		"timestamp":"12/30/2014 13:00",
+		"value":103.2548763
+		},
+		{
+		"timestamp":"12/30/2014 13:15",
+		"value":859.0340808
+		},
+		{
+		"timestamp":"12/30/2014 13:30",
+		"value":689.8108321
+		},
+		{
+		"timestamp":"12/30/2014 13:45",
+		"value":634.9327318
+		},
+		{
+		"timestamp":"12/30/2014 14:00",
+		"value":564.8620243
+		},
+		{
+		"timestamp":"12/30/2014 14:15",
+		"value":479.175158
+		},
+		{
+		"timestamp":"12/30/2014 14:30",
+		"value":900.452108
+		},
+		{
+		"timestamp":"12/30/2014 14:45",
+		"value":189.9587172
+		},
+		{
+		"timestamp":"12/30/2014 15:00",
+		"value":686.1310829
+		},
+		{
+		"timestamp":"12/30/2014 15:15",
+		"value":184.1609796
+		},
+		{
+		"timestamp":"12/30/2014 15:30",
+		"value":791.6012684
+		},
+		{
+		"timestamp":"12/30/2014 15:45",
+		"value":736.1251946
+		},
+		{
+		"timestamp":"12/30/2014 16:00",
+		"value":303.5828928
+		},
+		{
+		"timestamp":"12/30/2014 16:15",
+		"value":333.4977021
+		},
+		{
+		"timestamp":"12/30/2014 16:30",
+		"value":536.5465164
+		},
+		{
+		"timestamp":"12/30/2014 16:45",
+		"value":176.1969027
+		},
+		{
+		"timestamp":"12/30/2014 17:00",
+		"value":201.0509398
+		},
+		{
+		"timestamp":"12/30/2014 17:15",
+		"value":47.36638073
+		},
+		{
+		"timestamp":"12/30/2014 17:30",
+		"value":629.7316586
+		},
+		{
+		"timestamp":"12/30/2014 17:45",
+		"value":481.266011
+		},
+		{
+		"timestamp":"12/30/2014 18:00",
+		"value":413.1333317
+		},
+		{
+		"timestamp":"12/30/2014 18:15",
+		"value":707.9816498
+		},
+		{
+		"timestamp":"12/30/2014 18:30",
+		"value":476.2203018
+		},
+		{
+		"timestamp":"12/30/2014 18:45",
+		"value":794.8666326
+		},
+		{
+		"timestamp":"12/30/2014 19:00",
+		"value":799.4196654
+		},
+		{
+		"timestamp":"12/30/2014 19:15",
+		"value":571.9939667
+		},
+		{
+		"timestamp":"12/30/2014 19:30",
+		"value":883.0722556
+		},
+		{
+		"timestamp":"12/30/2014 19:45",
+		"value":227.4440341
+		},
+		{
+		"timestamp":"12/30/2014 20:00",
+		"value":740.31815
+		},
+		{
+		"timestamp":"12/30/2014 20:15",
+		"value":748.5000851
+		},
+		{
+		"timestamp":"12/30/2014 20:30",
+		"value":254.7530307
+		},
+		{
+		"timestamp":"12/30/2014 20:45",
+		"value":410.0724764
+		},
+		{
+		"timestamp":"12/30/2014 21:00",
+		"value":367.4434806
+		},
+		{
+		"timestamp":"12/30/2014 21:15",
+		"value":591.659075
+		},
+		{
+		"timestamp":"12/30/2014 21:30",
+		"value":476.4908503
+		},
+		{
+		"timestamp":"12/30/2014 21:45",
+		"value":578.8986932
+		},
+		{
+		"timestamp":"12/30/2014 22:00",
+		"value":831.378403
+		},
+		{
+		"timestamp":"12/30/2014 22:15",
+		"value":731.9815112
+		},
+		{
+		"timestamp":"12/30/2014 22:30",
+		"value":765.7190794
+		},
+		{
+		"timestamp":"12/30/2014 22:45",
+		"value":779.57187
+		},
+		{
+		"timestamp":"12/30/2014 23:00",
+		"value":252.6600486
+		},
+		{
+		"timestamp":"12/30/2014 23:15",
+		"value":736.2059861
+		},
+		{
+		"timestamp":"12/30/2014 23:30",
+		"value":195.2523827
+		},
+		{
+		"timestamp":"12/30/2014 23:45",
+		"value":960.2051506
+		},
+		{
+		"timestamp":"12/31/2014 0:00",
+		"value":221.038094
 		}
 	];
 	
