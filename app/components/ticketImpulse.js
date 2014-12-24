@@ -388,10 +388,14 @@ function($scope, $location, chartService, dataService, $timeout) {
 			$scope.drawChart();
 		});
 		$scope.$watch('userParameters.height', function(newVal, oldVal, scope) {
-			$scope.drawChart();
+			if(newVal > 100) {
+				$scope.redrawChart();
+			}
 		});
 		$scope.$watch('userParameters.width', function(newVal, oldVal, scope) {
-			$scope.drawChart();
+			if(newVal > 250) {
+				$scope.redrawChart();
+			}
 		});
 	};
 	
