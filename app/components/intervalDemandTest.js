@@ -1,14 +1,62 @@
 angular.module('myApp.intervalDemandTest', ['ngRoute'])
-.controller('intervalDemandTestCtrl', ['$scope', 'intervalDemandDataService',
-						function($scope, dataService) {
+.controller('intervalDemandModalInstanceCtrl', function ($scope, $modalInstance, userParameters) {
+
+  $scope.userParameters = userParameters;
+  $scope.selected = {
+    item: $scope.userParameters[0]
+  };
+
+  $scope.ok = function () {
+    $modalInstance.close($scope.selected.item);
+  };
+
+  $scope.cancel = function () {
+    $modalInstance.dismiss('cancel');
+  };
+  
+	$scope.isDate = function (paramName) {
+		var regex = /date/ig;
+		return regex.test(paramName);
+	};
+	$scope.isArray = function (param) {
+		return typeof param === "object";
+	};
+	$scope.isntSpecial = function (param, paramName) {		//true when isn't a color, date or array, or something else
+		return !$scope.isDate(paramName)&&!$scope.isArray(param);
+	};
+})
+.controller('intervalDemandTestCtrl', ['$scope', 'intervalDemandDataService', '$modal',
+						function($scope, dataService, $modal) {
 	$scope.custQuery= "{\"assets\":[{\"asset\":\"AHU2\",\"organization\":\"DEU\"}],\"highDate\":\"Wed Dec 10 2014 11:38:39 GMT-0500 (Eastern Standard Time)\",\"lowDate\":\"Wed Jun 25 2014 11:38:39 GMT-0500 (Eastern Standard Time)\"}";
 	$scope.custQuery = JSON.parse($scope.custQuery);
-	$scope.custParams = {
+	$scope.userParameters = {
 		"height": 300
 	};
 	$scope.logScope = function () {
 		console.log($scope);
 	};
+	
+	$scope.custParams = ['item1', 'item2', 'item3'];
+	$scope.open = function (size) {
+		var modalInstance = $modal.open({
+			templateUrl: 'views/intervalDemandModal.html',
+			controller: 'intervalDemandModalInstanceCtrl',
+			size: size,
+			resolve: {
+				userParameters: function () {
+					return $scope.userParameters;
+				}
+			}
+		});
+		modalInstance.result.then(function (selectedItem) {
+			$scope.selected = selectedItem;
+		}, function () {
+			console.log('Modal dismissed at: ' + new Date());
+		});
+	};
+	
+	
+	
 	$scope.custRawData = [
 		{
 		"timestamp":"12/15/2014 0:00",

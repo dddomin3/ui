@@ -1,0 +1,21 @@
+<div class = "col-md-12">
+	<div class="modal-header">
+		<h3 class="modal-title">I'm a modal!</h3>
+	</div>
+	<div class="modal-body">
+		<ul>
+			<li ng-repeat="(paramName, param) in userParameters | orderBy:'paramName'">
+				<strong>{{paramName}}: </strong>
+				
+				<my-calendar ng-if="isDate(paramName)" name="userParameters[paramName]"></my-calendar>
+				<input ng-if="isntSpecial(param, paramName)" ng-model="userParameters[paramName]"></input>
+				</br>
+			</li>
+		</ul>
+	</div>
+	<div class="modal-footer">
+		<button class="btn btn-primary" ng-click="ok()">OK</button>
+		<button class="btn btn-warning" ng-click="cancel()">Cancel</button>
+	</div>
+	<hr>
+</div>

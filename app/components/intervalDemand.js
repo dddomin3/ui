@@ -532,11 +532,8 @@ function($scope, $location, chartService, dataService, $timeout, userIdService) 
 		$scope.organizationSidebar = savedUserConfigs.organizationSidebar;
 	}
 	else {
-		//if( inputOrganizationSidebar == true ) {
-			$scope.organizationSidebar = $scope.inputOrganizationSidebar;
-		//}
-		//else {}
-			$scope.userParametersSidebar = $scope.inputUserParametersSidebar;
+		$scope.organizationSidebar = $scope.inputOrganizationSidebar;
+		$scope.userParametersSidebar = $scope.inputUserParametersSidebar;
 	}
 	if ( ($scope.inputUserParameters === undefined)&&($scope.userParameters === undefined) ) {
 		$scope.userParameters = dataService.getDefaultUserParameters();
